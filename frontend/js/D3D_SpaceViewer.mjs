@@ -164,13 +164,15 @@ const params = {
 
 
 
-                that.animate();
-                sceneryloadingComplete = true;
+
                 //that.resizeCanvas();
                // that.loadingScreen.hide();
                 that.addListeners();
+                console.log('addListeners')
                 that.audioListener.setMasterVolume(1);
                 this.camera.setRotationFromEuler(new THREE.Euler( 0,Math.PI,0, 'XYZ' ));
+                that.animate();
+                sceneryloadingComplete = true;                
             });
 
   
@@ -303,7 +305,7 @@ const params = {
         // camera setup
         this.camera = new THREE.PerspectiveCamera( 60, window.innerWidth / window.innerHeight, 0.1, 100 );
         this.camera.updateProjectionMatrix(); 
-        this.camera.add( this.audioListener );
+        //this.camera.add( this.audioListener );
         this.camera.rotation.set(0,0,0);
         this.camera.position.copy(this.sceneryLoader.playerStartPos);
 
@@ -315,7 +317,7 @@ const params = {
     initCamera = () =>{
         //Create a camera
         this.camera = new THREE.PerspectiveCamera(60, this.parentDivElWidth/600, 0.01, 100 );
-        this.camera.add( this.audioListener );
+      //  this.camera.add( this.audioListener );
         //this.camera.rotation.set(0,0,0);
         //Only gotcha. Set a non zero vector3 as the camera position.
 //        this.camera.rotation.setX(0);
@@ -424,7 +426,7 @@ const params = {
         this.addEventListenerResize();
         this.addEventListenerContextLost();
         this.addEventListenerExitFullScreen();
-      //  this.addEventListenerKeys();
+        this.addEventListenerKeys();
       //  this.addEventListenerMouseClick();
        // this.addEventListenersHUD()
     }    
@@ -494,11 +496,10 @@ const params = {
                         that.controlProxy.dir = 'rr';
                         that.controlProxy.rot = 'rr';
                         break;
-                    case 'KeyM': that.throwActiveItem(); break;
+                   // case 'KeyM': that.throwActiveItem(); break;
                     case 'NumpadAdd': that.setMasterVolume(1); break;
                     case 'NumpadSubtract': that.setMasterVolume(0); break;   
                     case 'Numpad0': 
-                        that.resetBall();
                     break;
                     case 'Numpad4': 
                         //that.moveMeshLeft();
@@ -2208,7 +2209,7 @@ initPlayerFirstPerson = () => {
 
     that.character.geometry.translate( 0, -1, 0 );
     that.character.capsuleInfo = {
-        radius: (this.config.capsuleRadius)?this.config.capsuleRadius:1,
+        radius: (this.config.capsuleRadius)?this.config.capsuleRadius:0.5,
         segment: new THREE.Line3( new THREE.Vector3(), new THREE.Vector3( 0, - 1.0, 0.0 ) )
     };    
     that.character.rotation.set(0,0,0);
