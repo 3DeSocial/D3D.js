@@ -82,7 +82,7 @@ const params = {
         this.vrType = this.config.vrType;
         this.camPos = new THREE.Vector3();
         this.objectsInMotion = []; // use for things being thrown etc
-        this.initLoader(this.config.owner);
+       // this.initLoader(this.config.owner);
         this.dirCalc = new THREE.Vector3(1, 1, 1);
         this.newDir = new THREE.Vector3(1, 1, 1);
         this.ghostCaught = false;
@@ -134,10 +134,9 @@ const params = {
             this.getContainer(this.config.el);
 
             this.initScene();
-            this.loadUIAssets();
             this.initRenderer(this.config.el);
-            this.initHUD({scene:that.scene,
-                            chainAPI: that.config.chainAPI});
+            /*this.initHUD({scene:that.scene,
+                            chainAPI: that.config.chainAPI});*/
             this.initSkybox();
             this.initLighting();
 
@@ -168,7 +167,7 @@ const params = {
                 that.animate();
                 sceneryloadingComplete = true;
                 //that.resizeCanvas();
-                that.loadingScreen.hide();
+               // that.loadingScreen.hide();
                 that.addListeners();
                 that.audioListener.setMasterVolume(1);
                 this.camera.setRotationFromEuler(new THREE.Euler( 0,Math.PI,0, 'XYZ' ));
@@ -425,9 +424,9 @@ const params = {
         this.addEventListenerResize();
         this.addEventListenerContextLost();
         this.addEventListenerExitFullScreen();
-        this.addEventListenerKeys();
-        this.addEventListenerMouseClick();
-        this.addEventListenersHUD()
+      //  this.addEventListenerKeys();
+      //  this.addEventListenerMouseClick();
+       // this.addEventListenersHUD()
     }    
 
     addEventListenersHUD = ()=>{
@@ -1684,10 +1683,10 @@ isOnWall = (raycaster, selectedPoint, meshToCheck) =>{
                 //display 2d images of 3d items if there are no more 2d images
             };*/
 
-
+/*
             this.loadingScreen.startLoading({items:items2d,
                                         name:'NFTs'});
-
+*/
             let sceneInvConfig = {          
                                 animations: this.config.animations,
                                 chainAPI: this.config.chainAPI,
@@ -1703,7 +1702,7 @@ isOnWall = (raycaster, selectedPoint, meshToCheck) =>{
                                 modelsRoute: this.config.modelsRoute,
                                 nftsRoute: this.config.nftsRoute,
                                 layoutPlotter: this.layoutPlotter,
-                                loadingScreen: this.loadingScreen
+                         //       loadingScreen: this.loadingScreen
                                 }
 
             if(this.world){

@@ -3,10 +3,11 @@ export default class LoadingScreen {
     //return HTML template for loading screen
     constructor(config){
         let defaults = {
+            ownerName: 'D3D',
             nftCount: 0,
             loadingMsg: 'Loading...',
             updateMsg: 'Please wait a moment..',
-            description: 'This is a dynamically generated space displaying the latest NFTs created by <span class="ownername">'+config.ownerName+'</span>'
+            description: 'DeSoSpace Template'
         };
     
         this.config = {
@@ -21,7 +22,9 @@ export default class LoadingScreen {
     }
 
     renderTemplate = (data) =>{
-    	data = {...this.config,...data};
+    	
+        data = {...this.config,...data};
+
     	let template =  '<div class="inner">';
     					template +='<h1><span class="ownername">'+data.ownerName+'</span>\'s Gallery</h1>';
 						template +='<img class="owner-profile-pic" src="https://node.deso.org/api/v0/get-single-profile-picture/'+data.ownerPublicKey+'"/>';
