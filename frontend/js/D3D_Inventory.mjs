@@ -3,7 +3,7 @@ import * as THREE from 'three';
 export const name = 'd3d-inventory';
 let loader;
 
-import { Item, Item2d, ItemVRM, ChainAPI, ExtraData3DParser } from '3d-nft-viewer';
+import { Item, Item2d, ItemVRM, ChainAPI, ExtraData3DParser } from 'd3d';
 
  class D3DInventory {
     

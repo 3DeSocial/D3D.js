@@ -2,7 +2,7 @@ import * as THREE from 'three';
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 import { FBXLoader } from "three/examples/jsm/loaders/FBXLoader.js";
 import * as THREE_VRM from '@pixiv/three-vrm';
-import {AnimLoader} from '3d-nft-viewer';
+import {AnimLoader} from 'd3d';
 const helperRoot = new THREE.Group();
 
     /**

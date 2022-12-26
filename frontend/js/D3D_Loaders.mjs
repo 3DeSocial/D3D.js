@@ -45,7 +45,7 @@ import { XYZLoader } from "three/examples/jsm/loaders/XYZLoader.js";
 import * as THREE from 'three';
 
 
-export default class D3DLoaders {
+export default class Loaders {
 
     constructor(config) {
 
@@ -155,4 +155,4 @@ export default class D3DLoaders {
     }    
 
 }
-export {D3DLoaders}
+export {Loaders}

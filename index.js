@@ -1,4 +1,4 @@
-import { SpaceViewer} from './frontend/js/SpaceViewer.mjs';
+import { SpaceViewer} from './frontend/js/D3D_SpaceViewer.mjs';
 import { SceneryLoader} from './frontend/js/D3D_SceneryLoader.mjs';
 import { AudioClip } from './frontend/js/D3D_AudioClip.mjs';
 import { AudioClipRemote } from './frontend/js/D3D_AudioClipRemote.mjs';
@@ -14,7 +14,7 @@ import { AnimLoader } from  './frontend/js/D3D_AnimLoader.mjs'; // fbx
 import { Lighting } from './frontend/js/D3D_Lighting.mjs';
 import { XRControllerModelFactory } from './frontend/webxr/XRControllerModelFactory.js';
 import { MeshBVH, acceleratedRaycast, MeshBVHVisualizer } from './frontend/js/index.module.mjs';
-import { D3DLoaders } from  './frontend/js/D3D_Loaders.mjs';
+import { Loaders } from  './frontend/js/D3D_Loaders.mjs';
 import { NFTViewerOverlay } from  './frontend/js/D3D_NFTViewerOverlay.mjs';
 import { D3DInventory } from  './frontend/js/D3D_Inventory.mjs';
 import { ExtraData3DParser } from  './frontend/js/D3D_ExtraDataParser.mjs';

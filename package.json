@@ -1,0 +1,20 @@
+{
+  "name": "d3d",
+  "version": "1.0.0",
+  "description": "D3D Toolkit",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "type":"module",
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@pixiv/three-vrm": "^1.0.5",  
+    "three": "^0.146.0",
+    "animejs": "^3.2.1",
+    "axios": "^0.27.1",
+    "cannon-es": "^0.20.0",
+    "three-to-cannon": "^4.3.0"
+  }
+}

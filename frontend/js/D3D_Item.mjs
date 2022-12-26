@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 import * as CANNON from 'cannon-es';
-import { Physics } from '3d-nft-viewer';
+import { Physics } from 'd3d';
 
 import { VOXMesh } from "three/examples/jsm/loaders/VOXLoader.js";
 export default class Item {

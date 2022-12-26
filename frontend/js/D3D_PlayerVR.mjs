@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 import { RoundedBoxGeometry } from 'three/examples/jsm/geometries/RoundedBoxGeometry.js';
-import { CollisionChecker } from '3d-nft-viewer';
+import { CollisionChecker } from 'd3d';
 
 
 export default class PlayerVR {

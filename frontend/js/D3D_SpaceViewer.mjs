@@ -5,7 +5,7 @@ import * as CANNON from 'cannon-es';
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import { RoundedBoxGeometry } from 'three/examples/jsm/geometries/RoundedBoxGeometry.js';
-import { SnowFall, PlayerVR, AudioClipRemote, Physics, AudioClip, Item, ItemVRM, LoadingScreen, HUDBrowser, HUDVR, SceneryLoader, Lighting, LayoutPlotter, D3DLoaders, D3DInventory, NFTViewerOverlay, VRButton, VRControls } from '3d-nft-viewer';
+import { Loaders, PlayerVR, AudioClipRemote, Physics, AudioClip, Item, ItemVRM, LoadingScreen, HUDBrowser, HUDVR, SceneryLoader, Lighting, LayoutPlotter, D3DInventory, NFTViewerOverlay, VRButton, VRControls } from 'd3d';
 let clock, gui, stats, delta;
 let environment, visualizer, player, controls, geometries;
 let playerIsOnGround = false;
@@ -72,7 +72,7 @@ const params = {
         this.prevGamePads = new Map(),
         this.speedFactor = [0.1, 0.1, 0.1, 0.1],
         this.controllers = [];
-        this.loaders = new D3DLoaders({defaultLoader:this.defaultLoader});
+        this.loaders = new Loaders({defaultLoader:this.defaultLoader});
         this.initLoaders();
         this.clock = new THREE.Clock();
         environment = null;
@@ -179,31 +179,7 @@ const params = {
         });
     }
 
-    initSnowFall = () =>{
-        this.snowFall = new SnowFall({scene:this.scene});
-    }
 
-    initSnowMen = () =>{
-        let that = this;
-        let snowMenLayout = this.sceneryLoader.snowmen;
-        console.log('snowMenLayoutL: ',snowMenLayout)
-            this.targetSpots = this.layoutPlotter.calcCircleSpots(snowMenLayout[0]);
-            this.snowMen = [];
-            this.spawnSnowMan();
-
-    }
-
-    spawnSnowMan = () =>{
-        if(this.snowMen.length<this.targetSpots.length){
-            let targetSpotNo = this.getRandomInt(0,this.targetSpots.length-1);
-
-            while(this.targetSpots[targetSpotNo].inUse){
-                targetSpotNo = this.getRandomInt(0,this.targetSpots.length-1);
-            };
-            this.addSnowMan(this.targetSpots[targetSpotNo]);
-            this.targetSpots[targetSpotNo].inUse = true;
-        }
-    }
     initLoader = (ownerData) =>{
         this.loadingScreen = new LoadingScreen(ownerData);
         this.loadingScreen.render('.loader-ctr');
@@ -2593,7 +2569,7 @@ if(this.playerIsOnGround){
     }
 };
 
-export {D3DSpaceViewer}
+export {SpaceViewer}
 
 function CannonDebugRenderer(scene, world, options) {
     options = options || {};

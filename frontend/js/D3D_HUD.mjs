@@ -1,5 +1,4 @@
 import * as THREE from 'three';
-import domtoimage from 'dom-to-image';
 
 export default class HUD  {
 

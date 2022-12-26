@@ -1,6 +1,6 @@
 let THREE;
 import { VOXMesh } from "three/examples/jsm/loaders/VOXLoader.js";
-import {Item} from '3d-nft-viewer';
+import {Item} from 'd3d';
 class Item2d extends Item {
 
     constructor(config){
