@@ -2238,7 +2238,7 @@ initPlayerThirdPerson = () => {
         playerFloor = this.sceneryLoader.findFloorAt(playerStartPos, 2, -1);
         playerStartPos.y = playerFloor;
 
-console.log('playerStartPos ',playerStartPos);
+console.log('playerStartPos with floor',playerStartPos);
     that.player = new THREE.Group();
     that.player.position.copy(playerStartPos);
     that.player.rotation.set(0,0,0);
@@ -2246,9 +2246,9 @@ console.log('playerStartPos ',playerStartPos);
         new RoundedBoxGeometry(  1.0, 2.0, 1.0, 10, 0.5),
         new THREE.MeshStandardMaterial({ transparent: true, opacity: 0.5})
     );
-    that.character.position.set(0,1,0);
+    //that.character.position.set(0,1,0);
 
-    that.character.geometry.translate( 0, 0, 0 );
+    that.character.geometry.translate( 0, -0.5, 0 );
     that.character.capsuleInfo = {
         radius: (this.config.capsuleRadius)?this.config.capsuleRadius:0.5,
         segment: new THREE.Line3( new THREE.Vector3(), new THREE.Vector3( 0, - 1.0, 0.0 ) )
@@ -2258,11 +2258,13 @@ console.log('playerStartPos ',playerStartPos);
     let avatar = null;
     if(this.config.avatarPath){
         avatar = that.initItemForModel({modelUrl:this.config.avatarPath, height:2});
-        avatar.place(new THREE.Vector3(0,playerFloor,0),that.player).then((model,pos)=>{
+        avatar.place(new THREE.Vector3(0,0,0),that.player).then((model,pos)=>{
             that.player.add(that.character);
             that.scene.add( that.player );
-            that.player.position.copy(playerStartPos);
-            console.log('player added to scene at: ');
+            console.log('player start pos: ',that.player.position);
+
+            that.player.position.y=1;
+            console.log('player adjusted pos: ',that.player.position);
 
             console.log(that.player.position);
 
