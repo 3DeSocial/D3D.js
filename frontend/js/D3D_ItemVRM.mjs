@@ -404,8 +404,10 @@ export default class ItemVRM {
     
     }
 
-    place = (pos) =>{
+    place = (pos, scene) =>{
         let that = this;
+
+        this.scene = scene;
         if(typeof(pos)==='undefined'){
             throw('Cant place at undefined position');
         };
@@ -561,6 +563,7 @@ export default class ItemVRM {
 
                     // put the model to the scene
                     that.currentVrm = vrm;
+                    that.scene.add( that.currentVrm.scene );
                  //   that.scaleToFitScene( vrm.scene, posVector );
                     vrm.scene.userData.owner = this; //set reference to 
               //      this.fixYCoord(vrm.scene, posVector); 
@@ -624,6 +627,7 @@ initAnimLoader = (config) =>{
     }
 
 scaleToFitScene = (obj3D, posVector) =>{
+        this.addPlaneAtPos(posVector);
 
     let that = this;
 

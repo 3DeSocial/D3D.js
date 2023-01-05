@@ -2235,44 +2235,40 @@ initPlayerThirdPerson = () => {
     if(this.sceneryLoader.playerStartPos){
         playerStartPos = new THREE.Vector3(this.sceneryLoader.playerStartPos.x,this.sceneryLoader.playerStartPos.y,this.sceneryLoader.playerStartPos.z);
     }
-        playerFloor = this.sceneryLoader.findFloorAt(new THREE.Vector3(0,0,0), 2, -1);
+        playerFloor = this.sceneryLoader.findFloorAt(playerStartPos, 2, -1);
         playerStartPos.y = playerFloor;
 
-
+console.log('playerStartPos ',playerStartPos);
     that.player = new THREE.Group();
     that.player.position.copy(playerStartPos);
     that.player.rotation.set(0,0,0);
     that.character = new THREE.Mesh(
         new RoundedBoxGeometry(  1.0, 2.0, 1.0, 10, 0.5),
-        new THREE.MeshStandardMaterial({ transparent: true, opacity: 0})
+        new THREE.MeshStandardMaterial({ transparent: true, opacity: 0.5})
     );
+    that.character.position.set(0,1,0);
 
-    that.character.geometry.translate( 0, -1, 0 );
+    that.character.geometry.translate( 0, 0, 0 );
     that.character.capsuleInfo = {
         radius: (this.config.capsuleRadius)?this.config.capsuleRadius:0.5,
         segment: new THREE.Line3( new THREE.Vector3(), new THREE.Vector3( 0, - 1.0, 0.0 ) )
     };    
     that.character.rotation.set(0,0,0);
 
-    that.player.add(that.character);
-    that.character.updateMatrixWorld();
-    that.scene.add( that.player );
-    that.player.updateMatrixWorld();
-
     let avatar = null;
     if(this.config.avatarPath){
         avatar = that.initItemForModel({modelUrl:this.config.avatarPath, height:2});
         avatar.place(new THREE.Vector3(0,playerFloor,0),that.player).then((model,pos)=>{
-             console.log('placed model: ');   
-             console.log(model);
-           // this.character.copy(pos);
-            that.player.add(model);
-            that.player.model = model;
-           // model.updateMatrixWorld();
             that.player.add(that.character);
-            that.character.updateMatrixWorld();
             that.scene.add( that.player );
+            that.player.position.copy(playerStartPos);
+            console.log('player added to scene at: ');
+
+            console.log(that.player.position);
+
             that.player.updateMatrixWorld();
+            that.player.model = model;
+
         });        
     }
     

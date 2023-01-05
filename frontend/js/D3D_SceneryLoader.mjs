@@ -243,6 +243,7 @@ export default class SceneryLoader {
     }
 
     findFloorAt = (pos, ceilHeight, floorHeight) =>{
+        console.log('findFloorAt, pos: ',pos);
         const invMat = new THREE.Matrix4();
         invMat.copy( this.sceneryMesh.matrixWorld ).invert();
 
@@ -264,7 +265,7 @@ export default class SceneryLoader {
      //   hit.point.applyMatrixWorld( this.sceneryMesh.matrixWorld );
        if(hit){
          let planePos = new THREE.Vector3(0,hit.point.y,0);
-         //    this.addPlaneAtPos(planePos);
+     //        this.addPlaneAtPos(planePos);
           //           console.log('floor hit')
 
             return hit.point.y+0.0001;
@@ -276,7 +277,7 @@ export default class SceneryLoader {
 
     addPlaneAtPos = (posVector) =>{
         var geo = new THREE.PlaneBufferGeometry(20, 20);
-        var mat = new THREE.MeshPhongMaterial({ color: 0x99FFFF, side: THREE.DoubleSide });
+        var mat = new THREE.MeshPhongMaterial({ color: 0xFF0000, side: THREE.DoubleSide });
         var plane = new THREE.Mesh(geo, mat);
         plane.rotateX( - Math.PI / 2);
         plane.position.copy(posVector);
