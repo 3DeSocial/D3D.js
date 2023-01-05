@@ -170,6 +170,16 @@ export default class ItemVRM {
         return action;    
     }
 
+    startCurrentAnimClip = () =>{
+        if(this.currentAnim.clip){
+            console.log('startAnimClip has clip');
+        this.startAnimClip(this.currentAnim.clip);
+
+        } else {
+                        console.log('startAnimClip has NO clip');
+
+        }
+    }
     startAnimAction = (action)=>{
         action.setLoop(THREE.LoopRepeat);
         action.clampWhenFinished  = true;
@@ -179,9 +189,22 @@ export default class ItemVRM {
     }
 
     loadMixamoAnimation = ( url, vrm ) => {
-
+        let that = this;
         const loader = new FBXLoader(); // A loader which loads FBX
-        return loader.loadAsync( url ).then( ( asset ) => {
+        return new Promise((resolve,reject)=>{
+            loader.loadAsync( url ).then( ( asset ) => {
+                resolve(asset);
+                
+
+            });
+        });
+
+}
+
+    applyAnimationToModel = (asset, vrm) =>{
+        if(!this.mixer){
+            this.mixer = new THREE.AnimationMixer( vrm.scene );
+        };
 
         const clip = THREE.AnimationClip.findByName( asset.animations, 'mixamo.com' ); // extract the AnimationClip
 
@@ -261,10 +284,8 @@ export default class ItemVRM {
 
         return new THREE.AnimationClip( 'vrmAnimation', clip.duration, tracks );
 
-    } );
 
-}
-
+    }
 
     parseNFTDisplayData = () =>{
         let nft = this.config.nft;
@@ -577,24 +598,7 @@ export default class ItemVRM {
                     vrm.scene.userData.owner = this; //set reference to 
               //      this.fixYCoord(vrm.scene, posVector); 
 
-                    if(!this.mixer && (this.animLoader)){
-                        this.mixer = new THREE.AnimationMixer( this.currentVrm.scene );
-                        this.mixer.addEventListener('finished',(e)=>{
-                            that.setAnimRunning(false);
-                            that.currentAnim = that.animLoader.fetchRandAnim();
-                             if(this.currentAnim.action){
-                                // no need to Load animation
-                                let action =  this.startAnimAction(this.currentAnim.action);
-                            } else {
-                                that.loadMixamo( that.currentAnim );
-                            }
-
-                               
-                            
-
-                        //that.mesh.scene.position.copy(this.config.pos);
-                        }, false);
-                    };
+                    
 
                   //  vrm.scene.position.copy(posVector);
 
@@ -607,10 +611,15 @@ export default class ItemVRM {
                     } );
 
 
-                    if ( that.currentAnim ) {
-
-                        that.loadMixamo( that.currentAnim );
-
+                    if ( that.currentAnim ) {  
+                        console.log('have current anim');
+                        if(that.currentAnim.asset){
+                            console.log('have asset');
+                            that.currentAnim.clip = that.applyAnimationToModel(that.currentAnim.asset, vrm);
+                            console.log('created clip');
+                        }
+                    } else {
+                        console.log('no current anim')
                     }
 
                     // rotate if the VRM is VRM0.0
@@ -632,7 +641,36 @@ export default class ItemVRM {
     }
 
 initAnimLoader = (config) =>{
-        return new AnimLoader(config);
+    let that = this;
+    console.log('initAnimLoader');
+    let animLoader = new AnimLoader(config);
+        if(!this.mixer && (animLoader)){
+            this.currentAnim = animLoader.fetchUrlByName('walk');
+            if(this.currentAnim){
+                this.loadMixamoAnimation(this.currentAnim.url, this.currentVrm ).then( ( asset ) => {
+                        // Loaded, ready to apply when avatar is loaded
+                        that.currentAnim.asset = asset;
+                        console.log('anim asset preloaded');
+                });
+            };
+                        /*
+                        this.mixer.addEventListener('finished',(e)=>{
+                            that.setAnimRunning(false);
+                            that.currentAnim = that.animLoader.fetchRandAnim();
+                             if(this.currentAnim.action){
+                                // no need to Load animation
+                                let action =  this.startAnimAction(this.currentAnim.action);
+                            } else {
+                                
+                            }
+
+                               
+                            
+
+                        //that.mesh.scene.position.copy(this.config.pos);
+                        }, false);*/
+                    };
+         
     }
 
 scaleToFitScene = (obj3D, posVector) =>{

@@ -53,20 +53,23 @@ export default class AnimLoader {
         let url =this.createAnimRequest();
         console.log('requestString: ',url);
 
-
+/*
         fetch(url,{ method: "get"})
                 .then(response => response.text())
                 .then((data)=>{
                     this.animPosts = data;
                 });
+*/
 
-
-        this.animUrls =  [  {hex:'1a27c2f8a2672adbfdb4df7b31586a890b7f3a95b49a6937edc01de5d74072f2',url:'https://desodata.azureedge.net/unzipped/1a27c2f8a2672adbfdb4df7b31586a890b7f3a95b49a6937edc01de5d74072f2/fbx/normal/Arm_Stretching.fbx'},
+        this.animUrls =  [{name:'walk',hex:'0c91b85ef07adc0feeb0a8cb7215e3c678a39ede0f842fb6fac6f9009dc30653',url:'https://desodata.azureedge.net/unzipped/0c91b85ef07adc0feeb0a8cb7215e3c678a39ede0f842fb6fac6f9009dc30653/fbx/normal/StandardWalk.fbx'}
+          /*{hex:'1a27c2f8a2672adbfdb4df7b31586a890b7f3a95b49a6937edc01de5d74072f2',url:'https://desodata.azureedge.net/unzipped/1a27c2f8a2672adbfdb4df7b31586a890b7f3a95b49a6937edc01de5d74072f2/fbx/normal/Arm_Stretching.fbx'},
                            // {hex:'95c405260688db9fbb76d126334ee911a263352c58dbb77b6d562750c5ce1ed2',url:'https://desodata.azureedge.net/unzipped/95c405260688db9fbb76d126334ee911a263352c58dbb77b6d562750c5ce1ed2/fbx/normal/Happy_Idle.fbx'},
                             {hex:'8d931cbd0fda4e794c3154d42fb6aef7cf094481ad83a83e97be8113cd702b85',url:'https://desodata.azureedge.net/unzipped/8d931cbd0fda4e794c3154d42fb6aef7cf094481ad83a83e97be8113cd702b85/fbx/normal/Warrior_Idle.fbx'},
-                            {hex:'287cb636f6a8fc869f5c0f992fa2608a2332226c6251b1dc6908c827ab87eee4',url:'https://desodata.azureedge.net/unzipped/287cb636f6a8fc869f5c0f992fa2608a2332226c6251b1dc6908c827ab87eee4/fbx/normal/Victory.fbx'}];
+                            {hex:'287cb636f6a8fc869f5c0f992fa2608a2332226c6251b1dc6908c827ab87eee4',url:'https://desodata.azureedge.net/unzipped/287cb636f6a8fc869f5c0f992fa2608a2332226c6251b1dc6908c827ab87eee4/fbx/normal/Victory.fbx'}*/];
 
         this.lastPlayed = 0;
+
+        
     }
 
     createAnimRequest = () =>{
@@ -183,6 +186,13 @@ export default class AnimLoader {
         return (this.animUrls[hex])?this.animUrls[hex]:false;
 
     }
+
+    fetchUrlByName = (name) => {
+        let anims = this.animUrls.filter(anim => (anim.name===name));     
+
+        return (anims[0])?anims[0]:false;
+
+    }    
 
     fetchRandAnimUrl = () =>{
         let animIdx = this.getRandomInt(0,this.animUrls.length-1);

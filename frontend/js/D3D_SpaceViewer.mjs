@@ -1783,6 +1783,7 @@ isOnWall = (raycaster, selectedPoint, meshToCheck) =>{
         if(extension.trim().toLowerCase()==='vrm'){
             console.log('avatar is VRM');
             config.animations = this.config.animations;
+            config.animLoader = true;
             item = new ItemVRM(config);
         } else {
             console.log('avatar is NOT VRM');
@@ -2273,7 +2274,7 @@ console.log('playerStartPos with floor',playerStartPos);
 
             that.player.updateMatrixWorld();
             that.player.model = model;
-
+            that.player.avatar = avatar;
         });        
     }
     
@@ -2303,6 +2304,13 @@ console.log('playerStartPos with floor',playerStartPos);
     }
     if(fwdPressed||bkdPressed||lftPressed||rgtPressed){
         this.player.state = 'move';
+        if(this.player.avatar){
+            console.log('have avatar when moving');
+            this.player.avatar.startCurrentAnimClip();
+            this.player.avatar.setAnimRunning(0);
+            
+        }
+
         this.player.position.addScaledVector( this.tempVector, params.playerSpeed * delta );
 
         if(this.config.avatarPath){
@@ -2310,7 +2318,10 @@ console.log('playerStartPos with floor',playerStartPos);
         }
         this.player.updateMatrixWorld();
     } else {
-        this.player.state = 'stop';        
+        this.player.state = 'stop';      
+        if(this.player.avatar){
+            this.player.avatar.stopAnimation();
+        }
     }
 
 
