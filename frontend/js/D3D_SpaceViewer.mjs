@@ -156,13 +156,8 @@ const params = {
                 if ( 'xr' in navigator ) {
                     that.initVR();
                 }   
-
             
                 this.renderer.render(this.scene,this.camera);
-
-
-
-
 
                 //that.resizeCanvas();
                // that.loadingScreen.hide();

@@ -561,8 +561,9 @@ export default class ItemVRM {
 
                     // put the model to the scene
                     that.currentVrm = vrm;
-                    that.scene.add( vrm.scene );
+                 //   that.scaleToFitScene( vrm.scene, posVector );
                     vrm.scene.userData.owner = this; //set reference to 
+              //      this.fixYCoord(vrm.scene, posVector); 
 
                     if(!this.mixer && (this.animLoader)){
                         this.mixer = new THREE.AnimationMixer( this.currentVrm.scene );
@@ -583,7 +584,7 @@ export default class ItemVRM {
                         }, false);
                     };
 
-                    vrm.scene.position.copy(posVector);
+                  //  vrm.scene.position.copy(posVector);
 
 
                     // Disable frustum culling
@@ -593,7 +594,6 @@ export default class ItemVRM {
 
                     } );
 
-                    that.fixYCoord(vrm.scene, posVector);
 
                     if ( that.currentAnim ) {
 
@@ -603,8 +603,9 @@ export default class ItemVRM {
 
                     // rotate if the VRM is VRM0.0
                     THREE_VRM.VRMUtils.rotateVRM0( vrm );
-
-                    resolve(that.currentVrm);
+                    console.log('that.currentVrm: ');
+                    console.log(that.currentVrm);
+                    resolve(that.currentVrm.scene);
 
                 },
 
@@ -673,17 +674,21 @@ scaleToFitScene = (obj3D, posVector) =>{
         let cbox = that.createContainerBoxForModel(newLengthMeshBounds.x, newLengthMeshBounds.y, newLengthMeshBounds.z, posVector);
         cbox.position.copy(posVector);
 
+        this.modelHeight = newLengthMeshBounds.y;
         // center of box is position so move up by 50% of newLengthMeshBounds.y
-        //let yOffset = newLengthMeshBounds.y/2;
-        //cbox.position.setY(cbox.position.y+yOffset);
-        //cbox.add(obj3D);
+        //
+
+        let yOffset = this.modelHeight/2;
+        obj3D.position.setY(cbox.position.y+yOffset);
+      //  cbox.add(obj3D);
         //obj3D.updateWorldMatrix();
 
-        cbox.userData.owner = this; //set reference to Item
+      //  cbox.userData.owner = this; //set reference to Item
+        obj3D.userData.owner = this;
         that.scene.add(obj3D);    
         obj3D.position.copy(posVector);
 
-        cbox.updateMatrixWorld();    
+      //  cbox.updateMatrixWorld();    
     }
 
     getBoxHelperVertices = (boxHelper) =>{
@@ -750,7 +755,7 @@ scaleToFitScene = (obj3D, posVector) =>{
         const material = new THREE.MeshPhongMaterial({
             color: this.config.color,
             opacity: 0,
-            transparent: true
+            transparent: 0.5
         });
 
         let boxMesh = new THREE.Mesh( geometry, material );
@@ -853,7 +858,7 @@ scaleToFitScene = (obj3D, posVector) =>{
     fixYCoord = (obj3D, posVector) =>{
         var helper = new THREE.BoxHelper(obj3D, 0x00ff00);
             helper.update();
-
+        this.scene.add(helper);
         let lowestVertex = this.getBoxHelperVertices(helper);
         if(!lowestVertex){
             console.log('no lowestVertex in');

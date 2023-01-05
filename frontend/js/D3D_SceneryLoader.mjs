@@ -259,14 +259,17 @@ export default class SceneryLoader {
         raycaster.ray.applyMatrix4( invMat );
         raycaster.set(origin,dir);
         const hit = this.bvh.raycastFirst( raycaster.ray );
-       // this.scene.add(new THREE.ArrowHelper( raycaster.ray.direction, raycaster.ray.origin, ceilHeight, Math.random() * 0xffffff ));
+    //   this.scene.add(new THREE.ArrowHelper( raycaster.ray.direction, raycaster.ray.origin, ceilHeight, Math.random() * 0xffffff ));
 
      //   hit.point.applyMatrixWorld( this.sceneryMesh.matrixWorld );
        if(hit){
          let planePos = new THREE.Vector3(0,hit.point.y,0);
-             //this.addPlaneAtPos(planePos);
-            return hit.point.y+0.001;
+         //    this.addPlaneAtPos(planePos);
+          //           console.log('floor hit')
+
+            return hit.point.y+0.0001;
        } else {
+        //console.log('no floor hit')
             return false;
         }
     }

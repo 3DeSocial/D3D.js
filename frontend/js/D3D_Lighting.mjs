@@ -83,7 +83,7 @@ export default class Lighting {
 
         this.dLighting = [];
 
-        const aboveLight = new THREE.DirectionalLight(0xffffff, 0.75);
+     /*   const aboveLight = new THREE.DirectionalLight(0xffffff, 0.75);
         aboveLight.castShadow = true;
         aboveLight.position.set(0, 15, 0);
         this.scene.add(aboveLight);
@@ -108,7 +108,7 @@ export default class Lighting {
         rightLight.position.set(15, 6, 0);
         this.scene.add(rightLight);
         this.dLighting['right'] = rightLight;
-
+*/
         const frontLight = new THREE.DirectionalLight(0xffffff, 0.5);
         this.configureLight(frontLight);
 
@@ -116,13 +116,13 @@ export default class Lighting {
         this.scene.add(frontLight);
         this.dLighting['front'] = frontLight;
 
-        const backLight = new THREE.DirectionalLight(0xffffff, 0.1);
+    /*    const backLight = new THREE.DirectionalLight(0xffffff, 0.1);
         this.configureLight(backLight);
 
         backLight.position.set(0, 6, 15);
         this.scene.add(backLight);
         this.dLighting['back'] = backLight;
-
+*/
     }
 
     switchOffDirectional = () =>{
