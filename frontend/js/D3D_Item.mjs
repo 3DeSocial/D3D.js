@@ -221,11 +221,17 @@ export default class Item {
     
     }
 
-    place = (pos) =>{
+    place = (pos, destScene) =>{
         let that = this;
+        
         if(typeof(pos)==='undefined'){
             throw('Cant place at undefined position');
         };
+
+        if(destScene){
+            this.scene = destScene;
+        };
+
         return new Promise((resolve,reject)=>{
             if(that.mesh){
                 that.mesh.position.copy(pos);
