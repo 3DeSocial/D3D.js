@@ -119,10 +119,12 @@ export default class ItemVRM {
         this.rotVelocity = new THREE.Vector3();
         this.nftDisplayData = this.parseNFTDisplayData();
         if(this.config.animLoader){
-            this.animLoader = this.initAnimLoader({animHashes:[ '287cb636f6a8fc869f5c0f992fa2608a2332226c6251b1dc6908c827ab87eee4',
+            this.animLoader = this.initAnimLoader({animHashes:[ '0c91b85ef07adc0feeb0a8cb7215e3c678a39ede0f842fb6fac6f9009dc30653']});
+/*
+                '287cb636f6a8fc869f5c0f992fa2608a2332226c6251b1dc6908c827ab87eee4',
                                                                     '8d931cbd0fda4e794c3154d42fb6aef7cf094481ad83a83e97be8113cd702b85',
                                                                     '95c405260688db9fbb76d126334ee911a263352c58dbb77b6d562750c5ce1ed2',
-                                                                    '1a27c2f8a2672adbfdb4df7b31586a890b7f3a95b49a6937edc01de5d74072f2']});
+                                                                    '1a27c2f8a2672adbfdb4df7b31586a890b7f3a95b49a6937edc01de5d74072f2']});*/
         }
 
 
@@ -563,8 +565,15 @@ export default class ItemVRM {
 
                     // put the model to the scene
                     that.currentVrm = vrm;
-                    that.scene.add( that.currentVrm.scene );
-                 //   that.scaleToFitScene( vrm.scene, posVector );
+                    that.currentVrm.scene.position.set(0,0,0);
+           /*         that.scene.add( that.currentVrm.scene );
+                     that.currentVrm.scene.updateMatrixWorld();
+        var helper = new THREE.BoxHelper(that.currentVrm.scene, 0x00ff00);
+            helper.update();
+        this.config.scene.add(helper);                    
+                    console.log('added VRM scene');
+                    console.log( that.currentVrm.scene);*/
+                  //  that.scaleToFitScene( vrm.scene, posVector );
                     vrm.scene.userData.owner = this; //set reference to 
               //      this.fixYCoord(vrm.scene, posVector); 
 
@@ -665,7 +674,7 @@ scaleToFitScene = (obj3D, posVector) =>{
         // Use smallest ratio to scale the model
         if(obj3D.scale.set){
             obj3D.scale.set(minRatio, minRatio, minRatio);
-            obj3D.updateWorldMatrix();
+            obj3D.updateMatrixWorld();
         };
         
         let newMeshBounds = new THREE.Box3().setFromObject( obj3D );
@@ -679,13 +688,14 @@ scaleToFitScene = (obj3D, posVector) =>{
         cbox.position.copy(posVector);
 
         this.modelHeight = newLengthMeshBounds.y;
+        console.log('this.modelHeight: '+this.modelHeight);
         // center of box is position so move up by 50% of newLengthMeshBounds.y
         //
 
         let yOffset = this.modelHeight/2;
         obj3D.position.setY(cbox.position.y+yOffset);
       //  cbox.add(obj3D);
-        //obj3D.updateWorldMatrix();
+        //obj3D.updateMatrixWorld();
 
       //  cbox.userData.owner = this; //set reference to Item
         obj3D.userData.owner = this;

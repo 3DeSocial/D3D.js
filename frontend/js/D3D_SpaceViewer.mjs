@@ -2259,9 +2259,12 @@ console.log('playerStartPos with floor',playerStartPos);
     if(this.config.avatarPath){
         avatar = that.initItemForModel({modelUrl:this.config.avatarPath, height:2});
         avatar.place(new THREE.Vector3(0,0,0),that.player).then((model,pos)=>{
+            that.player.add(model);
+            model.updateMatrixWorld();
+            model.position.y=-1.5;
             that.player.add(that.character);
             that.scene.add( that.player );
-            console.log('player start pos: ',that.player.position);
+            console.log('model start pos: ',model);
 
             that.player.position.y=1;
             console.log('player adjusted pos: ',that.player.position);
@@ -2299,12 +2302,15 @@ console.log('playerStartPos with floor',playerStartPos);
         this.tempVector.set( 1, 0, 0 ).applyAxisAngle( this.upVector, angle );
     }
     if(fwdPressed||bkdPressed||lftPressed||rgtPressed){
+        this.player.state = 'move';
         this.player.position.addScaledVector( this.tempVector, params.playerSpeed * delta );
 
         if(this.config.avatarPath){
             this.updatePlayerDirection(delta); 
         }
         this.player.updateMatrixWorld();
+    } else {
+        this.player.state = 'stop';        
     }
 
 
