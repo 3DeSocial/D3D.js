@@ -16,12 +16,11 @@ let nextPos = new THREE.Vector3();
 
 const params = {
     debug: false,
-    firstPerson: true,
+    firstPerson: false,
     visualizeDepth: 10,
     gravity: - 30,
-    playerSpeed: 8,
-    physicsSteps: 10,
-    useShowroom: true};
+    playerSpeed: 4,
+    physicsSteps: 16};
 
  export default class SpaceViewer {
     
@@ -512,7 +511,13 @@ const params = {
                     break;    
                     case 'Numpad2': 
                         //that.moveMeshBack();
-                    break;    
+                    break;
+                    case 'NumpadAdd': 
+                        //that.moveMeshBack();
+                    break;                        
+                    case 'NumpadSubtract': 
+                        //that.moveMeshBack();
+                    break;                     
                     case 'Enter':
                         that.throwSnowBall(e, null);
                     break;
@@ -1781,9 +1786,12 @@ isOnWall = (raycaster, selectedPoint, meshToCheck) =>{
         }
 
         if(extension.trim().toLowerCase()==='vrm'){
+            console.log('avatar is VRM');
             config.animations = this.config.animations;
             item = new ItemVRM(config);
         } else {
+            console.log('avatar is NOT VRM');
+
             item = new Item(config);
         };
 
@@ -2223,48 +2231,57 @@ initPlayerFirstPerson = () => {
 
 initPlayerThirdPerson = () => {
 
-    let that = this;
+     let that = this;
     let playerLoader = new GLTFLoader();
-    let item = that.initItemForModel({modelUrl:'./characters/AstridCentered.glb'});
-    this.mesh = item.model;
     let newPos = null;
     let playerFloor = 0;
+    let playerStartPos;
+
     if(this.sceneryLoader.playerStartPos){
-        let playerStartPos = new THREE.Vector3(this.sceneryLoader.playerStartPos.x,this.sceneryLoader.playerStartPos.y,this.sceneryLoader.playerStartPos.z);        
-        newPos = new THREE.Vector3(0,playerFloor,0);
-
-    } else {
+        playerStartPos = new THREE.Vector3(this.sceneryLoader.playerStartPos.x,this.sceneryLoader.playerStartPos.y,this.sceneryLoader.playerStartPos.z);
+    }
         playerFloor = this.sceneryLoader.findFloorAt(new THREE.Vector3(0,0,0), 2, -1);
-        newPos = new THREE.Vector3(0,playerFloor,0);
+        playerStartPos.y = playerFloor;
 
-    };
-    
+
     that.player = new THREE.Group();
+    that.player.position.copy(playerStartPos);
+    that.player.rotation.set(0,0,0);
     that.character = new THREE.Mesh(
-        new RoundedBoxGeometry(  1.0, 1.0, 1.0, 10, 0.5),
+        new RoundedBoxGeometry(  1.0, 2.0, 1.0, 10, 0.5),
         new THREE.MeshStandardMaterial({ transparent: true, opacity: 0})
     );
 
     that.character.geometry.translate( 0, -1, 0 );
     that.character.capsuleInfo = {
-        radius: 0.5,
+        radius: (this.config.capsuleRadius)?this.config.capsuleRadius:0.5,
         segment: new THREE.Line3( new THREE.Vector3(), new THREE.Vector3( 0, - 1.0, 0.0 ) )
     };    
-    item.place(newPos).then((model,pos)=>{
+    that.character.rotation.set(0,0,0);
+
+    that.player.add(that.character);
+    that.character.updateMatrixWorld();
+    that.scene.add( that.player );
+    that.player.updateMatrixWorld();
+
+    let avatar = null;
+    if(this.config.avatarPath){
+        avatar = that.initItemForModel({modelUrl:this.config.avatarPath, height:2});
+        avatar.place(new THREE.Vector3(0,playerFloor,0),that.player).then((model,pos)=>{
+             console.log('placed model: ');   
+             console.log(model);
+           // this.character.copy(pos);
+            that.player.add(model);
+            that.player.model = model;
+           // model.updateMatrixWorld();
+            that.player.add(that.character);
+            that.character.updateMatrixWorld();
+            that.scene.add( that.player );
+            that.player.updateMatrixWorld();
+        });        
+    }
+    
    
-         console.log('placed model: ');
-        // character
-       
-       // this.character.copy(pos);
-        model.position.setY(-1.4);
-        that.player.add(model);
-        model.updateMatrixWorld();
-        that.player.add(that.character);
-        that.character.updateMatrixWorld();
-        that.scene.add( that.player );
-        that.player.updateMatrixWorld();
-        that.addListeners();   
-    });
 }
 
  updatePlayer = ( delta )=> {
@@ -2274,47 +2291,29 @@ initPlayerThirdPerson = () => {
     // move the player
     const angle = this.controls.getAzimuthalAngle();
     if ( fwdPressed ) {
-
         this.tempVector.set( 0, 0, - 1 ).applyAxisAngle( this.upVector, angle );
-        //let angleToCamera = Math.atan2( ( this.player.position.x - this.playerVelocity.x ), ( this.player.position.z - this.playerVelocity.z ) );
-       // this.player.rotation.y = angleToCamera;  
-       nextPos.copy( this.player.position);
-       nextPos.addScaledVector( this.tempVector, params.playerSpeed * delta );      
-        //this.player.lookAt(nextPos);
-        this.player.position.addScaledVector( this.tempVector, params.playerSpeed * delta );
     }
 
     if ( bkdPressed ) {
-
         this.tempVector.set( 0, 0, 1 ).applyAxisAngle( this.upVector, angle );
-       nextPos.copy( this.player.position);
-       nextPos.addScaledVector( this.tempVector, params.playerSpeed * delta );      
-        //this.player.lookAt(nextPos);      
-        this.player.position.addScaledVector( this.tempVector, params.playerSpeed * delta );
-
     }
 
     if ( lftPressed ) {
-
         this.tempVector.set( - 1, 0, 0 ).applyAxisAngle(  this.upVector, angle );
-       nextPos.copy( this.player.position);
-       nextPos.addScaledVector( this.tempVector, params.playerSpeed * delta );      
-        //this.player.lookAt(nextPos);
-        this.player.position.addScaledVector( this.tempVector, params.playerSpeed * delta );
-
     }
 
     if ( rgtPressed ) {
-
         this.tempVector.set( 1, 0, 0 ).applyAxisAngle( this.upVector, angle );
-       nextPos.copy( this.player.position);
-       nextPos.addScaledVector( this.tempVector, params.playerSpeed * delta );      
-        //this.player.lookAt(nextPos);
+    }
+    if(fwdPressed||bkdPressed||lftPressed||rgtPressed){
         this.player.position.addScaledVector( this.tempVector, params.playerSpeed * delta );
 
+        if(this.config.avatarPath){
+            this.updatePlayerDirection(delta); 
+        }
+        this.player.updateMatrixWorld();
     }
- 
-    this.player.updateMatrixWorld();
+
 
     // adjust player position based on collisions
     const capsuleInfo = this.character.capsuleInfo;
@@ -2406,6 +2405,12 @@ initPlayerThirdPerson = () => {
 
     }
 
+}
+
+updatePlayerDirection = (delta) =>{
+    nextPos.copy( this.player.position);
+    nextPos.addScaledVector( this.tempVector, params.playerSpeed * delta );      
+    this.player.lookAt(nextPos);         
 }
 
     updatePlayerVR = (delta) =>{
