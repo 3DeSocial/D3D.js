@@ -205,7 +205,7 @@ export default class ItemVRM {
 
     applyAnimationToModel = (asset, vrm) =>{
         if(!this.mixer){
-            this.mixer = new THREE.AnimationMixer( vrm.scene );
+            this.mixer = new THREE.AnimationMixer( this.currentVrm.scene );
         };
 
         const clip = THREE.AnimationClip.findByName( asset.animations, 'mixamo.com' ); // extract the AnimationClip
@@ -612,7 +612,6 @@ export default class ItemVRM {
 
                     } );
 
-
                     if ( that.currentAnim ) {  
                         console.log('have current anim');
                         if(that.currentAnim.asset){
@@ -621,6 +620,8 @@ export default class ItemVRM {
                             that.currentAnim.action = this.mixer.clipAction(that.currentAnim.clip);
                             that.currentAnim.action.setLoop(THREE.LoopRepeat);
                             that.currentAnim.action.clampWhenFinished  = true;
+                            console.log('that.currentAnim.action:');
+                            console.log(that.currentAnim.action);
                             that.currentAnim.action.play();
                             console.log('created action  animation is playing');
                         }
