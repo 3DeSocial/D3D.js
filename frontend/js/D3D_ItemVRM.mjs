@@ -204,9 +204,8 @@ export default class ItemVRM {
 }
 
     applyAnimationToModel = (asset, vrm) =>{
-        if(!this.mixer){
-            this.mixer = new THREE.AnimationMixer( this.currentVrm.scene );
-        };
+        this.mixer = new THREE.AnimationMixer( this.currentVrm.scene );
+        
 
         const clip = THREE.AnimationClip.findByName( asset.animations, 'mixamo.com' ); // extract the AnimationClip
 
@@ -564,10 +563,12 @@ export default class ItemVRM {
 
                     } );
 
-            if(this.animLoader) {
+          /*  if(this.animLoader) {
                 that.currentAnim = that.animLoader.fetchRandAnim();
+                console.log('fetched random anim: ,that.currentAnim');
+
                 that.currentAnimationUrl = that.currentAnim.url;
-            }
+            }*/
           
             loader.load(
                 // URL of the VRM you want to load
