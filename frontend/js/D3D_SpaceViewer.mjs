@@ -2306,9 +2306,7 @@ console.log('playerStartPos with floor',playerStartPos);
         this.player.state = 'move';
         if(this.player.avatar){
             console.log('have avatar when moving');
-            this.player.avatar.startCurrentAnimClip();
-            this.player.avatar.setAnimRunning(0);
-            
+            this.player.avatar.startCurrentAnimClip();            
         }
 
         this.player.position.addScaledVector( this.tempVector, params.playerSpeed * delta );
@@ -2318,9 +2316,9 @@ console.log('playerStartPos with floor',playerStartPos);
         }
         this.player.updateMatrixWorld();
     } else {
-        this.player.state = 'stop';      
+       // this.player.state = 'stop';      
         if(this.player.avatar){
-            this.player.avatar.stopAnimation();
+         //   this.player.avatar.stopAnimation();
         }
     }
 

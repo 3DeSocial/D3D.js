@@ -171,15 +171,17 @@ export default class ItemVRM {
     }
 
     startCurrentAnimClip = () =>{
-        if(this.currentAnim.clip){
-            console.log('startAnimClip has clip');
-        this.startAnimClip(this.currentAnim.clip);
+        if(this.animRunning===false){
 
-        } else {
-                        console.log('startAnimClip has NO clip');
+            if(!this.currentAnim.clip){
+                this.currentAnim.action = this.startAnimClip(this.currentAnim.clip);
+            };
 
+            this.currentAnim.action.play();
+            this.setAnimRunning(0);
         }
     }
+
     startAnimAction = (action)=>{
         action.setLoop(THREE.LoopRepeat);
         action.clampWhenFinished  = true;
@@ -587,13 +589,13 @@ export default class ItemVRM {
                     // put the model to the scene
                     that.currentVrm = vrm;
                     that.currentVrm.scene.position.set(0,0,0);
-           /*         that.scene.add( that.currentVrm.scene );
+                    that.scene.add( that.currentVrm.scene );
                      that.currentVrm.scene.updateMatrixWorld();
         var helper = new THREE.BoxHelper(that.currentVrm.scene, 0x00ff00);
             helper.update();
         this.config.scene.add(helper);                    
                     console.log('added VRM scene');
-                    console.log( that.currentVrm.scene);*/
+                    console.log( that.currentVrm.scene);
                   //  that.scaleToFitScene( vrm.scene, posVector );
                     vrm.scene.userData.owner = this; //set reference to 
               //      this.fixYCoord(vrm.scene, posVector); 
@@ -616,7 +618,11 @@ export default class ItemVRM {
                         if(that.currentAnim.asset){
                             console.log('have asset');
                             that.currentAnim.clip = that.applyAnimationToModel(that.currentAnim.asset, vrm);
-                            console.log('created clip');
+                            that.currentAnim.action = this.mixer.clipAction(that.currentAnim.clip);
+                            that.currentAnim.action.setLoop(THREE.LoopRepeat);
+                            that.currentAnim.action.clampWhenFinished  = true;
+                            that.currentAnim.action.play();
+                            console.log('created action  animation is playing');
                         }
                     } else {
                         console.log('no current anim')

@@ -300,105 +300,88 @@ import { Item, Item2d, ItemVRM, ChainAPI, ExtraData3DParser } from 'd3d';
         })      
     }
     
-    initItem = (opts) =>{
-
-        let nftPostHashHex = opts.nftPostHashHex;
-        let paramString = '';
-        let params  = [];
-        let nftsRoute = '';
-        let item = null;
-
-        let itemParams = {
-            three: THREE,
-            scene: this.scene,
-            height: opts.height,
-            width: opts.width,
-            depth: opts.depth,
-            nftPostHashHex: nftPostHashHex,
-            modelsRoute: this.config.modelsRoute,
-            nftsRoute: this.config.nftsRoute,
-            isImage: false,
-            layout: opts.layout,
-            loadingScreen: this.config.loadingScreen,
-            format: opts.format
-        };
-
-        if(this.config.physicsWorld){
-            itemParams.physicsWorld = this.config.physicsWorld;
-        };
-
-        if(opts.nft){
-            itemParams.nft = opts.nft;
-        } else {
-            console.warn('initItem: !!!! NO NFT!!!2');
-            console.log(opts);
-        };
-
-        if(opts.modelUrl){
-            itemParams.modelUrl = opts.modelUrl;
-        };
-
-        if(opts.position){
-            itemParams.position = opts.position;
-        }
-
-        if(opts.rotation){
-            itemParams.rotation = opts.rotation;
-        }
-
-        if(opts.width){
-            itemParams.width = opts.width;
-        }
-
-        if(opts.height){
-            itemParams.height = opts.height;
-        }
-
-        if(opts.depth){
-            itemParams.depth = opts.depth;
-        }
-
-        if(opts.mesh){
-            itemParams.mesh = opts.mesh;
-        } else {
-             itemParams.loader = this.config.loaders.getLoaderForFormat(opts.format);
-        };
-
-
-        if(opts.isImage){
-            itemParams.isImage = opts.isImage;
-        };
-
-        if(opts.nftRequestParams){
-            let nftRequestParams = opts.nftRequestParams;
-
-            Object.keys(nftRequestParams).forEach((key, index) => {
-                params.push(key+'='+nftRequestParams[key]);
-            });
-            paramString = params.join('&');
-            itemParams.nftsRoute = this.config.nftsRoute +'?' +paramString;
-            
-            if(!itemParams.nftPostHashHex){
-                console.log('cannot initItem without nftPostHashHex');
-                return false;
-            };
-            if((itemParams.nftsRoute==='')&&(itemParams.modelsRoute==='')){
-                console.log('cannot initItem without either modelsRoute or nftsRoute');
-                return false;
-            };              
-        };
-
-        if(opts.format.toLowerCase()==='vrm'){
-            itemParams.animLoader = this.config.animLoader;
-            item = new ItemVRM(itemParams);
-        } else {
-            item = new Item(itemParams);
-        };
-
-
-        return item;
-
+   initItem = (opts) => {
+  let itemParams = {
+    three: THREE,
+    scene: this.scene,
+    loadingScreen: this.config.loadingScreen,
+    layout: opts.layout,
+    format: opts.format
+  };
+  
+  if (this.config.physicsWorld) {
+    itemParams.physicsWorld = this.config.physicsWorld;
+  }
+  
+  if (opts.modelUrl) {
+    itemParams.modelUrl = opts.modelUrl;
+  }
+  
+  if (opts.nft) {
+    itemParams.nft = opts.nft;
+  }
+  
+  if (opts.position) {
+    itemParams.position = opts.position;
+  }
+  
+  if (opts.rotation) {
+    itemParams.rotation = opts.rotation;
+  }
+  
+  if (opts.width) {
+    itemParams.width = opts.width;
+  }
+  
+  if (opts.height) {
+    itemParams.height = opts.height;
+  }
+  
+  if (opts.depth) {
+    itemParams.depth = opts.depth;
+  }
+  
+  if (opts.mesh) {
+    itemParams.mesh = opts.mesh;
+  } else {
+    itemParams.loader = this.config.loaders.getLoaderForFormat(opts.format);
+  }
+  
+  if (opts.isImage) {
+    itemParams.isImage = opts.isImage;
+  }
+  
+  if (opts.nftRequestParams) {
+    let params = [];
+    let nftRequestParams = opts.nftRequestParams;
+    
+    Object.keys(nftRequestParams).forEach((key, index) => {
+      params.push(key + '=' + nftRequestParams[key]);
+    });
+    itemParams.nftsRoute = this.config.nftsRoute + '?' + params.join('&');
+    
+    if (!itemParams.nftPostHashHex) {
+      console.log('cannot initItem without nftPostHashHex');
+      return false;
     }
+    
+    if (itemParams.nftsRoute === '' && itemParams.modelsRoute === '') {
+      console.log('cannot initItem without either modelsRoute or nftsRoute');
+      return false;
+    }
+  }
+  
+  let item;
+  
+  if (opts.format.toLowerCase() === 'vrm') {
+    itemParams.animLoader = this.config.animLoader;
+    item = new ItemVRM(itemParams);
+  } else {
+    item = new Item(itemParams);
+  }
+  
+  return item;
+};
 
     initItem2d = (opts) =>{
 
