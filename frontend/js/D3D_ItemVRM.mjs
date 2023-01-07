@@ -118,6 +118,7 @@ export default class ItemVRM {
         this.direction = new THREE.Vector3();
         this.rotVelocity = new THREE.Vector3();
         this.nftDisplayData = this.parseNFTDisplayData();
+        this.anims = [];
         if(this.config.animLoader){
             this.animLoader = this.initAnimLoader({animHashes:[ '287cb636f6a8fc869f5c0f992fa2608a2332226c6251b1dc6908c827ab87eee4',
                                                                     '8d931cbd0fda4e794c3154d42fb6aef7cf094481ad83a83e97be8113cd702b85',
@@ -135,7 +136,7 @@ export default class ItemVRM {
 
 
 
-
+console.log('loading anim ',currentAnim.name);
         this.currentAnimationUrl = currentAnim.url;
         if(this.currentAnimationUrl){
             // create AnimationMixer for VRM
@@ -149,13 +150,32 @@ export default class ItemVRM {
                 this.loadMixamoAnimation( this.currentAnimationUrl, this.currentVrm ).then( ( clip ) => {
 
                         // Apply the loaded animation to mixer and play
-                        that.currentAnim.action = that.startAnimClip(clip);
-                        console.log('set anim running, ', this.currentAnim.url)
+                        that.anims[currentAnim.name].action = that.createAnimClip(clip);
                 } );
 
 
               }
 
+    }
+
+    startAnimClipByName = (name) =>{
+
+        if(this.anims[name].action){
+            this.anims[name].action.play();
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    stopAnimClipByName = (name) =>{
+
+        if(this.anims[name].action){
+            this.anims[name].action.stop();
+            return true;
+        } else {
+            return false;
+        }
     }
 
     startAnimClip = (clip) =>{
@@ -168,6 +188,14 @@ export default class ItemVRM {
         return action;    
     }
 
+    createAnimClip = (clip) =>{
+
+        let action = this.mixer.clipAction(clip);
+            action.setLoop(THREE.LoopRepeat);
+            action.clampWhenFinished  = true;
+            action.timeScale = 1.6;
+        return action;    
+    }
     startAnimAction = (action)=>{
         action.setLoop(THREE.LoopRepeat);
         action.clampWhenFinished  = true;
@@ -539,9 +567,11 @@ export default class ItemVRM {
                     } );
 
             if(this.animLoader) {
-                that.currentAnim = that.animLoader.fetchRandAnim();
+                that.anims['walk'] = that.animLoader.fetchUrlByName('walk');
+                that.anims['idle_warrior'] = that.animLoader.fetchUrlByName('idle_warrior');
+
+                 that.currentAnim = that.anims['idle_warrior'];
                 that.currentAnimationUrl = that.currentAnim.url;
-                console.log('fetchModel with anim: ',that.currentAnimationUrl);
             }
           
             loader.load(
@@ -568,10 +598,10 @@ export default class ItemVRM {
 
                     if(!this.mixer && (this.animLoader)){
                         this.mixer = new THREE.AnimationMixer( this.currentVrm.scene );
-                        this.mixer.addEventListener('finished',(e)=>{
+                       /* this.mixer.addEventListener('finished',(e)=>{
                             console.log('finished a clip');
                             that.setAnimRunning(false);
-                            that.currentAnim = that.animLoader.fetchRandAnim();
+                            that.currentAnim = that.animLoader.fetchUrlByName('walk');
                              if(this.currentAnim.action){
                                 // no need to Load animation
                                 console.log('currentAnim has action: ', this.currentAnim.url);
@@ -585,7 +615,7 @@ export default class ItemVRM {
                             
 
                         //that.mesh.scene.position.copy(this.config.pos);
-                        }, false);
+                        }, false);*/
                     };
 
                     vrm.scene.position.copy(posVector);
@@ -602,7 +632,8 @@ export default class ItemVRM {
 
                     if ( that.currentAnim ) {
 
-                        that.loadMixamo( that.currentAnim );
+                        that.loadMixamo(that.anims['walk']);
+                        that.loadMixamo(that.anims['idle_warrior']);
 
                     }
 

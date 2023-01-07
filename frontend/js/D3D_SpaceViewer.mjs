@@ -19,7 +19,7 @@ const params = {
     firstPerson: false,
     visualizeDepth: 10,
     gravity: - 30,
-    playerSpeed: 4,
+    playerSpeed: 3,
     physicsSteps: 16};
 
  export default class SpaceViewer {
@@ -2287,11 +2287,11 @@ this.addPlaneAtPos(playerFloor);
     that.player.rotation.set(0,0,0);
     that.character = new THREE.Mesh(
         new RoundedBoxGeometry(  1.0, 2.0, 1.0, 10, 0.5),
-        new THREE.MeshStandardMaterial({ transparent: true, opacity: 0.5})
+        new THREE.MeshStandardMaterial({ transparent: true, opacity: 0})
     );
-    that.character.position.set(0,-1,0);
+  //  that.character.position.set(0,-1,0);
 
-    //that.character.geometry.translate( 0, -0.5, 0 );
+    that.character.geometry.translate( 0, -0.5, 0 );
     that.character.capsuleInfo = {
         radius: (this.config.capsuleRadius)?this.config.capsuleRadius:0.5,
         segment: new THREE.Line3( new THREE.Vector3(), new THREE.Vector3( 0, - 1.0, 0.0 ) )
@@ -2312,11 +2312,11 @@ this.addPlaneAtPos(playerFloor);
                             modelUrl: this.config.avatarPath};
         avatar = that.initItemForModel(itemConfig);
         avatar.place(new THREE.Vector3(0,0,0), this.player).then((model,pos)=>{
-                        let avatarHeight = that.getImportedObjectSize(model.scene);
-                        console.log('avatarHeight: ',avatarHeight);
-model.scene.position.y = model.scene.position.y -(avatarHeight/1);
+                    let avatarHeight = that.getImportedObjectSize(model.scene);
+                    console.log('avatarHeight: ',avatarHeight);
+                    model.scene.position.y  = -0.5-(avatarHeight/2); // minus half height minus capsule radius puts it in capsule
             that.player.add(model.scene);
-
+            model.scene.updateMatrixWorld();
             that.scene.add( that.player );
           //  that.player.position.y=playerFloor;
 
@@ -2327,12 +2327,12 @@ model.scene.position.y = model.scene.position.y -(avatarHeight/1);
             let playerHeight2 = that.getImportedObjectSize(that.player);
             console.log('playerHeight2: ',playerHeight2);
             let Yoffset = playerHeight2/2;
-            that.player.position.y = playerFloor+Yoffset;
+            that.player.position.y = playerFloor+Yoffset; // player center is half player height so posision this distance from floor
 
             var helper = new THREE.BoxHelper(that.player, 0x00ff00);
                 helper.update();
-                that.scene.add(helper);            
-        });        
+
+            });        
     }
     
    
@@ -2381,24 +2381,31 @@ model.scene.position.y = model.scene.position.y -(avatarHeight/1);
     if ( rgtPressed ) {
         this.tempVector.set( 1, 0, 0 ).applyAxisAngle( this.upVector, angle );
     }
-    if(fwdPressed||bkdPressed||lftPressed||rgtPressed){
-        this.player.state = 'move';
-        /*if(this.player.avatar){
-            this.player.avatar.startCurrentAnimClip();            
-        }
-*/
-        this.player.position.addScaledVector( this.tempVector, params.playerSpeed * delta );
+    
+    if(this.player.avatar){    
+        if(fwdPressed||bkdPressed||lftPressed||rgtPressed){
+            if(this.player.state!=='walk'){
+                if(this.player.avatar.startAnimClipByName('walk')){
+                    this.player.state = 'walk';
+                    this.player.avatar.stopAnimClipByName('idle_warrior');
+                }
+            }
 
-        if(this.config.avatarPath){
-            this.updatePlayerDirection(delta); 
+            this.player.position.addScaledVector( this.tempVector, params.playerSpeed * delta );
+
+             this.updatePlayerDirection(delta); 
+          } else {
+            if(this.player.state!=='idle_warrior'){
+                if(this.player.avatar.startAnimClipByName('idle_warrior')){
+                    this.player.state = 'idle_warrior';
+                    this.player.avatar.stopAnimClipByName('walk');
+                }
+            }
+            
         }
-        this.player.updateMatrixWorld();
-    } else {
-       // this.player.state = 'stop';      
-        if(this.player.avatar){
-         //   this.player.avatar.stopAnimation();
-        }
+
     }
+    this.player.updateMatrixWorld();        
 
 
     // adjust player position based on collisions
