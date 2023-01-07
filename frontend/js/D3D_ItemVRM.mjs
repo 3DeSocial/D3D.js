@@ -119,12 +119,10 @@ export default class ItemVRM {
         this.rotVelocity = new THREE.Vector3();
         this.nftDisplayData = this.parseNFTDisplayData();
         if(this.config.animLoader){
-            this.animLoader = this.initAnimLoader({animHashes:[ '0c91b85ef07adc0feeb0a8cb7215e3c678a39ede0f842fb6fac6f9009dc30653']});
-/*
-                '287cb636f6a8fc869f5c0f992fa2608a2332226c6251b1dc6908c827ab87eee4',
+            this.animLoader = this.initAnimLoader({animHashes:[ '287cb636f6a8fc869f5c0f992fa2608a2332226c6251b1dc6908c827ab87eee4',
                                                                     '8d931cbd0fda4e794c3154d42fb6aef7cf094481ad83a83e97be8113cd702b85',
                                                                     '95c405260688db9fbb76d126334ee911a263352c58dbb77b6d562750c5ce1ed2',
-                                                                    '1a27c2f8a2672adbfdb4df7b31586a890b7f3a95b49a6937edc01de5d74072f2']});*/
+                                                                    '1a27c2f8a2672adbfdb4df7b31586a890b7f3a95b49a6937edc01de5d74072f2']});
         }
 
 
@@ -146,13 +144,13 @@ export default class ItemVRM {
                
 
                         // Load animation
-                  //  console.log('currentAnim needs some action: ', this.currentAnimationUrl);
+                    console.log('currentAnim needs some action: ', this.currentAnimationUrl);
 
                 this.loadMixamoAnimation( this.currentAnimationUrl, this.currentVrm ).then( ( clip ) => {
 
                         // Apply the loaded animation to mixer and play
                         that.currentAnim.action = that.startAnimClip(clip);
-                    //    console.log('set anim running, ', this.currentAnim.url)
+                        console.log('set anim running, ', this.currentAnim.url)
                 } );
 
 
@@ -170,18 +168,6 @@ export default class ItemVRM {
         return action;    
     }
 
-    startCurrentAnimClip = () =>{
-        if(this.animRunning===false){
-
-            if(!this.currentAnim.clip){
-                this.currentAnim.action = this.startAnimClip(this.currentAnim.clip);
-            };
-
-            this.currentAnim.action.play();
-            this.setAnimRunning(0);
-        }
-    }
-
     startAnimAction = (action)=>{
         action.setLoop(THREE.LoopRepeat);
         action.clampWhenFinished  = true;
@@ -191,21 +177,9 @@ export default class ItemVRM {
     }
 
     loadMixamoAnimation = ( url, vrm ) => {
-        let that = this;
+
         const loader = new FBXLoader(); // A loader which loads FBX
-        return new Promise((resolve,reject)=>{
-            loader.loadAsync( url ).then( ( asset ) => {
-                resolve(asset);
-                
-
-            });
-        });
-
-}
-
-    applyAnimationToModel = (asset, vrm) =>{
-        this.mixer = new THREE.AnimationMixer( this.currentVrm.scene );
-        
+        return loader.loadAsync( url ).then( ( asset ) => {
 
         const clip = THREE.AnimationClip.findByName( asset.animations, 'mixamo.com' ); // extract the AnimationClip
 
@@ -285,8 +259,10 @@ export default class ItemVRM {
 
         return new THREE.AnimationClip( 'vrmAnimation', clip.duration, tracks );
 
+    } );
 
-    }
+}
+
 
     parseNFTDisplayData = () =>{
         let nft = this.config.nft;
@@ -428,10 +404,8 @@ export default class ItemVRM {
     
     }
 
-    place = (pos, scene) =>{
+    place = (pos) =>{
         let that = this;
-
-        this.scene = scene;
         if(typeof(pos)==='undefined'){
             throw('Cant place at undefined position');
         };
@@ -528,6 +502,7 @@ export default class ItemVRM {
                 return;
             } else {
                 let url = this.config.nftsRoute;
+                console.log('fetchModelUrl: ',this.config.nftsRoute);
                 if(url.trim()===''){
                     reject('No nftsRoute or modelUrl exists for this item');
                     return;
@@ -563,12 +538,11 @@ export default class ItemVRM {
 
                     } );
 
-          /*  if(this.animLoader) {
+            if(this.animLoader) {
                 that.currentAnim = that.animLoader.fetchRandAnim();
-                console.log('fetched random anim: ,that.currentAnim');
-
                 that.currentAnimationUrl = that.currentAnim.url;
-            }*/
+                console.log('fetchModel with anim: ',that.currentAnimationUrl);
+            }
           
             loader.load(
                 // URL of the VRM you want to load
@@ -589,21 +563,32 @@ export default class ItemVRM {
 
                     // put the model to the scene
                     that.currentVrm = vrm;
-                    that.currentVrm.scene.position.set(0,0,0);
-                    that.scene.add( that.currentVrm.scene );
-                     that.currentVrm.scene.updateMatrixWorld();
-        var helper = new THREE.BoxHelper(that.currentVrm.scene, 0x00ff00);
-            helper.update();
-        this.config.scene.add(helper);                    
-                    console.log('added VRM scene');
-                    console.log( that.currentVrm.scene);
-                  //  that.scaleToFitScene( vrm.scene, posVector );
+                    that.scene.add( vrm.scene );
                     vrm.scene.userData.owner = this; //set reference to 
-              //      this.fixYCoord(vrm.scene, posVector); 
 
-                    
+                    if(!this.mixer && (this.animLoader)){
+                        this.mixer = new THREE.AnimationMixer( this.currentVrm.scene );
+                        this.mixer.addEventListener('finished',(e)=>{
+                            console.log('finished a clip');
+                            that.setAnimRunning(false);
+                            that.currentAnim = that.animLoader.fetchRandAnim();
+                             if(this.currentAnim.action){
+                                // no need to Load animation
+                                console.log('currentAnim has action: ', this.currentAnim.url);
+                                let action =  this.startAnimAction(this.currentAnim.action);
+                                    console.log('set animRunning for ', this.currentAnim.url)
+                            } else {
+                                that.loadMixamo( that.currentAnim );
+                            }
 
-                  //  vrm.scene.position.copy(posVector);
+                               
+                            
+
+                        //that.mesh.scene.position.copy(this.config.pos);
+                        }, false);
+                    };
+
+                    vrm.scene.position.copy(posVector);
 
 
                     // Disable frustum culling
@@ -613,28 +598,18 @@ export default class ItemVRM {
 
                     } );
 
-                    if ( that.currentAnim ) {  
-                        console.log('have current anim');
-                        if(that.currentAnim.asset){
-                            console.log('have asset');
-                            that.currentAnim.clip = that.applyAnimationToModel(that.currentAnim.asset, vrm);
-                            that.currentAnim.action = this.mixer.clipAction(that.currentAnim.clip);
-                            that.currentAnim.action.setLoop(THREE.LoopRepeat);
-                            that.currentAnim.action.clampWhenFinished  = true;
-                            console.log('that.currentAnim.action:');
-                            console.log(that.currentAnim.action);
-                            that.currentAnim.action.play();
-                            console.log('created action  animation is playing');
-                        }
-                    } else {
-                        console.log('no current anim')
+                    that.fixYCoord(vrm.scene, posVector);
+
+                    if ( that.currentAnim ) {
+
+                        that.loadMixamo( that.currentAnim );
+
                     }
 
                     // rotate if the VRM is VRM0.0
                     THREE_VRM.VRMUtils.rotateVRM0( vrm );
-                    console.log('that.currentVrm: ');
-                    console.log(that.currentVrm);
-                    resolve(that.currentVrm.scene);
+
+                    resolve(that.currentVrm);
 
                 },
 
@@ -649,40 +624,10 @@ export default class ItemVRM {
     }
 
 initAnimLoader = (config) =>{
-    let that = this;
-    console.log('initAnimLoader');
-    let animLoader = new AnimLoader(config);
-        if(!this.mixer && (animLoader)){
-            this.currentAnim = animLoader.fetchUrlByName('walk');
-            if(this.currentAnim){
-                this.loadMixamoAnimation(this.currentAnim.url, this.currentVrm ).then( ( asset ) => {
-                        // Loaded, ready to apply when avatar is loaded
-                        that.currentAnim.asset = asset;
-                        console.log('anim asset preloaded');
-                });
-            };
-                        /*
-                        this.mixer.addEventListener('finished',(e)=>{
-                            that.setAnimRunning(false);
-                            that.currentAnim = that.animLoader.fetchRandAnim();
-                             if(this.currentAnim.action){
-                                // no need to Load animation
-                                let action =  this.startAnimAction(this.currentAnim.action);
-                            } else {
-                                
-                            }
-
-                               
-                            
-
-                        //that.mesh.scene.position.copy(this.config.pos);
-                        }, false);*/
-                    };
-         
+        return new AnimLoader(config);
     }
 
 scaleToFitScene = (obj3D, posVector) =>{
-        this.addPlaneAtPos(posVector);
 
     let that = this;
 
@@ -720,7 +665,7 @@ scaleToFitScene = (obj3D, posVector) =>{
         // Use smallest ratio to scale the model
         if(obj3D.scale.set){
             obj3D.scale.set(minRatio, minRatio, minRatio);
-            obj3D.updateMatrixWorld();
+            obj3D.updateWorldMatrix();
         };
         
         let newMeshBounds = new THREE.Box3().setFromObject( obj3D );
@@ -733,22 +678,17 @@ scaleToFitScene = (obj3D, posVector) =>{
         let cbox = that.createContainerBoxForModel(newLengthMeshBounds.x, newLengthMeshBounds.y, newLengthMeshBounds.z, posVector);
         cbox.position.copy(posVector);
 
-        this.modelHeight = newLengthMeshBounds.y;
-        console.log('this.modelHeight: '+this.modelHeight);
         // center of box is position so move up by 50% of newLengthMeshBounds.y
-        //
+        //let yOffset = newLengthMeshBounds.y/2;
+        //cbox.position.setY(cbox.position.y+yOffset);
+        //cbox.add(obj3D);
+        //obj3D.updateWorldMatrix();
 
-        let yOffset = this.modelHeight/2;
-        obj3D.position.setY(cbox.position.y+yOffset);
-      //  cbox.add(obj3D);
-        //obj3D.updateMatrixWorld();
-
-      //  cbox.userData.owner = this; //set reference to Item
-        obj3D.userData.owner = this;
+        cbox.userData.owner = this; //set reference to Item
         that.scene.add(obj3D);    
         obj3D.position.copy(posVector);
 
-      //  cbox.updateMatrixWorld();    
+        cbox.updateMatrixWorld();    
     }
 
     getBoxHelperVertices = (boxHelper) =>{
@@ -815,7 +755,7 @@ scaleToFitScene = (obj3D, posVector) =>{
         const material = new THREE.MeshPhongMaterial({
             color: this.config.color,
             opacity: 0,
-            transparent: 0.5
+            transparent: true
         });
 
         let boxMesh = new THREE.Mesh( geometry, material );
@@ -916,9 +856,10 @@ scaleToFitScene = (obj3D, posVector) =>{
     }
 
     fixYCoord = (obj3D, posVector) =>{
+        console.log('fixYCoord ' );
         var helper = new THREE.BoxHelper(obj3D, 0x00ff00);
             helper.update();
-        this.scene.add(helper);
+
         let lowestVertex = this.getBoxHelperVertices(helper);
         if(!lowestVertex){
             console.log('no lowestVertex in');
@@ -926,8 +867,10 @@ scaleToFitScene = (obj3D, posVector) =>{
             return false;
         };
         lowestVertex.applyMatrix4(helper.matrixWorld);
+console.log(' posVector.y: ', posVector.y,' lowestVertex.y ',lowestVertex.y);
         if(posVector.y !== lowestVertex.y){
             let yOffset = lowestVertex.y-posVector.y;
+            console.log('yOffset: ',yOffset);
             obj3D.position.setY(obj3D.position.y - yOffset);
         };
     }

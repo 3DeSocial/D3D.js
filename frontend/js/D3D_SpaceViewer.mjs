@@ -98,6 +98,7 @@ const params = {
         this.workingMatrix = new THREE.Matrix4();
         this.d = new Date();
         this.nftClaimed = false;
+        this.avatars = [];
 
     }
 
@@ -144,7 +145,8 @@ const params = {
         
                 this.initPhysicsWorld();        
 
-                this.initInventory(options);                
+                this.initInventory(options);        
+              ///  this.initTestAnimation();
                 this.initCameraPlayer();     
 
                 if(that.config.firstPerson){
@@ -159,19 +161,44 @@ const params = {
             
                 this.renderer.render(this.scene,this.camera);
 
-                //that.resizeCanvas();
-               // that.loadingScreen.hide();
+                that.resizeCanvas();
+
                 that.addListeners();
                 console.log('addListeners')
                 that.audioListener.setMasterVolume(1);
                 this.camera.setRotationFromEuler(new THREE.Euler( 0,Math.PI,0, 'XYZ' ));
                 that.animate();
-                sceneryloadingComplete = true;                
+                sceneryloadingComplete = true;               
             });
 
   
 
         });
+    }
+
+    initTestAnimation = () =>{
+        let that = this;
+        let itemConfig = { 
+                            scene: this.scene,
+                            format: 'vrm',
+                            height:2.5,
+                            width:2.5,
+                            depth:2.5,
+                            modelUrl: this.config.avatarPath};
+
+        this.testAvatar = this.initItemForModel(itemConfig);
+        console.log('initTestAnimation');
+        console.log(itemConfig);
+        that.avatars.push(this.testAvatar);
+
+        let playerFloor = this.sceneryLoader.findFloorAt(new THREE.Vector3(3,1,2), 1, -2);
+
+        let placePos = new THREE.Vector3(0,playerFloor,0);
+        this.testAvatar.place(placePos, this.scene).then((mesh, pos)=>{
+          //  that.testAvatar.currentAnim.action.play();
+            //console.log('play started and mesh added');
+
+        })
     }
 
 
@@ -1468,7 +1495,8 @@ isOnWall = (raycaster, selectedPoint, meshToCheck) =>{
             // raycast in direction of camera and move it if it's further than the closest point
 
         //this.controls.update();
-    //    this.updateAnimations(delta);
+        //this.updateAnimations(delta);
+        this.updateAvatarAnimations(delta);
         this.renderer.render(this.scene, this.camera);
         //this.hud.render();
 
@@ -1477,6 +1505,19 @@ isOnWall = (raycaster, selectedPoint, meshToCheck) =>{
     updateAnimations = (delta)=>{
         this.sceneInventory.updateAnimations(delta);
     }
+
+    updateAvatarAnimations = (delta) =>{
+        //update all visible items running animations in sceneInventory
+        this.avatars.forEach((item)=>{
+            if((item.mixer !== null)){
+                item.mixer.update( delta );
+
+                if(item.mesh.update){
+                    item.mesh.update();
+                };
+            }
+        })
+    }    
 
     updatePhysicsWorld =() =>{
         this.world.step(this.dt); 
@@ -2236,12 +2277,13 @@ initPlayerThirdPerson = () => {
     if(this.sceneryLoader.playerStartPos){
         playerStartPos = new THREE.Vector3(this.sceneryLoader.playerStartPos.x,this.sceneryLoader.playerStartPos.y,this.sceneryLoader.playerStartPos.z);
     }
-        playerFloor = this.sceneryLoader.findFloorAt(playerStartPos, 2, -1);
+        playerFloor = this.sceneryLoader.findFloorAt(playerStartPos, 3, -1);
         playerStartPos.y = playerFloor;
 
 console.log('playerStartPos with floor',playerStartPos);
     that.player = new THREE.Group();
     that.player.position.copy(playerStartPos);
+    that.player.position.y+=1;
     that.player.rotation.set(0,0,0);
     that.character = new THREE.Mesh(
         new RoundedBoxGeometry(  1.0, 2.0, 1.0, 10, 0.5),
@@ -2249,7 +2291,7 @@ console.log('playerStartPos with floor',playerStartPos);
     );
     //that.character.position.set(0,1,0);
 
-    that.character.geometry.translate( 0, -0.5, 0 );
+  //  that.character.geometry.translate( 0, -0.5, 0 );
     that.character.capsuleInfo = {
         radius: (this.config.capsuleRadius)?this.config.capsuleRadius:0.5,
         segment: new THREE.Line3( new THREE.Vector3(), new THREE.Vector3( 0, - 1.0, 0.0 ) )
@@ -2258,23 +2300,23 @@ console.log('playerStartPos with floor',playerStartPos);
 
     let avatar = null;
     if(this.config.avatarPath){
-        avatar = that.initItemForModel({modelUrl:this.config.avatarPath, height:2});
-        avatar.place(new THREE.Vector3(0,0,0),that.player).then((model,pos)=>{
-            that.player.add(model);
-            model.updateMatrixWorld();
-            model.position.y=-1.5;
+
+        let itemConfig = { 
+                            scene: this.scene,
+                            format: 'vrm',
+                            height:2.5,
+                            width:2.5,
+                            depth:2.5,
+                            modelUrl: this.config.avatarPath};
+        avatar = that.initItemForModel(itemConfig);
+        avatar.place(new THREE.Vector3(0,0,0), this.player).then((model,pos)=>{
+            that.player.add(model.scene);
             that.player.add(that.character);
             that.scene.add( that.player );
-            console.log('model start pos: ',model);
-
-            that.player.position.y=1;
-            console.log('player adjusted pos: ',that.player.position);
-
-            console.log(that.player.position);
-
             that.player.updateMatrixWorld();
             that.player.model = model;
             that.player.avatar = avatar;
+            that.avatars.push(avatar);
         });        
     }
     
@@ -2304,11 +2346,10 @@ console.log('playerStartPos with floor',playerStartPos);
     }
     if(fwdPressed||bkdPressed||lftPressed||rgtPressed){
         this.player.state = 'move';
-        if(this.player.avatar){
-            console.log('have avatar when moving');
+        /*if(this.player.avatar){
             this.player.avatar.startCurrentAnimClip();            
         }
-
+*/
         this.player.position.addScaledVector( this.tempVector, params.playerSpeed * delta );
 
         if(this.config.avatarPath){

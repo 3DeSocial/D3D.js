@@ -61,7 +61,8 @@ export default class AnimLoader {
                 });
 */
 
-        this.animUrls =  [{name:'walk',hex:'0c91b85ef07adc0feeb0a8cb7215e3c678a39ede0f842fb6fac6f9009dc30653',url:'https://desodata.azureedge.net/unzipped/0c91b85ef07adc0feeb0a8cb7215e3c678a39ede0f842fb6fac6f9009dc30653/fbx/normal/StandardWalk.fbx'}
+        this.animUrls =  [{name:'walk', hex:'1a27c2f8a2672adbfdb4df7b31586a890b7f3a95b49a6937edc01de5d74072f2',url:'https://desodata.azureedge.net/unzipped/1a27c2f8a2672adbfdb4df7b31586a890b7f3a95b49a6937edc01de5d74072f2/fbx/normal/Arm_Stretching.fbx'}
+        /*{name:'walk',hex:'0c91b85ef07adc0feeb0a8cb7215e3c678a39ede0f842fb6fac6f9009dc30653',url:'https://desodata.azureedge.net/unzipped/0c91b85ef07adc0feeb0a8cb7215e3c678a39ede0f842fb6fac6f9009dc30653/fbx/normal/StandardWalk.fbx'}
           /*{hex:'1a27c2f8a2672adbfdb4df7b31586a890b7f3a95b49a6937edc01de5d74072f2',url:'https://desodata.azureedge.net/unzipped/1a27c2f8a2672adbfdb4df7b31586a890b7f3a95b49a6937edc01de5d74072f2/fbx/normal/Arm_Stretching.fbx'},
                            // {hex:'95c405260688db9fbb76d126334ee911a263352c58dbb77b6d562750c5ce1ed2',url:'https://desodata.azureedge.net/unzipped/95c405260688db9fbb76d126334ee911a263352c58dbb77b6d562750c5ce1ed2/fbx/normal/Happy_Idle.fbx'},
                             {hex:'8d931cbd0fda4e794c3154d42fb6aef7cf094481ad83a83e97be8113cd702b85',url:'https://desodata.azureedge.net/unzipped/8d931cbd0fda4e794c3154d42fb6aef7cf094481ad83a83e97be8113cd702b85/fbx/normal/Warrior_Idle.fbx'},
@@ -188,6 +189,8 @@ export default class AnimLoader {
     }
 
     fetchUrlByName = (name) => {
+        console.log('this.animUrls');
+        console.log(this.animUrls);
         let anims = this.animUrls.filter(anim => (anim.name===name));     
 
         return (anims[0])?anims[0]:false;
@@ -303,7 +306,7 @@ scaleToFitScene = (obj3D, posVector) =>{
         // Use smallest ratio to scale the model
         if(obj3D.scale.set){
             obj3D.scale.set(minRatio, minRatio, minRatio);
-            obj3D.updateWorldMatrix();
+            obj3D.updateMatrixWorld();
         };
         
         let newMeshBounds = new THREE.Box3().setFromObject( obj3D );
@@ -321,7 +324,7 @@ scaleToFitScene = (obj3D, posVector) =>{
         //let yOffset = newLengthMeshBounds.y/2;
         //cbox.position.setY(cbox.position.y+yOffset);
         //cbox.add(obj3D);
-        //obj3D.updateWorldMatrix();
+        //obj3D.updateMatrixWorld();
 
         cbox.userData.owner = this; //set reference to Item
         that.scene.add(obj3D);    
