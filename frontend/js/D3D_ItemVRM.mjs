@@ -598,7 +598,7 @@ export default class ItemVRM {
 
                     } );
 
-                    that.fixYCoord(vrm.scene, posVector);
+                 //   that.fixYCoord(vrm.scene, posVector);
 
                     if ( that.currentAnim ) {
 

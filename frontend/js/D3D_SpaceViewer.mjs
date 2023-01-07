@@ -2281,47 +2281,84 @@ initPlayerThirdPerson = () => {
         playerStartPos.y = playerFloor;
 
 console.log('playerStartPos with floor',playerStartPos);
+this.addPlaneAtPos(playerFloor);
     that.player = new THREE.Group();
     that.player.position.copy(playerStartPos);
-    that.player.position.y+=1;
     that.player.rotation.set(0,0,0);
     that.character = new THREE.Mesh(
         new RoundedBoxGeometry(  1.0, 2.0, 1.0, 10, 0.5),
         new THREE.MeshStandardMaterial({ transparent: true, opacity: 0.5})
     );
-    //that.character.position.set(0,1,0);
+    that.character.position.set(0,-1,0);
 
-  //  that.character.geometry.translate( 0, -0.5, 0 );
+    //that.character.geometry.translate( 0, -0.5, 0 );
     that.character.capsuleInfo = {
         radius: (this.config.capsuleRadius)?this.config.capsuleRadius:0.5,
         segment: new THREE.Line3( new THREE.Vector3(), new THREE.Vector3( 0, - 1.0, 0.0 ) )
     };    
     that.character.rotation.set(0,0,0);
-
+    that.player.add(that.character);
+            let playerHeight1 = that.getImportedObjectSize(that.player);
+            console.log('playerHeight1: ',playerHeight1);    
     let avatar = null;
     if(this.config.avatarPath){
 
         let itemConfig = { 
                             scene: this.scene,
                             format: 'vrm',
-                            height:2.5,
-                            width:2.5,
-                            depth:2.5,
+                            height:2,
+                            width:2,
+                            depth:2,
                             modelUrl: this.config.avatarPath};
         avatar = that.initItemForModel(itemConfig);
         avatar.place(new THREE.Vector3(0,0,0), this.player).then((model,pos)=>{
+                        let avatarHeight = that.getImportedObjectSize(model.scene);
+                        console.log('avatarHeight: ',avatarHeight);
+model.scene.position.y = model.scene.position.y -(avatarHeight/1);
             that.player.add(model.scene);
-            that.player.add(that.character);
+
             that.scene.add( that.player );
+          //  that.player.position.y=playerFloor;
+
             that.player.updateMatrixWorld();
             that.player.model = model;
             that.player.avatar = avatar;
             that.avatars.push(avatar);
+            let playerHeight2 = that.getImportedObjectSize(that.player);
+            console.log('playerHeight2: ',playerHeight2);
+            let Yoffset = playerHeight2/2;
+            that.player.position.y = playerFloor+Yoffset;
+
+            var helper = new THREE.BoxHelper(that.player, 0x00ff00);
+                helper.update();
+                that.scene.add(helper);            
         });        
     }
     
    
 }
+    getImportedObjectSize = (obj) =>{
+        let box = new THREE.Box3().setFromObject(obj);
+        let center = new THREE.Vector3();
+        let size = new THREE.Vector3();
+        let max = box.max;
+        let min = box.min;
+        let d = max.z - min.z;
+        let w = max.x - min.x;
+        let h = max.y - min.y;
+
+        return h;
+    }
+
+    addPlaneAtPos = (posVector) =>{
+        var geo = new THREE.PlaneBufferGeometry(20, 20);
+        var mat = new THREE.MeshPhongMaterial({ color: 0x99FFFF, side: THREE.DoubleSide });
+        var plane = new THREE.Mesh(geo, mat);
+        plane.rotateX( - Math.PI / 2);
+        plane.position.copy(posVector);
+        this.scene.add(plane);
+
+    }
 
  updatePlayer = ( delta )=> {
     this.playerVelocity.y += this.playerIsOnGround ? 0 : delta * params.gravity;
