@@ -32,7 +32,6 @@ export default class AnimLoader {
     
       
         this.modelUrl = this.config.modelUrl;
-        this.mixer = null;
        
         this.mesh = this.config.mesh
         this.animRunning = false;
@@ -68,7 +67,6 @@ export default class AnimLoader {
                             {name:'victory',hex:'287cb636f6a8fc869f5c0f992fa2608a2332226c6251b1dc6908c827ab87eee4',url:'https://desodata.azureedge.net/unzipped/287cb636f6a8fc869f5c0f992fa2608a2332226c6251b1dc6908c827ab87eee4/fbx/normal/Victory.fbx'}];
 
         this.lastPlayed = 0;
-
         
     }
 
@@ -76,6 +74,38 @@ export default class AnimLoader {
         return 'https://nftzapi.azurewebsites.net/api/post/getposts?hexesStr='+this.config.animHashes.join(',');
     }
 
+    createClips = async (mesh) =>{
+        let that = this;
+        let animClips = [];
+        let loadedCtr = 0;
+        let mixer = new THREE.AnimationMixer(mesh);     
+        this.mixer = mixer;   
+        this.fbxLoader = new FBXLoader();
+        return new Promise((resolve,reject)=>{
+            that.animUrls.forEach((animMeta)=>{
+
+                that.fbxLoader.load(animMeta.url, (anim) => {
+                    //creates animation action
+                    let animToProcess = null;
+                    anim.animations.forEach((animation)=>{
+                        if(animation.duration>0){
+                            animToProcess = animation;
+                        }
+                    })
+
+                    let action = mixer.clipAction(animToProcess);
+                        animClips[animMeta.name] = animMeta;
+                        animClips[animMeta.name].action = action;                        
+                        loadedCtr++;
+                      
+                        if(loadedCtr===that.animUrls.length){
+
+                            resolve(animClips);
+                        }
+                });
+            })
+        })
+    }
     playNextAnim = (animationUrl) =>{
         let animIndex = this.config.animations.indexOf(animationUrl);
         animIndex++;

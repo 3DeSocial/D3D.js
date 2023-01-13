@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import * as CANNON from 'cannon-es';
 import { Physics } from 'd3d';
-
+import {AnimLoader} from 'd3d';
 import { VOXMesh } from "three/examples/jsm/loaders/VOXLoader.js";
 export default class Item {
 
@@ -62,7 +62,18 @@ export default class Item {
            // console.log('nophysicsWorld');
 
         }
+        this.anims = [];
+        if(this.config.animLoader){
+            console.log('config has animLoader');
+            this.animLoader = this.initAnimLoader({animHashes:[ '287cb636f6a8fc869f5c0f992fa2608a2332226c6251b1dc6908c827ab87eee4',
+                                                                    '8d931cbd0fda4e794c3154d42fb6aef7cf094481ad83a83e97be8113cd702b85',
+                                                                    '95c405260688db9fbb76d126334ee911a263352c58dbb77b6d562750c5ce1ed2',
+                                                                    '1a27c2f8a2672adbfdb4df7b31586a890b7f3a95b49a6937edc01de5d74072f2']});
+            console.log('we have this.animLoader');
+        } else {
+            console.log('config has NO animLoader');
 
+        }
     }
 
     initPhysics = () =>{
@@ -374,6 +385,12 @@ export default class Item {
         
     }
 
+    initAnimLoader = (config) =>{
+        console.log('initAnimLoader');
+        let animLoader = new AnimLoader(config);
+        return animLoader;
+    }
+
     fetchModel = async(modelUrl, posVector) =>{
         
         let that = this;
@@ -381,6 +398,8 @@ export default class Item {
         return new Promise((resolve,reject)=>{
            // console.log('fetchModel: ',modelUrl);
            // console.log('that.loader: ',that.loader);            
+
+
             that.loader.load(modelUrl, (root)=> {
                 that.root = root;
                 let loadedItem = null;
@@ -397,7 +416,17 @@ export default class Item {
                 } else {
 */
                     that.mesh = loadedItem;
-                    that.mesh.userData.owner = this;
+
+                    if(that.animLoader){
+                        console.log('createing clips....')
+                        this.animLoader.createClips(that.mesh).then((clips)=>{
+                            that.anims = clips;
+                            that.mixer = this.animLoader.mixer;
+                            console.log('loaded all clips');
+                        })
+                    } else {
+                        console.log('no that.animLoader on load model');
+                    };                    that.mesh.userData.owner = this;
                     that.mesh.owner = this;                
                     let obj3D = this.convertToObj3D(loadedItem);
                     if(obj3D===false){
@@ -670,6 +699,32 @@ scaleToFitScene = (obj3D, posVector) =>{
         };
     }
 
+    startAnimClipByName = (name) =>{
+        if(!this.anims[name]){
+            return false;
+        };
+        if(this.anims[name].action){
+            this.anims[name].action.play();
+            console.log('play anim actin:', name);    
+            console.log(this.anims[name].action);
+            return true;
+        } else {
+            console.log('no anim ACTION for:', name);
+
+            return false;
+        }
+    }
+
+    stopAnimClipByName = (name) =>{
+
+        if(this.anims[name].action){
+            this.anims[name].action.stop();
+            return true;
+        } else {
+            return false;
+        }
+    }    
+
     startAnimation = (animIndex, loopType) =>{
 
         /* accepts 
@@ -816,6 +871,10 @@ scaleToFitScene = (obj3D, posVector) =>{
     rotateItem = () =>{
 
     }
+
+    updateAnimation = (delta) =>{
+        
+    }    
 
 }
 

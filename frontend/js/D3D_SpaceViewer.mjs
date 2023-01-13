@@ -1510,10 +1510,14 @@ isOnWall = (raycaster, selectedPoint, meshToCheck) =>{
         //update all visible items running animations in sceneInventory
         this.avatars.forEach((item)=>{
             if((item.mixer !== null)){
+                console.log('updateAvatarAnimations');
+
                 item.mixer.update( delta );
 
                 item.updateAnimation();
 
+            } else {
+                console.log('null mixer');
             }
         })
     }    
@@ -1810,6 +1814,7 @@ isOnWall = (raycaster, selectedPoint, meshToCheck) =>{
             three: THREE,
             loader: this.loaders.getLoaderForFormat(extension),
             scene: this.scene,
+            animLoader: (opts.animLoader)?opts.animLoader:false,
             height: (opts.height)?opts.height:this.config.scaleModelToHeight,
             width: (opts.width)?opts.width:this.config.scaleModelToWidth,
             depth: (opts.depth)?opts.depth:this.config.scaleModelToDepth,
@@ -2301,7 +2306,7 @@ initPlayerThirdPerson = () => {
     let avatar = null;
     if(this.config.avatarPath){
 
-        let itemConfig = { 
+        let itemConfig = { animLoader: true,
                             scene: this.scene,
                             format: 'vrm',
                             height:2,
@@ -2311,10 +2316,9 @@ initPlayerThirdPerson = () => {
         avatar = that.initItemForModel(itemConfig);
         avatar.place(new THREE.Vector3(0,0,0), this.player).then((model,pos)=>{
                     let avatarHeight = avatar.getImportedObjectSize();
-                    console.log('avatarHeight: ',avatarHeight);
-                    model.scene.position.y  = -0.5-(avatarHeight/2); // minus half height minus capsule radius puts it in capsule
+                    avatar.mesh.position.y  = -0.5-(avatarHeight/2); // minus half height minus capsule radius puts it in capsule
             that.player.add(avatar.mesh);
-            model.scene.updateMatrixWorld();
+            avatar.mesh.updateMatrixWorld();
             that.scene.add( that.player );
            that.player.position.y=playerFloor;
 
