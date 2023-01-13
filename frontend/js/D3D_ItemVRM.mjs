@@ -423,8 +423,8 @@ console.log('loading anim ',currentAnim.name);
         let that = this;
         return new Promise((resolve,reject)=>{
             this.fetchModel(this.modelUrl, pos)
-            .then((model)=>{
-                resolve(model);
+            .then((currentVrm)=>{
+                resolve(currentVrm);
             }).catch((err=>{
                 console.log( err);
             }))
@@ -455,7 +455,7 @@ console.log('loading anim ',currentAnim.name);
                         that.modelUrl = modelUrl;
                         that.placeModel(pos)
                         .then((model)=>{
-                            that.mesh = model;
+                            that.mesh = model.scene;
 
 
                             let loadedEvent = new CustomEvent('loaded', {detail: {mesh: this.mesh, position:pos}});
@@ -986,8 +986,9 @@ console.log(' posVector.y: ', posVector.y,' lowestVertex.y ',lowestVertex.y);
         return false;
     }
 
-    getImportedObjectSize = (obj) =>{
-        let box = new THREE.Box3().setFromObject(obj);
+    getImportedObjectSize = () =>{
+console.log('checking size of this.mesh');
+        let box = new THREE.Box3().setFromObject(this.mesh);
         let center = new THREE.Vector3();
         let size = new THREE.Vector3();
         let max = box.max;
@@ -1056,6 +1057,10 @@ console.log(' posVector.y: ', posVector.y,' lowestVertex.y ',lowestVertex.y);
 
     rotateItem = () =>{
 
+    }
+
+    updateAnimation = () =>{
+        this.currentVrm.update();
     }
 
 }

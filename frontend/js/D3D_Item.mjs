@@ -747,8 +747,9 @@ scaleToFitScene = (obj3D, posVector) =>{
         return false;
     }
 
-    getImportedObjectSize = (obj) =>{
-        let box = new THREE.Box3().setFromObject(obj);
+    getImportedObjectSize = () =>{
+        console.log('get size of this mesh');
+        let box = new THREE.Box3().setFromObject(this.mesh);
         let center = new THREE.Vector3();
         let size = new THREE.Vector3();
         let max = box.max;

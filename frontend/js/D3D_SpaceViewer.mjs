@@ -1512,9 +1512,8 @@ isOnWall = (raycaster, selectedPoint, meshToCheck) =>{
             if((item.mixer !== null)){
                 item.mixer.update( delta );
 
-                if(item.mesh.update){
-                    item.mesh.update();
-                };
+                item.updateAnimation();
+
             }
         })
     }    
@@ -2280,8 +2279,8 @@ initPlayerThirdPerson = () => {
         playerFloor = this.sceneryLoader.findFloorAt(playerStartPos, 3, -1);
         playerStartPos.y = playerFloor;
 
-console.log('playerStartPos with floor',playerStartPos);
-this.addPlaneAtPos(playerFloor);
+//console.log('playerStartPos with floor',playerStartPos);
+//this.addPlaneAtPos(playerFloor);
     that.player = new THREE.Group();
     that.player.position.copy(playerStartPos);
     that.player.rotation.set(0,0,0);
@@ -2298,8 +2297,7 @@ this.addPlaneAtPos(playerFloor);
     };    
     that.character.rotation.set(0,0,0);
     that.player.add(that.character);
-            let playerHeight1 = that.getImportedObjectSize(that.player);
-            console.log('playerHeight1: ',playerHeight1);    
+ 
     let avatar = null;
     if(this.config.avatarPath){
 
@@ -2312,16 +2310,16 @@ this.addPlaneAtPos(playerFloor);
                             modelUrl: this.config.avatarPath};
         avatar = that.initItemForModel(itemConfig);
         avatar.place(new THREE.Vector3(0,0,0), this.player).then((model,pos)=>{
-                    let avatarHeight = that.getImportedObjectSize(model.scene);
+                    let avatarHeight = avatar.getImportedObjectSize();
                     console.log('avatarHeight: ',avatarHeight);
                     model.scene.position.y  = -0.5-(avatarHeight/2); // minus half height minus capsule radius puts it in capsule
-            that.player.add(model.scene);
+            that.player.add(avatar.mesh);
             model.scene.updateMatrixWorld();
             that.scene.add( that.player );
-          //  that.player.position.y=playerFloor;
+           that.player.position.y=playerFloor;
 
             that.player.updateMatrixWorld();
-            that.player.model = model;
+            that.player.model = avatar.mesh;
             that.player.avatar = avatar;
             that.avatars.push(avatar);
             let playerHeight2 = that.getImportedObjectSize(that.player);
