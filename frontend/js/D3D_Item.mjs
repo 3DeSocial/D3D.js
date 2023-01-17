@@ -266,14 +266,14 @@ export default class Item {
                         .then((model)=>{
                             that.mesh = model;
 
-                            if(that.hasAnimations(false)){
+                             /*if(that.hasAnimations(false)){
                                 that.startAnimation(0,THREE.LoopRepeat);
                             } else {
-                            /*    console.log('no animations',this.config.postHashHex);
+                               console.log('no animations',this.config.postHashHex);
                                 console.log(model);
                                 console.log('root: ');
-                                console.log(that.root);*/
-                            };
+                                console.log(that.root);
+                            };*/
 
                             if(that.config.physicsWorld){
                                 that.addToPhysicsWorld();
@@ -418,12 +418,14 @@ export default class Item {
                     that.mesh = loadedItem;
 
                     if(that.animLoader){
-                        console.log('createing clips....')
-                        this.animLoader.createClips(that.mesh).then((clips)=>{
-                            that.anims = clips;
-                            that.mixer = this.animLoader.mixer;
-                            console.log('loaded all clips');
-                        })
+                        that.mixer = new THREE.AnimationMixer(that.mesh);
+                      // let animIdleUrl = 'https://desodata.azureedge.net/unzipped/8d931cbd0fda4e794c3154d42fb6aef7cf094481ad83a83e97be8113cd702b85/fbx/normal/Warrior_Idle.fbx';
+                        let animIdleUrl = '/models/avatars/SadIdle.fbx';
+                        that.animLoader.loadAnim(animIdleUrl, that.mixer).then((clip)=>{
+                            console.log('loaded: ',animIdleUrl); 
+                            clip.play();
+                        });
+
                     } else {
                         console.log('no that.animLoader on load model');
                     };                    that.mesh.userData.owner = this;
@@ -740,7 +742,7 @@ scaleToFitScene = (obj3D, posVector) =>{
     }
 
     startCurrentAnimation = (loopType) => {
-        if(!loopType){
+    /*    if(!loopType){
             loopType = THREE.LoopRepeat
         };
         let that = this;
@@ -762,7 +764,7 @@ scaleToFitScene = (obj3D, posVector) =>{
             } else {
                 //console.log('animation', animIndex, 'doesnt exist');
             }
-        }
+        }*/
     }
 
     stopAnimation = () =>{
@@ -873,7 +875,8 @@ scaleToFitScene = (obj3D, posVector) =>{
     }
 
     updateAnimation = (delta) =>{
-        
+        this.mixer.update();
+        console.log('updated anim')
     }    
 
 }

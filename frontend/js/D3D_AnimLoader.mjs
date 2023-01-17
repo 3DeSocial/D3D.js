@@ -38,6 +38,7 @@ export default class AnimLoader {
         this.animations = null;
         this.isItem = false;
         this.isImage = false;
+        this.animationActions = [];        
         if(this.config.modelUrl){
             console.log('check modelUrl');
             this.getFormatFromModelUrl();
@@ -68,6 +69,27 @@ export default class AnimLoader {
 
         this.lastPlayed = 0;
         
+    }
+
+    loadAnim = async (animUrl, mixer) =>{
+        let that = this;
+        return new Promise((resolve,reject)=>{
+
+            this.animationActions = [];
+                let fbxLoader = new FBXLoader();
+              //add an animation from another file
+                fbxLoader.load(
+                    animUrl,
+                    (object) => {
+                        console.log('loaded animation')
+                        console.log(object.animations);
+        
+                        const animationAction = mixer.clipAction(object.animations[0]);
+                        that.animationActions.push(animationAction);
+                        console.log('anim loaded new method')
+                        resolve(animationAction);
+                });
+        });
     }
 
     createAnimRequest = () =>{

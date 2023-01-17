@@ -1510,14 +1510,7 @@ isOnWall = (raycaster, selectedPoint, meshToCheck) =>{
         //update all visible items running animations in sceneInventory
         this.avatars.forEach((item)=>{
             if((item.mixer !== null)){
-                console.log('updateAvatarAnimations');
-
-                item.mixer.update( delta );
-
-                item.updateAnimation();
-
-            } else {
-                console.log('null mixer');
+                item.updateAnimation(delta);
             }
         })
     }    
@@ -2384,7 +2377,7 @@ initPlayerThirdPerson = () => {
         this.tempVector.set( 1, 0, 0 ).applyAxisAngle( this.upVector, angle );
     }
     
-    if(this.player.avatar){    
+    /*if(this.player.avatar){    
         if(fwdPressed||bkdPressed||lftPressed||rgtPressed){
             if(this.player.state!=='walk'){
                 if(this.player.avatar.startAnimClipByName('walk')){
@@ -2406,7 +2399,7 @@ initPlayerThirdPerson = () => {
             
         }
 
-    }
+    }*/
     this.player.updateMatrixWorld();        
 
 
