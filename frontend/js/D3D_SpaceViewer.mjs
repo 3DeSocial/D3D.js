@@ -9,7 +9,7 @@ import { Loaders, PlayerVR, AudioClipRemote, Physics, AudioClip, Item, ItemVRM, 
 let clock, gui, stats, delta;
 let environment, visualizer, player, controls, geometries;
 let playerIsOnGround = false;
-let fwdPressed = false, bkdPressed = false, lftPressed = false, rgtPressed = false, rotlftPressed = false, rotRgtPressed = false;
+let spacePressed = false, fwdPressed = false, bkdPressed = false, lftPressed = false, rgtPressed = false, rotlftPressed = false, rotRgtPressed = false;
 let nextPos = new THREE.Vector3();
 
 
@@ -146,7 +146,7 @@ const params = {
                 this.initPhysicsWorld();        
 
                 this.initInventory(options);        
-              ///  this.initTestAnimation();
+               // this.initTestAnimation();
                 this.initCameraPlayer();     
 
                 if(that.config.firstPerson){
@@ -178,9 +178,8 @@ const params = {
 
     initTestAnimation = () =>{
         let that = this;
-        let itemConfig = { 
+        let itemConfig = { animLoader: true,
                             scene: this.scene,
-                            format: 'vrm',
                             height:2.5,
                             width:2.5,
                             depth:2.5,
@@ -554,8 +553,16 @@ const params = {
                     case 'Digit8': that.inventory.setActive(8); break;
                     case 'Space':
                         if ( that.playerIsOnGround ) {
+                            if(that.player.avatar){
+                                that.player.avatar.animLoader.switchAnim('jump');
+                                that.player.state = 'jump';
+                                spacePressed = true;                                
 
-                            that.playerVelocity.y = 10.0;
+                                that.playerVelocity.y = 6.0;
+
+
+                            };
+
 
                         }
 
@@ -573,7 +580,7 @@ const params = {
                     case 'KeyS': bkdPressed = false; break;
                     case 'KeyD': rgtPressed = false; break;
                     case 'KeyA': lftPressed = false; break;
-
+                    case 'Space': spacePressed = false; break;
                 }
 
             } );
@@ -2377,29 +2384,43 @@ initPlayerThirdPerson = () => {
         this.tempVector.set( 1, 0, 0 ).applyAxisAngle( this.upVector, angle );
     }
     
-    /*if(this.player.avatar){    
-        if(fwdPressed||bkdPressed||lftPressed||rgtPressed){
-            if(this.player.state!=='walk'){
-                if(this.player.avatar.startAnimClipByName('walk')){
-                    this.player.state = 'walk';
-                    this.player.avatar.stopAnimClipByName('idle_warrior');
-                }
+    if(fwdPressed||bkdPressed||lftPressed||rgtPressed){
+        this.player.position.addScaledVector( this.tempVector, params.playerSpeed * delta );
+        this.updatePlayerDirection(delta);         
+        if(this.player.avatar){  
+            if(!spacePressed){
+                  if(this.player.state!='walk'){
+                    if((this.player.state==='jump')){
+                        if(this.playerIsOnGround){
+                             if(this.player.avatar.animLoader.switchAnim('walk')){
+                                this.player.state = 'walk';
+                                console.log('state set: ',this.player.state);
+                            }
+                        }
+                    } else {
+                        if(this.player.avatar.animLoader.switchAnim('walk')){
+                            this.player.state = 'walk';
+                            console.log('state set: ',this.player.state);
+                        }
+                    }
+                   
+                }                 
             }
-
-            this.player.position.addScaledVector( this.tempVector, params.playerSpeed * delta );
-
-             this.updatePlayerDirection(delta); 
-          } else {
-            if(this.player.state!=='idle_warrior'){
-                if(this.player.avatar.startAnimClipByName('idle_warrior')){
-                    this.player.state = 'idle_warrior';
-                    this.player.avatar.stopAnimClipByName('walk');
-                }
-            }
-            
+       
         }
 
-    }*/
+    } else {
+        if(this.player.avatar && !spacePressed){  
+
+            if(this.playerIsOnGround &&(this.player.state!='idle')){
+                if(this.player.avatar.animLoader.switchAnim('idle')){
+                    this.player.state = 'idle';
+                    console.log('state set: ',this.player.state);
+                }
+            }             
+               
+        }
+    }
     this.player.updateMatrixWorld();        
 
 

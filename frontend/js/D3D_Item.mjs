@@ -406,8 +406,11 @@ export default class Item {
 
                 if(root.scene){
                     loadedItem = root.scene;
+                    console.log('use scene');
                 } else {
                     loadedItem = root;
+                    console.log('use root');
+
                 };     
             /*               
                 if(that.hasArmature()){
@@ -418,17 +421,26 @@ export default class Item {
                     that.mesh = loadedItem;
 
                     if(that.animLoader){
-                        that.mixer = new THREE.AnimationMixer(that.mesh);
+                        that.mixer = new THREE.AnimationMixer(root);
+                        that.animLoader.getDefaultAnim(root,that.mixer);
                       // let animIdleUrl = 'https://desodata.azureedge.net/unzipped/8d931cbd0fda4e794c3154d42fb6aef7cf094481ad83a83e97be8113cd702b85/fbx/normal/Warrior_Idle.fbx';
-                        let animIdleUrl = '/models/avatars/SadIdle.fbx';
-                        that.animLoader.loadAnim(animIdleUrl, that.mixer).then((clip)=>{
-                            console.log('loaded: ',animIdleUrl); 
-                            clip.play();
+                        let walkUrl = '/models/avatars/Female/walk.fbx';
+                        let runUrl = '/models/avatars/Female/run.fbx';
+                        let jumpUrl = '/models/avatars/Female/jump.fbx';
+
+                        that.animLoader.loadAnim(walkUrl, that.mixer).then(()=>{
+                            that.animLoader.loadAnim(runUrl, that.mixer).then(()=>{
+                                that.animLoader.loadAnim(jumpUrl, that.mixer).then(()=>{
+                                    console.log('all animations loaded');
+                                    //that.animLoader.switchAnim('jump');
+                                });
+                            });
                         });
 
                     } else {
                         console.log('no that.animLoader on load model');
-                    };                    that.mesh.userData.owner = this;
+                    };
+                    that.mesh.userData.owner = this;
                     that.mesh.owner = this;                
                     let obj3D = this.convertToObj3D(loadedItem);
                     if(obj3D===false){
@@ -875,8 +887,9 @@ scaleToFitScene = (obj3D, posVector) =>{
     }
 
     updateAnimation = (delta) =>{
-        this.mixer.update();
-        console.log('updated anim')
+        if(this.mixer.update){
+           this.mixer.update(delta);
+        }
     }    
 
 }

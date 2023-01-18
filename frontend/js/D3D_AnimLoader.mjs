@@ -74,24 +74,71 @@ export default class AnimLoader {
     loadAnim = async (animUrl, mixer) =>{
         let that = this;
         return new Promise((resolve,reject)=>{
-
-            this.animationActions = [];
+                let animationAction = null;
                 let fbxLoader = new FBXLoader();
+                let animName = this.getNameFromPath(animUrl);
               //add an animation from another file
                 fbxLoader.load(
                     animUrl,
                     (object) => {
-                        console.log('loaded animation')
-                        console.log(object.animations);
-        
-                        const animationAction = mixer.clipAction(object.animations[0]);
-                        that.animationActions.push(animationAction);
-                        console.log('anim loaded new method')
-                        resolve(animationAction);
+
+                        let animToUse = null;
+                        object.animations.forEach((anim)=>{
+                            if(parseFloat(anim.duration)>0){
+                                animToUse = anim;
+                            }
+                        });
+                        if(animToUse){
+
+                            animationAction = mixer.clipAction(animToUse);
+                            that.animationActions[animName]= animationAction;
+                            console.log('loaded: ',animName);                            
+                            resolve(animationAction);                            
+                        };
+
                 });
         });
     }
 
+getDefaultAnim = (mesh, mixer) =>{
+    let defaultAnimToUse = null;
+    mesh.animations.forEach((anim)=>{
+        if(parseFloat(anim.duration)>0){
+            defaultAnimToUse = anim;
+        }
+    });
+    if(defaultAnimToUse){
+        const animationAction = mixer.clipAction(defaultAnimToUse)
+        this.animationActions['idle']= animationAction;
+        animationAction.play();
+        this.currentAnimName = 'idle';
+
+        console.log('getDefaultAnim: default loaded and playing');
+    };
+
+}
+
+    switchAnim =(animName)=>{
+        if(!this.animationActions[animName]){
+            console.log('no anim called: ',animName);
+            console.log(this.animationActions);
+            return false;
+        };
+        if(this.currentAnimName){
+            this.animationActions[this.currentAnimName].stop();
+        };
+        this.animationActions[animName].play();
+        console.log('play')
+        this.currentAnimName = animName;
+        return true;
+    }
+
+    getNameFromPath = (path) =>{
+        let parts = path.split('/');
+        let name = parts[parts.length-1];
+        name = name.replace('.fbx','');
+        return name;
+    }
     createAnimRequest = () =>{
         return 'https://nftzapi.azurewebsites.net/api/post/getposts?hexesStr='+this.config.animHashes.join(',');
     }
