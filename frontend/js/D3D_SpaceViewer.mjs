@@ -327,7 +327,7 @@ const params = {
         this.camera.updateProjectionMatrix(); 
         //this.camera.add( this.audioListener );
         this.camera.rotation.set(0,0,0);
-        let camStartPos = new THREE.Vector3(this.sceneryLoader.playerStartPos.x,this.sceneryLoader.playerStartPos.y,this.sceneryLoader.playerStartPos.z+3);
+        let camStartPos = new THREE.Vector3(this.sceneryLoader.playerStartPos.x,this.sceneryLoader.playerStartPos.y,this.sceneryLoader.playerStartPos.z-3);
         this.camera.position.copy(camStartPos);
 
         this.raycaster = new THREE.Raycaster({camera:this.camera});
