@@ -423,16 +423,21 @@ export default class Item {
                     if(that.animLoader){
                         that.mixer = new THREE.AnimationMixer(root);
                         that.animLoader.getDefaultAnim(root,that.mixer);
-                      // let animIdleUrl = 'https://desodata.azureedge.net/unzipped/8d931cbd0fda4e794c3154d42fb6aef7cf094481ad83a83e97be8113cd702b85/fbx/normal/Warrior_Idle.fbx';
-                        let walkUrl = '/models/avatars/Female/walk.fbx';
-                        let runUrl = '/models/avatars/Female/run.fbx';
-                        let jumpUrl = '/models/avatars/Female/jump.fbx';
+                        let walkUrl = that.config.avatarPath+'walk.fbx';
+                        let runUrl = that.config.avatarPath+'run.fbx';
+                        let jumpUrl = that.config.avatarPath+'jump.fbx';
+                        let danceUrl = that.config.avatarPath+'dance.fbx';                        
+                        console.log('danceUrl: ',danceUrl);
 
                         that.animLoader.loadAnim(walkUrl, that.mixer).then(()=>{
                             that.animLoader.loadAnim(runUrl, that.mixer).then(()=>{
                                 that.animLoader.loadAnim(jumpUrl, that.mixer).then(()=>{
+                                    that.animLoader.loadAnim(danceUrl, that.mixer).then(()=>{
                                     console.log('all animations loaded');
                                     //that.animLoader.switchAnim('jump');
+                                    }).catch(err=>{
+                                        console.log(err);
+                                    })
                                 });
                             });
                         });

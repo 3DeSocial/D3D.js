@@ -112,8 +112,6 @@ getDefaultAnim = (mesh, mixer) =>{
         this.animationActions['idle']= animationAction;
         animationAction.play();
         this.currentAnimName = 'idle';
-
-        console.log('getDefaultAnim: default loaded and playing');
     };
 
 }

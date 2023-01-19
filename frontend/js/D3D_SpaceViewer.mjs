@@ -9,7 +9,7 @@ import { Loaders, PlayerVR, AudioClipRemote, Physics, AudioClip, Item, ItemVRM, 
 let clock, gui, stats, delta;
 let environment, visualizer, player, controls, geometries;
 let playerIsOnGround = false;
-let spacePressed = false, fwdPressed = false, bkdPressed = false, lftPressed = false, rgtPressed = false, rotlftPressed = false, rotRgtPressed = false;
+let KeyBPressed, spacePressed = false, fwdPressed = false, bkdPressed = false, lftPressed = false, rgtPressed = false, rotlftPressed = false, rotRgtPressed = false;
 let nextPos = new THREE.Vector3();
 
 
@@ -327,7 +327,8 @@ const params = {
         this.camera.updateProjectionMatrix(); 
         //this.camera.add( this.audioListener );
         this.camera.rotation.set(0,0,0);
-        this.camera.position.copy(this.sceneryLoader.playerStartPos);
+        let camStartPos = new THREE.Vector3(this.sceneryLoader.playerStartPos.x,this.sceneryLoader.playerStartPos.y,this.sceneryLoader.playerStartPos.z+3);
+        this.camera.position.copy(camStartPos);
 
         this.raycaster = new THREE.Raycaster({camera:this.camera});
         this.pRaycaster = new THREE.Raycaster();
@@ -567,6 +568,18 @@ const params = {
                         }
 
                         break;
+                    case 'KeyB':
+                        if ( that.playerIsOnGround ) {
+                            if(that.player.avatar){
+                                that.player.avatar.animLoader.switchAnim('dance');
+                                that.player.state = 'dance';
+                                KeyBPressed = true;
+                            };
+
+
+                        }
+
+                        break;
 
                 }
 
@@ -581,6 +594,7 @@ const params = {
                     case 'KeyD': rgtPressed = false; break;
                     case 'KeyA': lftPressed = false; break;
                     case 'Space': spacePressed = false; break;
+                    case 'KeyBPressed': KeyBPressed = false; break;
                 }
 
             } );
@@ -1823,6 +1837,8 @@ isOnWall = (raycaster, selectedPoint, meshToCheck) =>{
             nftsRoute: this.config.nftsRoute,
             format:extension,
             physicsWorld: (opts.physicsWorld)?opts.physicsWorld:null,
+            avatar: (opts.avatar)?opts.avatar:null,
+            avatarPath: (opts.avatarPath)?opts.avatarPath:null
         }
 
         if(extension.trim().toLowerCase()==='vrm'){
@@ -2305,14 +2321,20 @@ initPlayerThirdPerson = () => {
  
     let avatar = null;
     if(this.config.avatarPath){
-
-        let itemConfig = { animLoader: true,
+        let avatarFile = this.config.avatars[this.config.avatar];
+        let path = this.config.avatarPath+this.config.avatar+'/'+avatarFile;
+        console.log('full avatar path: ',path)
+        let itemConfig = { avatar: avatar,
+                            avatarPath:this.config.avatarPath+this.config.avatar+'/',
+                            animLoader: true,
                             scene: this.scene,
                             format: 'vrm',
                             height:2,
                             width:2,
                             depth:2,
-                            modelUrl: this.config.avatarPath};
+                            modelUrl: path};
+                            console.log('avatar config');
+                            console.log(itemConfig);
         avatar = that.initItemForModel(itemConfig);
         avatar.place(new THREE.Vector3(0,0,0), this.player).then((model,pos)=>{
                     let avatarHeight = avatar.getImportedObjectSize();
@@ -2335,6 +2357,7 @@ initPlayerThirdPerson = () => {
                 helper.update();
 
             });        
+        this.camera.lookAt(this.player);
     }
     
    
@@ -2410,14 +2433,26 @@ initPlayerThirdPerson = () => {
         }
 
     } else {
-        if(this.player.avatar && !spacePressed){  
-
-            if(this.playerIsOnGround &&(this.player.state!='idle')){
-                if(this.player.avatar.animLoader.switchAnim('idle')){
-                    this.player.state = 'idle';
-                    console.log('state set: ',this.player.state);
-                }
-            }             
+        if(this.player.avatar){  
+            switch (this.player.state){
+                case 'walk':
+                case 'run':
+                    if(this.player.avatar.animLoader.switchAnim('idle')){
+                        this.player.state = 'idle';
+                        console.log('state set: ',this.player.state);
+                    };                   
+                    break;
+                case 'jump':
+                if(this.playerIsOnGround){
+                    if(this.player.avatar.animLoader.switchAnim('idle')){
+                        this.player.state = 'idle';
+                        console.log('state set: ',this.player.state);
+                    };
+                };
+                break;
+                case 'dance':
+                break;
+            }  
                
         }
     }
