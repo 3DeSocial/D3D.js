@@ -117,18 +117,35 @@ getDefaultAnim = (mesh, mixer) =>{
 }
 
     switchAnim =(animName)=>{
+        if(animName===this.currentAnimName){
+            return false;
+        };
         if(!this.animationActions[animName]){
             console.log('no anim called: ',animName);
             console.log(this.animationActions);
             return false;
         };
         if(this.currentAnimName){
-            this.animationActions[this.currentAnimName].stop();
-        };
-        this.animationActions[animName].play();
-        console.log('play')
+        console.log('fade')            
+            this.crossFade(this.animationActions[this.currentAnimName],  this.animationActions[animName], 0.2);
+        } else {
+        console.log('play')            
+            this.animationActions[animName].play();           
+        }
+
         this.currentAnimName = animName;
         return true;
+    }
+
+    crossFade = (from, to, duration) =>{
+
+    to.reset();  
+    to.setEffectiveTimeScale( 1 )
+    to.setEffectiveWeight( 1 )      
+    to.clampWhenFinished = true;
+    to.crossFadeFrom(from, duration, true);
+    to.play();
+
     }
 
     getNameFromPath = (path) =>{
