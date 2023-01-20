@@ -120,6 +120,35 @@ const params = {
       //  this.cannonDebugRenderer = new CannonDebugRenderer(this.scene, world)
     }
 
+    createLabel = (text, group, pos) =>{
+        // Create a canvas element to render the text label
+        var canvas = document.createElement('canvas');
+        var ctx = canvas.getContext('2d');
+
+        // Set the font and text for the label
+        ctx.font = '40px Arial bold';
+        ctx.fillStyle = 'white';
+        ctx.textAlign = 'center';
+        ctx.fillText(text, canvas.width / 2, canvas.height / 2);
+
+        // Create a texture from the canvas
+        var texture = new THREE.Texture(canvas);
+        texture.needsUpdate = true;
+
+        // Create a sprite material using the texture
+        var material = new THREE.SpriteMaterial({ map: texture });
+
+        // Create a sprite and position it above the 3D object
+        var label = new THREE.Sprite(material);
+        label.position.set(pos.x, pos.y, pos.z);
+
+        // Add the sprite to the scene
+        group.add(label);
+
+        // Make the sprite always face the camera
+        label.lookAt(this.camera.position);        
+    }
+
     setMasterVolume = (num) =>{
         this.audioListener.setMasterVolume(num);
     }
@@ -2355,7 +2384,10 @@ initPlayerThirdPerson = () => {
 
             var helper = new THREE.BoxHelper(that.player, 0x00ff00);
                 helper.update();
+                console.log('avatarHeight: ',avatarHeight);
 
+            that.createLabel('Hello World!', that.player, {x:0,y:1,z:0});
+            console.log('created label')
             });        
         this.camera.lookAt(this.player);
     }
