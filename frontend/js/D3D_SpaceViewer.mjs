@@ -129,7 +129,7 @@ const params = {
         ctx.font = '40px Arial bold';
         ctx.fillStyle = 'white';
         ctx.textAlign = 'center';
-        ctx.fillText(text, canvas.width / 2, canvas.height / 2);
+        ctx.fillText(text, canvas.width / 2, canvas.height / 2, canvas.width);
 
         // Create a texture from the canvas
         var texture = new THREE.Texture(canvas);
@@ -600,8 +600,16 @@ const params = {
                     case 'KeyB':
                         if ( that.playerIsOnGround ) {
                             if(that.player.avatar){
-                                that.player.avatar.animLoader.switchAnim('dance');
-                                that.player.state = 'dance';
+                                let newState = 'dance'
+                                if(that.player.state == 'dance'){
+                                    newState = 'dance2';
+                                } else if(that.player.state == 'dance2'){
+                                    newState = 'dance3';
+                                } else if(that.player.state == 'dance3'){
+                                    newState = 'dance';
+                                };
+                                that.player.avatar.animLoader.switchAnim(newState);
+                                that.player.state = newState;
                                 KeyBPressed = true;
                             };
 
@@ -1867,7 +1875,8 @@ isOnWall = (raycaster, selectedPoint, meshToCheck) =>{
             format:extension,
             physicsWorld: (opts.physicsWorld)?opts.physicsWorld:null,
             avatar: (opts.avatar)?opts.avatar:null,
-            avatarPath: (opts.avatarPath)?opts.avatarPath:null
+            avatarPath: (opts.avatarPath)?opts.avatarPath:null,
+            owner: (opts.owner)?opts.owner:null            
         }
 
         if(extension.trim().toLowerCase()==='vrm'){
@@ -2350,10 +2359,13 @@ initPlayerThirdPerson = () => {
  
     let avatar = null;
     if(this.config.avatarPath){
+
         let avatarFile = this.config.avatars[this.config.avatar];
         let path = this.config.avatarPath+this.config.avatar+'/'+avatarFile;
         console.log('full avatar path: ',path)
+        console.log(this.config.owner);
         let itemConfig = { avatar: avatar,
+                            owner: this.config.owner,
                             avatarPath:this.config.avatarPath+this.config.avatar+'/',
                             animLoader: true,
                             scene: this.scene,
@@ -2385,8 +2397,7 @@ initPlayerThirdPerson = () => {
             var helper = new THREE.BoxHelper(that.player, 0x00ff00);
                 helper.update();
                 console.log('avatarHeight: ',avatarHeight);
-
-            that.createLabel('Hello World!', that.player, {x:0,y:1,z:0});
+            that.createLabel(this.config.owner.ownerName, that.player, {x:0,y:1,z:0});
             console.log('created label')
             });        
         this.camera.lookAt(this.player);
@@ -2483,6 +2494,8 @@ initPlayerThirdPerson = () => {
                 };
                 break;
                 case 'dance':
+                case 'dance2':
+                case 'dance3':
                 break;
             }  
                

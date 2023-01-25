@@ -412,6 +412,7 @@ export default class Item {
                     console.log('use root');
 
                 };     
+
             /*               
                 if(that.hasArmature()){
                     console.log('armature detected');
@@ -419,28 +420,33 @@ export default class Item {
                 } else {
 */
                     that.mesh = loadedItem;
-
+                    this.swapMeshForProfilePic();
                     if(that.animLoader){
                         that.mixer = new THREE.AnimationMixer(root);
                         that.animLoader.getDefaultAnim(root,that.mixer);
                         let walkUrl = that.config.avatarPath+'walk.fbx';
                         let runUrl = that.config.avatarPath+'run.fbx';
                         let jumpUrl = that.config.avatarPath+'jump.fbx';
-                        let danceUrl = that.config.avatarPath+'dance.fbx';                        
+                        let danceUrl = that.config.avatarPath+'dance.fbx';
+                        let danceUrl2 = that.config.avatarPath+'dance2.fbx';                        
+                        let danceUrl3 = that.config.avatarPath+'dance3.fbx';                        
+
+
+                        console.log('walkUrl: ',walkUrl);
+                        console.log('runUrl: ',runUrl);
+                        console.log('jumpUrl: ',jumpUrl);
                         console.log('danceUrl: ',danceUrl);
 
-                        that.animLoader.loadAnim(walkUrl, that.mixer).then(()=>{
-                            that.animLoader.loadAnim(runUrl, that.mixer).then(()=>{
-                                that.animLoader.loadAnim(jumpUrl, that.mixer).then(()=>{
-                                    that.animLoader.loadAnim(danceUrl, that.mixer).then(()=>{
-                                    console.log('all animations loaded');
-                                    //that.animLoader.switchAnim('jump');
-                                    }).catch(err=>{
-                                        console.log(err);
-                                    })
-                                });
-                            });
-                        });
+                        let promise1 = that.animLoader.loadAnim(walkUrl, that.mixer);
+                        let promise2 = that.animLoader.loadAnim(runUrl, that.mixer);
+                        let promise3 = that.animLoader.loadAnim(jumpUrl, that.mixer);
+                        let promise4 = that.animLoader.loadAnim(danceUrl, that.mixer);
+                        let promise5 = that.animLoader.loadAnim(danceUrl2, that.mixer);
+                        let promise6 = that.animLoader.loadAnim(danceUrl3, that.mixer);
+                        let promises = [promise1,promise2,promise3,promise4,promise5,promise6];
+                        Promise.allSettled(promises).
+                          then((results) => results.forEach((result) => console.log(result.status)));                        
+                         console.log('all animations loaded');
 
                     } else {
                         console.log('no that.animLoader on load model');
@@ -472,6 +478,54 @@ onProgressCallback = ()=> {}
 onErrorCallback = (e)=> {
     console.log('loading error');
     console.log(e);
+}
+
+swapMeshForProfilePic = () =>{
+    let that = this;
+
+    let faceMesh = this.findChildByName(this.mesh, 'ProfilePicHere');
+console.log('this.config.owner in Item:');
+console.log(this.config.owner);
+    if(faceMesh){
+        this.faceMesh = faceMesh;
+        let remoteProfilePic = 'https://node.deso.org/api/v0/get-single-profile-picture/'+this.config.owner.ownerPublicKey;
+        this.loadRemoteTexture(remoteProfilePic).then((texture)=>{
+            var material = new THREE.MeshBasicMaterial({ map: texture });    
+            this.faceMesh.material =material;
+        })
+
+    }
+
+}
+
+
+loadRemoteTexture = (imageUrl) =>{
+    let that = this;
+    let proxyImageURL = 'https://nftzapi.azurewebsites.net/api/query/getimage?url=' +imageUrl;    
+console.log('load profile pic from: ',proxyImageURL);
+    return new Promise((resolve,reject)=>{
+        var img = new Image();
+            img.onload = function(){
+              const textureLoader = new THREE.TextureLoader()
+              const texture = textureLoader.load(this.src);
+              resolve(texture);
+        };
+
+        img.addEventListener('error', (img, error) =>{
+          console.log('could not load image',img.src);
+       //   console.log(error);
+          reject(img.src)
+        });
+        img.src = proxyImageURL;
+
+    });
+}
+findChildByName =(mesh, name) =>{
+    for (var i = 0; i < mesh.children.length; i++) {
+        if (mesh.children[i].name === name) {
+            return mesh.children[i];
+        }
+    }
 }
 
 scaleToFitScene = (obj3D, posVector) =>{
