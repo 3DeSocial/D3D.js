@@ -437,6 +437,7 @@ const params = {
             this.camera.updateProjectionMatrix();
             this.renderer.setSize(canvasWidth,canvasHeight);
         } else {
+            console.log('resising to: ', this.parentDivEl);
             this.parentDivElWidth = this.parentDivEl.offsetWidth;
             this.parentDivElHeight = this.parentDivEl.offsetHeight;                      
             this.camera.aspect = this.parentDivElWidth/this.parentDivElHeight;
