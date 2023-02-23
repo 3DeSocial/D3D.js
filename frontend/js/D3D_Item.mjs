@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import * as CANNON from 'cannon-es';
+//import * as CANNON from 'cannon-es';
 import { Physics } from 'd3d';
 import {AnimLoader} from 'd3d';
 import { VOXMesh } from "three/examples/jsm/loaders/VOXLoader.js";
