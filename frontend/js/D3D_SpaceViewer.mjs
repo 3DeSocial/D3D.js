@@ -171,17 +171,63 @@ const params = {
 
             this.loadScenery().then(()=>{
         
-                this.initPhysicsWorld();        
+             //   this.initPhysicsWorld();        
 
                 this.initInventory(options);        
-               // this.initTestAnimation();
-                this.initCameraPlayer();     
+                             if(this.avatarEnabled()){
+                        this.config.chainAPI.fetchPostDetail({postHashHex:this.config.avatar}).then((res)=>{
+                            res.json().then((json)=>{
+                                let extraDataString = null;
+                                if(json.PostExtraData){
+                                    extraDataString = json.PostExtraData['3DExtraData']
+                                } else if (json.path3D){
+                                    extraDataString = json.path3D
+                                };
+                                if(extraDataString){
+                                    let avatarConfig = {isAvatar: true,
+                                                        animLoader: true,
+                                                        // TO DO - enable overriding with different folder for animations
+                                                        width: 3, 
+                                                        height:3, 
+                                                        depth:3, 
+                                                        nftPostHashHex:this.config.avatar,
+                                                        extraDataString:extraDataString,
+                                                        owner: {
+                                                            ownerName: 'Guest',
+                                                            ownerPublicKey: null,
+                                                            ownerDescription: null
+                                                        }
+                                                    };
 
-                if(that.config.firstPerson){
-                    that.initPlayerFirstPerson();
+                                    if(this.config.currentUser){
+                                        avatarConfig.owner = { // avatar owner is curretn user
+                                                            ownerName: this.config.currentUser.Username,
+                                                            ownerPublicKey: this.config.currentUser.PublicKeyBase58Check,
+                                                            ownerDescription: this.config.currentUser.Description
+                                                        };                                  
+                                    };
+
+                                    that.avatar = this.initItem(avatarConfig);
+                                    that.initCameraThirdPerson();
+                                    that.initPlayerThirdPerson().then(()=>{
+                                        sceneryloadingComplete = true;
+                                        //that.resizeCanvas();
+                                        that.loadingScreen.hide();
+                                    })
+                                    
+                                };
+                            })
+
+                        })
                 } else {
-                    that.initPlayerThirdPerson();
+                    console.log('no avatar enabled');
+                    //No avatar is available, use first person
+                    this.config.firstPerson =true;
+                    this.initCameraFirstPerson(); 
+                    that.initPlayerFirstPerson();
+                    that.loadingScreen.hide();                    
                 }
+
                 this.initControls();
                 if ( 'xr' in navigator ) {
                     that.initVR();
@@ -349,19 +395,33 @@ const params = {
         this.containerInitialized = true;
 
     }
-    initCameraPlayer = () =>{
+
+initCameraFirstPerson = () =>{
         // camera setup
         this.camera = new THREE.PerspectiveCamera( 60, window.innerWidth / window.innerHeight, 0.1, 100 );
         this.camera.updateProjectionMatrix(); 
-        //this.camera.add( this.audioListener );
+       // this.camera.add( this.audioListener );
         this.camera.rotation.set(0,0,0);
-        let camStartPos = new THREE.Vector3(this.sceneryLoader.playerStartPos.x,this.sceneryLoader.playerStartPos.y,this.sceneryLoader.playerStartPos.z-3);
+        let camStartPos = new THREE.Vector3(this.sceneryLoader.playerStartPos.x,this.sceneryLoader.playerStartPos.y,this.sceneryLoader.playerStartPos.z);
+        camStartPos.y = camStartPos.y+2; // higher than ground level
         this.camera.position.copy(camStartPos);
 
         this.raycaster = new THREE.Raycaster({camera:this.camera});
         this.pRaycaster = new THREE.Raycaster();
 
     }
+
+    initCameraThirdPerson = () =>{
+        // camera setup
+        this.camera = new THREE.PerspectiveCamera( 60, window.innerWidth / window.innerHeight, 0.1, 100 );
+        this.camera.updateProjectionMatrix(); 
+        let camStartPos = new THREE.Vector3(this.sceneryLoader.playerStartPos.x,this.sceneryLoader.playerStartPos.y,this.sceneryLoader.playerStartPos.z);
+        camStartPos.y = camStartPos.y+2; // higher than ground level        
+        this.camera.position.copy(camStartPos);
+        this.raycaster = new THREE.Raycaster({camera:this.camera});
+        this.pRaycaster = new THREE.Raycaster();
+
+    }    
 
     initCamera = () =>{
         //Create a camera
@@ -374,17 +434,97 @@ const params = {
 
     }
 
+initPlayerThirdPerson = () => {
+
+    let that = this;
+    let playerLoader = new GLTFLoader();
+    let newPos = null;
+    let playerFloor = 0;
+    let playerStartPos = this.calcPlayerStartPos();
+    let offsetStartPos = this.calcOffestStartPos(playerStartPos);
+
+    let raidus = 0.5;
+    that.character = new THREE.Mesh(
+        new RoundedBoxGeometry(  1.0, 2.0, 1.0, 10, raidus),
+        new THREE.MeshStandardMaterial({ transparent: true, opacity: 0})
+    );
+
+    that.character.geometry.translate( 0, - 0.5, 0 );
+    that.character.capsuleInfo = {
+        radius: raidus,
+        segment: new THREE.Line3( new THREE.Vector3(), new THREE.Vector3( 0, - 1.0, 0.0 ) )
+    };    
+    that.character.rotation.set(0,0,0);
+    that.character.position.copy(offsetStartPos);
+    that.scene.add(that.character);
+    that.character.updateMatrixWorld();
+           
+    //place avatar in the center of the Player group
+   this.avatar.place(playerStartPos).then((model,pos)=>{
+
+        that.player = new THREE.Group();   
+        that.player.position.copy(offsetStartPos);
+        that.player.state = 'idle';
+
+        that.player.rotation.set(0,0,0);         
+        that.player.attach(that.character);
+        that.player.attach(that.avatar.mesh);
+
+        that.scene.add( that.player );
+        that.player.updateMatrixWorld();
+        that.player.avatar = that.avatar;
+        
+        that.avatars.push(that.avatar);
+
+        let loggedInUserName = 'Guest';
+        if(this.config.currentUser){
+            loggedInUserName = this.config.currentUser.Username;
+        };
+        that.createLabel(loggedInUserName, that.player, {x:0,y:(that.player.position.y+2),z:0});
+        let lookAtStartPos = that.player.position.clone();
+        lookAtStartPos.setZ(lookAtStartPos.z+10); // look ahead
+        lookAtStartPos.setY(that.player.position.y); // look ahead
+
+
+        this.initControls();
+        this.addListeners();            
+        this.camera.position.copy(offsetStartPos);
+        this.camera.position.z=this.camera.position.z-2;
+        that.camera.lookAt(lookAtStartPos);
+        that.animate();
+
+    });       
+   
+    
+   
+}
+
+    calcPlayerStartPos = () =>{
+        let playerStartPos = null;
+        if(this.sceneryLoader.playerStartPos){
+            playerStartPos = new THREE.Vector3(this.sceneryLoader.playerStartPos.x,this.sceneryLoader.playerStartPos.y,this.sceneryLoader.playerStartPos.z);
+        }
+        let playerFloor = this.sceneryLoader.findFloorAt(playerStartPos, 8, -4);
+        playerStartPos.y = playerFloor;
+        return playerStartPos;
+    }
+    calcOffestStartPos = (playerStartPos)=>{
+
+        let offsetStartPos = playerStartPos.clone();
+        offsetStartPos.setY(offsetStartPos.y+1.5); 
+        return offsetStartPos;     
+    }
+
+    
+
     initControls = () =>{
         //Controls
         this.controls = new OrbitControls(this.camera, this.renderer.domElement);
-    let playerx = this.player.position.x;
-    let playery = this.player.position.y;
-    let playerz = this.player.position.z;
-    //this.camPos.set(playerx,(playery),playerz);
-    this.controls.target.set(playerx,(playery-1),(playerz+0.001));
-        /*let cameraStartPos = new THREE.Vector3(this.config.cameraStartPos.x, this.config.cameraStartPos.y, this.config.cameraStartPos.z);
-        this.camera.position.copy(cameraStartPos);
-        this.camera.updateProjectionMatrix();        */
+        let playerx = this.player.position.x;
+        let playery = this.player.position.y;
+        let playerz = this.player.position.z;
+        //this.camPos.set(playerx,(playery),playerz);
+        this.controls.target.set(playerx,(playery),(playerz+0.001));
         this.controls.update();
     }
 
