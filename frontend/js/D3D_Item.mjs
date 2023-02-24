@@ -484,8 +484,6 @@ swapMeshForProfilePic = () =>{
     let that = this;
 
     let faceMesh = this.findChildByName(this.mesh, 'ProfilePicHere');
-console.log('this.config.owner in Item:');
-console.log(this.config.owner);
     if(faceMesh){
         this.faceMesh = faceMesh;
         let remoteProfilePic = 'https://node.deso.org/api/v0/get-single-profile-picture/'+this.config.owner.ownerPublicKey;
@@ -502,7 +500,6 @@ console.log(this.config.owner);
 loadRemoteTexture = (imageUrl) =>{
     let that = this;
     let proxyImageURL = 'https://nftzapi.azurewebsites.net/api/query/getimage?url=' +imageUrl;    
-console.log('load profile pic from: ',proxyImageURL);
     return new Promise((resolve,reject)=>{
         var img = new Image();
             img.onload = function(){

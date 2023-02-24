@@ -34,6 +34,9 @@ export default class ExtraData3DParser {
       //console.log('models idx:',idx);
       //console.log(model);
       let formatList = that.getFormatsForModel(model);
+      if(!formatList){
+        return false;
+      }
       //console.log('formatList: ',formatList);
       formats =  [...formats, ...formatList];
     });
@@ -47,6 +50,10 @@ export default class ExtraData3DParser {
       console.log('getFormatsForModel: no model');
       return false;
     };
+    if(!model.ModelFormats){
+      console.log('getFormatsForModel: no formats available');
+      return false;
+    };    
     return Object.keys(model.ModelFormats);
   }
 
@@ -89,6 +96,10 @@ export default class ExtraData3DParser {
     let path = '';
 
     let availableFormats = this.getFormatsForModel(this.models[modelIdx]);
+    if(!availableFormats){
+      return false;
+    }
+
     if(availableFormats.indexOf(preferredFormat.toLowerCase())>-1){
       //format exists
       format = preferredFormat;
