@@ -2504,6 +2504,8 @@ initPlayerFirstPerson = () => {
     this.camera.position.copy(offsetStartPos);
     this.camera.position.z=this.camera.position.z-2;
     that.camera.lookAt(lookAtStartPos);
+    that.resizeCanvas();
+
     that.animate();
 
 
@@ -2567,9 +2569,11 @@ initPlayerThirdPerson = () => {
         this.camera.position.copy(offsetStartPos);
         this.camera.position.z=this.camera.position.z-2;
         that.camera.lookAt(lookAtStartPos);
+        that.resizeCanvas();        
         that.animate();
         that.sceneryloadingComplete = true;
-        that.loadingScreen.hide();
+
+    //    that.loadingScreen.hide();
     });       
    
     
