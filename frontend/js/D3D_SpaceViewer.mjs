@@ -1960,38 +1960,43 @@ isOnWall = (raycaster, selectedPoint, meshToCheck) =>{
         return true; //test
     }
     
-    initItem = (opts) =>{
-
-        let nftPostHashHex = opts.nftPostHashHex;
-        let paramString = '';
-        let params  = [];
-        let nftsRoute = '';
-        let itemParams = {
-            three: THREE,
-            scene: this.scene,
-            height: opts.height,
-            width: opts.width,
-            depth: opts.depth,
-            loader: this.loaders.getLoaderForFormat(opts.format),
-            nftPostHashHex: nftPostHashHex,
-            modelsRoute: this.config.modelsRoute,
-            nftsRoute: this.config.nftsRoute,
+initItem = (opts) =>{
 
 
-        };
-        if(opts.nftRequestParams){
-            let nftRequestParams = opts.nftRequestParams;
+                let extraParams = { nftPostHashHex: opts.nftPostHashHex,
+                                    extraData3D:opts.extraDataString,
+                                    endPoint:this.config.modelsRoute};
 
-            Object.keys(nftRequestParams).forEach((key, index) => {
-                params.push(key+'='+nftRequestParams[key]);
-            });
-            paramString = params.join('&');
-            itemParams.nftsRoute = this.config.nftsRoute +'?' +paramString;
-        };
+                let extraDataParser = new ExtraData3DParser(extraParams);
+                let formats = extraDataParser.getAvailableFormats();                    
+                let models = extraDataParser.getModelList();
+                let modelUrl = extraDataParser.getModelPath(0,'any','any');
+                if(modelUrl){
+                    let urlParts = modelUrl.split('.');
+                    let extension = urlParts[urlParts.length-1];
+                    let pathParts =  modelUrl.split('/');
+                    pathParts.pop(); 
+                    let folderPath = pathParts.join('/')+'/'
+                    // combine with computed params
+                    let avatarParams = {
+                        ...opts,
+                        ...{animLoader: true,
+                            avatarPath: folderPath, // current minter does not allow subfolders so anims on the same level
+                            loader: this.loaders.getLoaderForFormat(extension),                        
+                            modelUrl: modelUrl,
+                            scene: this.scene,
+                            format: formats[0]}
 
-        let item = new Item(itemParams);                
+                    };
+                    console.log('final avatarParams');
+                    console.log(avatarParams);
+                    let item = new Item(avatarParams);                
 
-        return item;
+                    return item;                    
+                } else {
+                    console.log('could not retreive avatar modelUrl');
+                }
+
 
     }
 
