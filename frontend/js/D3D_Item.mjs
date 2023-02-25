@@ -420,7 +420,9 @@ export default class Item {
                 } else {
 */
                     that.mesh = loadedItem;
-                    this.swapMeshForProfilePic();
+                    if(this.config.isAvatar){
+                        this.swapMeshForProfilePic();
+                    }
                     if(that.animLoader){
                         that.mixer = new THREE.AnimationMixer(root);
                         that.animLoader.getDefaultAnim(root,that.mixer);
@@ -460,7 +462,7 @@ export default class Item {
                     };
                   
                     this.scaleToFitScene(obj3D, posVector);
-                    this.fixYCoord(obj3D, posVector); 
+                    //this.fixYCoord(obj3D, posVector); 
                     resolve(obj3D);
 
               //  }
@@ -873,7 +875,6 @@ scaleToFitScene = (obj3D, posVector) =>{
     }
 
     getImportedObjectSize = () =>{
-        console.log('get size of this mesh');
         let box = new THREE.Box3().setFromObject(this.mesh);
         let center = new THREE.Vector3();
         let size = new THREE.Vector3();
