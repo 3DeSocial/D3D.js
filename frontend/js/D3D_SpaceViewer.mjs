@@ -42,7 +42,7 @@ const params = {
                     vrType: 'walking',
                     useOwnHandlers: true,
                     lookAtStartPos: {x:0,y:2,z:0},
-                    dLights: [  {name:'above',intensity:1},
+                    lights: [  {name:'above',intensity:1},
                                 {name:'below',intensity:0.5},
                                 {name:'left',intensity:0},
                                 {name:'right',intensity:0},
@@ -467,71 +467,7 @@ initCameraFirstPerson = () =>{
 
     }
 
-initPlayerThirdPerson = () => {
 
-    let that = this;
-    let playerLoader = new GLTFLoader();
-    let newPos = null;
-    let playerFloor = 0;
-    let playerStartPos = this.calcPlayerStartPos();
-    let offsetStartPos = this.calcOffestStartPos(playerStartPos);
-
-    let raidus = 0.5;
-    that.character = new THREE.Mesh(
-        new RoundedBoxGeometry(  1.0, 2.0, 1.0, 10, raidus),
-        new THREE.MeshStandardMaterial({ transparent: true, opacity: 0})
-    );
-
-    that.character.geometry.translate( 0, - 0.5, 0 );
-    that.character.capsuleInfo = {
-        radius: raidus,
-        segment: new THREE.Line3( new THREE.Vector3(), new THREE.Vector3( 0, - 1.0, 0.0 ) )
-    };    
-    that.character.rotation.set(0,0,0);
-    that.character.position.copy(offsetStartPos);
-    that.scene.add(that.character);
-    that.character.updateMatrixWorld();
-           
-    //place avatar in the center of the Player group
-   this.avatar.place(playerStartPos).then((model,pos)=>{
-
-        that.player = new THREE.Group();   
-        that.player.position.copy(offsetStartPos);
-        that.player.state = 'idle';
-
-        that.player.rotation.set(0,0,0);         
-        that.player.attach(that.character);
-        that.player.attach(that.avatar.mesh);
-
-        that.scene.add( that.player );
-        that.player.updateMatrixWorld();
-        that.player.avatar = that.avatar;
-        
-        that.avatars.push(that.avatar);
-
-        let loggedInUserName = 'Guest';
-        if(this.config.currentUser){
-            loggedInUserName = this.config.currentUser.Username;
-        };
-        that.createLabel(loggedInUserName, that.player, {x:0,y:(that.player.position.y+2),z:0});
-        let lookAtStartPos = that.player.position.clone();
-        lookAtStartPos.setZ(lookAtStartPos.z+10); // look ahead
-        lookAtStartPos.setY(that.player.position.y); // look ahead
-
-
-        this.initControls();
-        this.addListeners();            
-        this.camera.position.copy(offsetStartPos);
-        this.camera.position.z=this.camera.position.z-2;
-        that.camera.lookAt(lookAtStartPos);
-        that.animate();
-        sceneryloadingComplete = true;
-
-    });       
-   
-    
-   
-}
 
     calcPlayerStartPos = () =>{
         let playerStartPos = null;
@@ -629,13 +565,13 @@ initPlayerThirdPerson = () => {
     }
 
     initLighting = () =>{
-        let dLights = this.config.dLights;
+        let lights = this.config.lights;
 
 
 
         this.lights = new Lighting({scene:this.scene,
                                         createListeners: false,
-                                        dLights: dLights});   
+                                        lights: lights});   
         //this.addSpotlight();
     }
 
@@ -2558,7 +2494,7 @@ initPlayerThirdPerson = () => {
         if(this.config.currentUser){
             loggedInUserName = this.config.currentUser.Username;
         };
-        that.createLabel(loggedInUserName, that.player, {x:0,y:(that.player.position.y+2),z:0});
+        that.createLabel(loggedInUserName, that.player, {x:0,y:(that.player.position.y+0.5),z:0});
         let lookAtStartPos = that.player.position.clone();
         lookAtStartPos.setZ(lookAtStartPos.z+10); // look ahead
         lookAtStartPos.setY(that.player.position.y); // look ahead
