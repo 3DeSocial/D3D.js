@@ -201,10 +201,8 @@ const params = {
                                                             ownerDescription: null
                                                         }
                                                     };
-                                console.log('avatarConfig');                                                    
-                                console.log(avatarConfig);
+
                                     if(this.config.currentUser){
-                                        console.log('currentUser',this.config.currentUser);
                                         avatarConfig.owner = { // avatar owner is curretn user
                                                             ownerName: this.config.currentUser.Username,
                                                             ownerPublicKey: this.config.currentUser.PublicKeyBase58Check,
@@ -219,7 +217,6 @@ const params = {
                                         that.initCameraThirdPerson();
                                         that.initPlayerThirdPerson();                                 
                                     } else {
-                                        console.log('could not init avatar');
                                         //No avatar is available, use first person
                                         this.config.firstPerson =true;
                                         this.initCameraFirstPerson(); 
@@ -227,13 +224,15 @@ const params = {
                                     }
 
                                     that.sceneryloadingComplete = true;
+                                    if(this.config.onSceneLoad()){
+                                        this.config.onSceneLoad();
+                                    }
                                     
                                 };
                             })
 
                         })
                 } else {
-                    console.log('no avatar enabled');
                     //No avatar is available, use first person
                     this.config.firstPerson =true;
                     this.initCameraFirstPerson(); 
@@ -2487,7 +2486,9 @@ initPlayerThirdPerson = () => {
         that.scene.add( that.player );
         that.player.updateMatrixWorld();
         that.player.avatar = that.avatar;
-        
+        let lowest = that.avatar.getLowestVertice(that.avatar.mesh);
+        console.log('lowest vertice: ',lowest);
+        console.log('floor: ',this.player.localToWorld(playerStartPos));
         that.avatars.push(that.avatar);
 
         let loggedInUserName = 'Guest';

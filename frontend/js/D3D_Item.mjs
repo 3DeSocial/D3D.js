@@ -756,6 +756,7 @@ scaleToFitScene = (obj3D, posVector) =>{
     }
 
     fixYCoord = (obj3D, posVector) =>{
+        let objectHeight = this.getImportedObjectSize();
         var helper = new THREE.BoxHelper(obj3D, 0x00ff00);
             helper.update();
 
@@ -764,13 +765,31 @@ scaleToFitScene = (obj3D, posVector) =>{
 
             return false;
         };
-        lowestVertex.applyMatrix4(helper.matrixWorld);
+
+        console.log('lowestVertex: ',lowestVertex);
+        console.log('lowestVertex outer matric: ',this.scene.localToWorld(lowestVertex));
+        console.log('objectHeight: ',objectHeight);
+        // assuming its centered, half height = objectHeight/2
         if(posVector.y !== lowestVertex.y){
             let yOffset = lowestVertex.y-posVector.y;
             obj3D.position.setY(obj3D.position.y - yOffset);
         };
     }
 
+    getLowestVertice =(obj3D)=>{
+        var helper = new THREE.BoxHelper(obj3D, 0x00ff00);
+            helper.update();
+
+        let lowestVertex = this.getBoxHelperVertices(helper);
+        if(!lowestVertex){
+
+            return false;
+        };
+        console.log('lowestVertex discovered: ',this.scene.localToWorld(lowestVertex));
+
+        return lowestVertex;
+
+    }
     startAnimClipByName = (name) =>{
         if(!this.anims[name]){
             return false;
