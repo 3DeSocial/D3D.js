@@ -225,7 +225,9 @@ const params = {
                     this.config.firstPerson =true;
                     this.initCameraFirstPerson(); 
                     that.initPlayerFirstPerson();
-//                    that.loadingScreen.hide();                    
+                    if(this.config.onSceneLoad()){
+                        this.config.onSceneLoad();
+                     }              
                 }
 
                 if ( 'xr' in navigator ) {
@@ -614,7 +616,7 @@ initCameraFirstPerson = () =>{
         this.addEventListenerContextLost();
         this.addEventListenerExitFullScreen();
         this.addEventListenerKeys();
-      //  this.addEventListenerMouseClick();
+        this.addEventListenerMouseClick();
        // this.addEventListenersHUD()
     }    
 
