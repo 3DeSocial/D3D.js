@@ -617,21 +617,21 @@ initCameraFirstPerson = () =>{
         this.addEventListenerExitFullScreen();
         this.addEventListenerKeys();
         this.addEventListenerMouseClick();
-       // this.addEventListenersHUD()
+        this.addEventListenersHUD()
     }    
 
     addEventListenersHUD = ()=>{
         let that = this;
-        let btnDiamond = document.querySelector('#give-diamond');
+     /*   let btnDiamond = document.querySelector('#give-diamond');
             this.addClickListenerGiveDiamond(btnDiamond);
 
         let btnHeart = document.querySelector('#give-heart');
             this.addClickListenerGiveHeart(btnHeart);
-
+*/
         let linkViewFull = document.querySelector('#view-full');  
         this.addClickListenerFullScreen(linkViewFull);
 
-        let btnBuy = document.querySelector('#buy-now');
+  /*      let btnBuy = document.querySelector('#buy-now');
             this.addClickListenerBuyNow(btnBuy);
 
         let btnViewPage = document.querySelector('#view-page');
@@ -649,7 +649,7 @@ initCameraFirstPerson = () =>{
                 this.config.chainAPI.sendDiamonds(that.hud.selectedItem.config.nft.postHashHex, diamondCount);
             })
         };
-
+*/
     }
     addEventListenerKeys = ()=>{
         let that = this;
@@ -1016,7 +1016,7 @@ checkMouseDown = (e) =>{
                 let x = ( e.clientX / window.innerWidth ) * 2 - 1;
                 let y = - ( e.clientY / window.innerHeight ) * 2 + 1;
                 this.mouse.set(x,y);
-                this.throwSnowBall(action.e, null);                    
+                //this.throwSnowBall(action.e, null);                    
             }              
             this.hud.unSelectItem();
             this.disableActionBtns();
@@ -1263,7 +1263,7 @@ checkMouseDown = (e) =>{
                     let x = ( e.clientX / window.innerWidth ) * 2 - 1;
                     let y = - ( e.clientY / window.innerHeight ) * 2 + 1;
                     this.mouse.set(x,y);
-                    this.throwSnowBall(e, null);                    
+                    //this.throwSnowBall(e, null);                    
                 } else {
                     this.showSelectedMeshData(action);
                 }
@@ -1272,7 +1272,7 @@ checkMouseDown = (e) =>{
                 let x = ( e.clientX / window.innerWidth ) * 2 - 1;
                 let y = - ( e.clientY / window.innerHeight ) * 2 + 1;
                 this.mouse.set(x,y);
-                this.throwSnowBall(e, null);
+                //this.throwSnowBall(e, null);
             break;
         }
     }
@@ -1573,12 +1573,15 @@ isOnWall = (raycaster, selectedPoint, meshToCheck) =>{
       } else if (document.msExitFullscreen) { /* IE11 */
         document.msExitFullscreen();
       }
-      this.isFullScreen = false;            
+      this.isFullScreen = false;       
+      if(this.config.onFullScreenToggle){
+        this.config.onFullScreenToggle(this.isFullScreen);
+      }
 
     }
 
     fsChangeHandler = () =>{
-            if (document.webkitIsFullScreen || document.mozFullScreen || document.msFullscreenElement !== undefined) {
+            if (document.webkitIsFullScreen || document.mozFullScreen || document.msFullscreenElement !== undefined) {            
         } else {
           var elem = this.renderer.domElement;
             elem.style.width = 'auto';
@@ -1587,6 +1590,7 @@ isOnWall = (raycaster, selectedPoint, meshToCheck) =>{
             this.camera.aspect = this.parentDivElWidth/this.parentDivElHeight;
             this.camera.updateProjectionMatrix();
             this.renderer.setSize(this.parentDivElWidth, this.parentDivElHeight);
+
         }
         this.resizeCanvas();
     
@@ -1830,6 +1834,9 @@ isOnWall = (raycaster, selectedPoint, meshToCheck) =>{
       elem.style.width = '100%';
       elem.style.height = '100%';
       this.isFullScreen = true;
+      if(this.config.onFullScreenToggle){
+        this.config.onFullScreenToggle(this.isFullScreen);
+      }      
     }
 
     
@@ -2198,7 +2205,7 @@ initItem = (opts) =>{
                                             },
                                             onSelectStartRight: (e,controller)=>{
                                                console.log(controller.line);
-                                               this.throwSnowBall(e,controller)
+                                               //this.throwSnowBall(e,controller)
 
                                             },
                                             onSelectEndRight: (e,controller)=>{
