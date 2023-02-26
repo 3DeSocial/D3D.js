@@ -15,6 +15,7 @@ import { Lighting } from './frontend/js/D3D_Lighting.mjs';
 import { XRControllerModelFactory } from './frontend/webxr/XRControllerModelFactory.js';
 import { MeshBVH, acceleratedRaycast, MeshBVHVisualizer } from './frontend/js/index.module.mjs';
 import { Loaders } from  './frontend/js/D3D_Loaders.mjs';
+import { NFTImporter } from  './frontend/js/D3D_NFTImporter.mjs'; 
 import { NFTViewerOverlay } from  './frontend/js/D3D_NFTViewerOverlay.mjs';
 import { D3DInventory } from  './frontend/js/D3D_Inventory.mjs';
 import { ExtraData3DParser } from  './frontend/js/D3D_ExtraDataParser.mjs';
@@ -24,7 +25,9 @@ import { CollisionChecker } from  './frontend/js/D3D_CollisionChecker.mjs';
 import { LoadingScreen } from  './frontend/js/D3D_LoadingScreen.mjs'; 
 import { PlayerVR } from  './frontend/js/D3D_PlayerVR.mjs'; 
 import { Physics } from  './frontend/js/D3D_Physics.mjs'; 
+
 export {
+NFTImporter,
 PlayerVR,
 Physics,
 AnimLoader,

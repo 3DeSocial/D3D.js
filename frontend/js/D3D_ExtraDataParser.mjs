@@ -1,18 +1,18 @@
-
-const rtrim =(str, chr) => {
-  var rgxtrim = (!chr) ? new RegExp('\\s+$') : new RegExp(chr+'+$');
-  return str.replace(rgxtrim, '');
-}
-
 export default class ExtraData3DParser {
 
   constructor(config) {    
     this.nftPostHashHex = config.nftPostHashHex;
-    this.endPoint = rtrim(config.endPoint,'/');
+    this.endPoint = this.rtrim(config.endPoint,'/');
     this.parse(config.extraData3D);
     this.getModelList();
     this.getAvailableFormats();
   }
+
+  rtrim =(str, chr) => {
+    var rgxtrim = (!chr) ? new RegExp('\\s+$') : new RegExp(chr+'+$');
+    return str.replace(rgxtrim, '');
+  }
+
 
   parse = (extraData3D)=> {
     this.extraData3D = JSON.parse(extraData3D);

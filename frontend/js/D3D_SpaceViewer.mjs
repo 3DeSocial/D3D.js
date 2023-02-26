@@ -4,7 +4,7 @@ import * as THREE from 'three';
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import { RoundedBoxGeometry } from 'three/examples/jsm/geometries/RoundedBoxGeometry.js';
-import { ExtraData3DParser, Loaders, PlayerVR, AudioClipRemote, Physics, AudioClip, Item, ItemVRM, LoadingScreen, HUDBrowser, HUDVR, SceneryLoader, Lighting, LayoutPlotter, D3DInventory, NFTViewerOverlay, VRButton, VRControls } from 'd3d';
+import {NFTImporter, ExtraData3DParser, Loaders, PlayerVR, AudioClipRemote, Physics, AudioClip, Item, ItemVRM, LoadingScreen, HUDBrowser, HUDVR, SceneryLoader, Lighting, LayoutPlotter, D3DInventory, NFTViewerOverlay, VRButton, VRControls } from 'd3d';
 let clock, gui, stats, delta;
 let environment, visualizer, player, controls, geometries;
 let playerIsOnGround = false;
@@ -175,63 +175,51 @@ const params = {
 
                 this.initInventory(options);        
 
-                             if(this.avatarEnabled()){
-                console.log('avatarEnabled is true');                                
-                        this.config.chainAPI.fetchPostDetail({postHashHex:this.config.avatar}).then((res)=>{
-                            res.json().then((json)=>{
-                                console.log(json);
-                                let extraDataString = null;
-                                if(json.PostExtraData){
-                                    extraDataString = json.PostExtraData['3DExtraData']
-                                } else if (json.path3D){
-                                    extraDataString = json.path3D
-                                };
-                                if(extraDataString){
-                                    let avatarConfig = {isAvatar: true,
-                                                        animLoader: true,
-                                                        // TO DO - enable overriding with different folder for animations
-                                                        width: 3, 
-                                                        height:3, 
-                                                        depth:3, 
-                                                        nftPostHashHex:this.config.avatar,
-                                                        extraDataString:extraDataString,
-                                                        owner: {
-                                                            ownerName: 'Guest',
-                                                            ownerPublicKey: null,
-                                                            ownerDescription: null
-                                                        }
-                                                    };
+                if(this.avatarEnabled()){
+                    if(!this.nftImporter){
+                        let importerParams= {isAvatar: true,
+                                            chainAPI: that.config.chainAPI,
+                                            loaders: that.loaders,
+                                            modelsRoute:that.config.modelsRoute,
+                                            scene: that.scene};
 
-                                    if(this.config.currentUser){
-                                        avatarConfig.owner = { // avatar owner is curretn user
-                                                            ownerName: this.config.currentUser.Username,
-                                                            ownerPublicKey: this.config.currentUser.PublicKeyBase58Check,
-                                                            ownerDescription: this.config.currentUser.Description
-                                                        };                                  
-                                    } else {
-                                        console.log('no logged inuser for avatar')
-                                    }
+                        this.nftImporter = new NFTImporter(importerParams);
+                    };
 
-                                    that.avatar = this.initItem(avatarConfig);
-                                    if(that.avatar){
-                                        that.initCameraThirdPerson();
-                                        that.initPlayerThirdPerson();                                 
-                                    } else {
-                                        //No avatar is available, use first person
-                                        this.config.firstPerson =true;
-                                        this.initCameraFirstPerson(); 
-                                        that.initPlayerFirstPerson();                                        
-                                    }
+                    let nftImportParams = {assetType: 'avatar',
+                                           nftPostHashHex: this.config.avatar}
+                    if(that.config.currentUser){
+                        nftImportParams.owner = {
+                           ownerName: that.config.currentUser.Username,
+                           ownerPublicKey: that.config.currentUser.PublicKeyBase58Check,
+                           ownerDescription: that.config.currentUser.Description
+                        };                                  
+                    };
 
-                                    that.sceneryloadingComplete = true;
-                                    if(this.config.onSceneLoad()){
-                                        this.config.onSceneLoad();
-                                    }
-                                    
-                                };
-                            })
+                    this.nftImporter.import(nftImportParams)
 
+                        .then((avatar)=>{
+                            that.avatar = avatar;
+
+                            if(that.avatar){
+                                that.initCameraThirdPerson();
+                                that.initPlayerThirdPerson();                                 
+                            } else {
+                                //No avatar is available, use first person
+                                this.config.firstPerson =true;
+                                this.initCameraFirstPerson(); 
+                                that.initPlayerFirstPerson();                                        
+                            }
+
+                            that.sceneryloadingComplete = true;
+                            if(this.config.onSceneLoad()){
+                                this.config.onSceneLoad();
+                             }
+                        }).catch(err=>{
+                            console.log('could not import avatar: ');
+                            console.log(err);
                         })
+
                 } else {
                     //No avatar is available, use first person
                     this.config.firstPerson =true;
