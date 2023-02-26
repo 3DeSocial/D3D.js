@@ -33,9 +33,17 @@ export default class NFTImporter {
 
             // fetch metadata from blockchain
             this.fetchMeta(nftParams.nftPostHashHex).then((nftMeta)=>{
+                let importedItem = null;
+                let itemConfig = null;
+                if(nftMeta.extraDataString){
+                    itemConfig = this.processMeta(nftParams, nftMeta);
 
-                let itemConfig = this.processMeta(nftParams, nftMeta);
-                let importedItem = itemConfig; // return config by default
+                    importedItem = itemConfig; // return config by default
+                } else {
+                    console.log('no 3D data, return 2d data');
+                    importedItem = nftMeta;
+                    nftParams.assetType = 'Not 3D';              
+                }
 
                 // or instantiate requested assetType class
                 switch(nftParams.assetType){
@@ -74,7 +82,10 @@ export default class NFTImporter {
                                     postHashHex: postHashHex})
                     
                     } else {
-                        reject({err: 'no valid 3DExtraData'});
+                        resolve({extraDataString: null,
+                                 postHashHex: postHashHex,
+                                 nft: json})
+                    
                     }
 
                 })
@@ -108,11 +119,11 @@ export default class NFTImporter {
         let itemConfig = {
             ...this.config,
             ...nftParams,            
-            ...nftMeta,
             ...{avatarPath: folderPath, // current minter does not allow subfolders so anims on the same level
                 loader: this.config.loaders.getLoaderForFormat(extension),                        
                 modelUrl: modelUrl,
-                format: formats[0]}
+                format: formats[0],
+                nft: nftMeta}
 
         };
         console.log('imported itemConfig:');

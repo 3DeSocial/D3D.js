@@ -418,7 +418,7 @@ const params = {
 
 initCameraFirstPerson = () =>{
         // camera setup
-        this.camera = new THREE.PerspectiveCamera( 60, window.innerWidth / window.innerHeight, 0.1, 100 );
+        this.camera = new THREE.PerspectiveCamera( 60, window.innerWidth / window.innerHeight, 0.1, 1000 );
         this.camera.updateProjectionMatrix(); 
        // this.camera.add( this.audioListener );
         this.camera.rotation.set(0,0,0);
@@ -433,7 +433,7 @@ initCameraFirstPerson = () =>{
 
     initCameraThirdPerson = () =>{
         // camera setup
-        this.camera = new THREE.PerspectiveCamera( 60, window.innerWidth / window.innerHeight, 0.1, 100 );
+        this.camera = new THREE.PerspectiveCamera( 60, window.innerWidth / window.innerHeight, 0.1, 1000 );
         this.camera.updateProjectionMatrix(); 
         let camStartPos = new THREE.Vector3(this.sceneryLoader.playerStartPos.x,this.sceneryLoader.playerStartPos.y,this.sceneryLoader.playerStartPos.z);
         camStartPos.y = camStartPos.y+2; // higher than ground level        
@@ -534,9 +534,50 @@ initCameraFirstPerson = () =>{
 
 
     initSkybox = ()=>{
-        if(this.config.skyboxes !== false){
-            this.addSky();
-        };
+        if(this.config.skyBoxHash){
+            this.loadEquiRectSkyBox(this.config.skyBoxHash)
+        } else {
+            if(this.config.skyboxes !== false){
+                this.addSky();
+            };
+        }
+    }
+
+    loadEquiRectSkyBox = (nftPostHashHex) =>{
+        if(!this.nftImporter){
+                let importerParams= {chainAPI: this.config.chainAPI,
+                                    loaders: this.loaders,
+                                    modelsRoute:this.config.modelsRoute,
+                                    scene: this.scene};
+
+                this.nftImporter = new NFTImporter(importerParams);
+                this.nftImporter.import({type:'skybox',
+                                        nftPostHashHex:nftPostHashHex}).then((skyBoxConfig)=>{  
+                                            this.initNFTSkyBox(skyBoxConfig);
+                                        }).catch(err=>{
+                                            console.log('error importing skybox');
+                                            console.log(err);
+                                        })
+        }
+    }
+
+    initNFTSkyBox = (skyBoxConfig) =>{
+        console.log('skyBoxConfig: ',skyBoxConfig);
+        if(skyBoxConfig.nft.imageURLs[0]){
+            const geometry = new THREE.SphereGeometry( 500, 60, 40 );
+            // invert the geometry on the x-axis so that all of the faces point inward
+            geometry.scale( - 1, 1, 1 );
+            let fullImagePath = this.config.imageProxyUrl+skyBoxConfig.nft.imageURLs[0];
+            console.log('fullImagePath: ',fullImagePath);
+            const texture = new THREE.TextureLoader().load(fullImagePath);
+            const material = new THREE.MeshBasicMaterial( { map: texture } );
+
+            const mesh = new THREE.Mesh( geometry, material );
+
+            this.scene.add( mesh );
+        } else {
+            console.log('no imageURLs[0] in nft');
+        }
     }
 
     addSky = () =>{
