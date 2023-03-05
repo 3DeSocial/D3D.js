@@ -34,6 +34,50 @@ import { Item, Item2d, ItemVRM, ChainAPI, ExtraData3DParser } from 'd3d';
       
     }
 
+    add = (itemPost) =>{
+        let item = null;         
+        let extraDataParser = this.getParser(itemPost.PostEntryResponse);
+        let formats = extraDataParser.getAvailableFormats();                    
+        let models = extraDataParser.getModelList();
+        let modelUrl = extraDataParser.getModelPath(0,'gltf','any');
+        if(modelUrl){
+            console.log('modelUrl: ',modelUrl)
+            item = this.initItem({modelUrl: modelUrl,
+                                        nftPostHashHex: itemPost.PostEntryResponse.postHashHex, 
+                                            //pos: spot.pos,
+                                           // rot:spot.rot,
+                                            nft:itemPost.PostEntryResponse,
+                                            width: 3,
+                                            height:3,
+                                            depth:3,
+                                            scene: this.scene,
+                                            format: formats[0]
+                                    });    
+            this.items3d.push(item); 
+
+        } else {
+            console.log('could not parse modelUrl');
+        };
+        return item;
+    }
+
+    getParser = (PostEntryResponse) =>{
+        if(!PostEntryResponse.PostExtraData['3DExtraData']){
+            console.log('selected item is not 3d');
+            return false;
+        } else {
+              console.log('parsing.. ',PostEntryResponse.PostExtraData['3DExtraData']);
+            let extraDataParser = new ExtraData3DParser({ nftPostHashHex: PostEntryResponse.PostHashHex,
+                                                              extraData3D:PostEntryResponse.PostExtraData['3DExtraData'],
+                                                              endPoint:'https://desodata.azureedge.net/unzipped/'});
+
+            return extraDataParser;
+
+          
+        }
+      
+    }
+
     import = () =>{
         /*  - takes the raw nft hash list
             - parses extra data

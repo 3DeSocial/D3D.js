@@ -978,23 +978,25 @@ checkMouseDown = (e) =>{
                     }
 
                     if(!item.isSelected) {
-                        this.hud.unSelectItem(); // unselect prev
-                        this.config.chainAPI.getHeartStatus(item.config.nft.postHashHex).then((result)=>{
-                            that.hud.setSelectedItem(item);
-                            that.actionTargetItem = item;
-                            that.actionTargetMesh = item.mesh;
-                            that.showStatusBar(['diamond-count','select-preview','confirm-not','confirm']);
+                        if(this.hud){
+                            this.hud.unSelectItem(); // unselect prev
+                            this.config.chainAPI.getHeartStatus(item.config.nft.postHashHex).then((result)=>{
+                                that.hud.setSelectedItem(item);
+                                that.actionTargetItem = item;
+                                that.actionTargetMesh = item.mesh;
+                                that.showStatusBar(['diamond-count','select-preview','confirm-not','confirm']);
 
-                            let diamondCountEl = document.querySelector('#d-count');
-                            diamondCountEl.innerHTML = String(0);
-                            let heartIcon = document.getElementById('heart');
+                                let diamondCountEl = document.querySelector('#d-count');
+                                diamondCountEl.innerHTML = String(0);
+                                let heartIcon = document.getElementById('heart');
 
-                            if(result){
-                                heartIcon.style.display = 'inline-block';
-                            } else {
-                                heartIcon.style.display = 'none';
-                        };                    
+                                if(result){
+                                    heartIcon.style.display = 'inline-block';
+                                } else {
+                                    heartIcon.style.display = 'none';
+                            };                    
                         })
+                    }
                     };
                 } else {
                     console.log('item has no config');
@@ -1004,7 +1006,7 @@ checkMouseDown = (e) =>{
                 }
             };
             this.actionTargetPos = item.getPosition();
-            this.enableActionBtns();
+           // this.enableActionBtns();
         } else {
             if(this.config.isCurated){
                 let e= action.e;
@@ -1017,10 +1019,12 @@ checkMouseDown = (e) =>{
                 let y = - ( e.clientY / window.innerHeight ) * 2 + 1;
                 this.mouse.set(x,y);
                 //this.throwSnowBall(action.e, null);                    
-            }              
-            this.hud.unSelectItem();
-            this.disableActionBtns();
-            this.hideStatusBar(['heart','diamond-count','confirm']);
+            }     
+            if(this.hud){         
+               this.hud.unSelectItem();
+            };
+            //this.disableActionBtns();
+           // this.hideStatusBar(['heart','diamond-count','confirm']);
 
         }
 
@@ -1894,6 +1898,24 @@ isOnWall = (raycaster, selectedPoint, meshToCheck) =>{
                                             loadingScreen: this.loadingScreen
                                         });*/
         this.sceneInventory = null;
+
+    let sceneInvConfig = {          
+        animations: this.config.animations,
+        chainAPI: this.config.chainAPI,
+        imageProxyUrl: this.config.imageProxyUrl,    
+        items2d: [],
+        items3d: [],
+        scene: this.scene,
+        loader: this.loader,
+        loaders: this.loaders,
+        width: 3, // IMPORTANT! Default size for images unless specified in circle layout
+        depth: 0.1,
+        height: 2,
+        modelsRoute: this.config.modelsRoute,
+        nftsRoute: this.config.nftsRoute,
+        layoutPlotter: this.layoutPlotter
+    }
+
         if(options.sceneAssets){
 
             let plotterOpts ={
@@ -1911,42 +1933,15 @@ isOnWall = (raycaster, selectedPoint, meshToCheck) =>{
             
             let maxItems =this.layoutPlotter.getMaxItemCount();
             let items2d = options.sceneAssets.filter(nft => ((!nft.is3D)&&(nft.imageURLs[0])));     
-            console.log('items2d: ', items2d);
 
             let maxItems3D =this.layoutPlotter.getMaxItemCount3D();
-            console.log('maxItems3D: ',maxItems3D);
             let items3d = options.sceneAssets.filter(nft => nft.is3D);
-            console.log('items3d: ', items3d);
 
             items3d = items3d.concat(spookyNFTs)
             let items3dToRender = items3d.slice(0,maxItems3D);   
-            console.log('items3dToRender: ',items3dToRender);
-          /*  if(items2d.length===0){
-                items2d = items3d.slice(maxItems3D);
-                //display 2d images of 3d items if there are no more 2d images
-            };*/
 
-/*
-            this.loadingScreen.startLoading({items:items2d,
-                                        name:'NFTs'});
-*/
-            let sceneInvConfig = {          
-                                animations: this.config.animations,
-                                chainAPI: this.config.chainAPI,
-                                imageProxyUrl: this.config.imageProxyUrl,    
-                                items2d: items2d,
-                                items3d: items3dToRender,
-                                scene: this.scene,
-                                loader: this.loader,
-                                loaders: this.loaders,
-                                width: 3, // IMPORTANT! Default size for images unless specified in circle layout
-                                depth: 0.1,
-                                height: 2,
-                                modelsRoute: this.config.modelsRoute,
-                                nftsRoute: this.config.nftsRoute,
-                                layoutPlotter: this.layoutPlotter,
-                         //       loadingScreen: this.loadingScreen
-                                }
+            sceneInvConfig.items2d = items2d;
+            sceneInvConfig.items3d = items3dToRender;
 
             if(this.world){
                 sceneInvConfig.physicsWorld = this.world;
@@ -1956,10 +1951,9 @@ isOnWall = (raycaster, selectedPoint, meshToCheck) =>{
             if(haveVRM){
                 sceneInvConfig.animLoader = true;
             };
+        };
 
-            this.sceneInventory = new D3DInventory(sceneInvConfig);
-
-        }
+        this.sceneInventory = new D3DInventory(sceneInvConfig);
         
     }
 
@@ -1968,8 +1962,11 @@ isOnWall = (raycaster, selectedPoint, meshToCheck) =>{
         return true; //test
     }
     
-initItem = (opts) =>{
+    getPlayerPos =()=>{
+        return this.player.position;
+    }
 
+    initItem = (opts) =>{
 
                 let extraParams = { nftPostHashHex: opts.nftPostHashHex,
                                     extraData3D:opts.extraDataString,
