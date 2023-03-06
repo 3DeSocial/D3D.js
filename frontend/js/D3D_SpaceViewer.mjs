@@ -4,6 +4,7 @@ import * as THREE from 'three';
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import { RoundedBoxGeometry } from 'three/examples/jsm/geometries/RoundedBoxGeometry.js';
+import { TransformControls } from 'three/examples/jsm/controls/TransformControls.js';
 import {NFTImporter, ExtraData3DParser, Loaders, PlayerVR, AudioClipRemote, Physics, AudioClip, Item, ItemVRM, LoadingScreen, HUDBrowser, HUDVR, SceneryLoader, Lighting, LayoutPlotter, D3DInventory, NFTViewerOverlay, VRButton, VRControls } from 'd3d';
 let clock, gui, stats, delta;
 let environment, visualizer, player, controls, geometries;
@@ -173,7 +174,6 @@ const params = {
         
              //   this.initPhysicsWorld();        
 
-                this.initInventory(options);        
 
                 if(this.avatarEnabled()){
                     if(!this.nftImporter){
@@ -204,11 +204,15 @@ const params = {
                             if(that.avatar){
                                 that.initCameraThirdPerson();
                                 that.initPlayerThirdPerson();                                 
+                                this.initInventory(options); 
+
+
                             } else {
                                 //No avatar is available, use first person
                                 this.config.firstPerson =true;
                                 this.initCameraFirstPerson(); 
-                                that.initPlayerFirstPerson();                                        
+                                that.initPlayerFirstPerson();      
+                                this.initInventory(options);
                             }
 
                             that.sceneryloadingComplete = true;
@@ -225,6 +229,7 @@ const params = {
                     this.config.firstPerson =true;
                     this.initCameraFirstPerson(); 
                     that.initPlayerFirstPerson();
+                    this.initInventory(options);                            
                     if(this.config.onSceneLoad()){
                         this.config.onSceneLoad();
                      }              
@@ -478,6 +483,9 @@ initCameraFirstPerson = () =>{
 
     initControls = () =>{
         //Controls
+
+        this.transformControls = new TransformControls( this.camera, this.renderer.domElement );
+        console.log('initControls: ',this.transformControls);
         this.controls = new OrbitControls(this.camera, this.renderer.domElement);
         let playerx = this.player.position.x;
         let playery = this.player.position.y;
@@ -1899,7 +1907,9 @@ isOnWall = (raycaster, selectedPoint, meshToCheck) =>{
                                         });*/
         this.sceneInventory = null;
 
-    let sceneInvConfig = {          
+console.log('init inventory this.transformControls: ',this.transformControls);
+    let sceneInvConfig = {
+        transformControls: this.transformControls,  
         animations: this.config.animations,
         chainAPI: this.config.chainAPI,
         imageProxyUrl: this.config.imageProxyUrl,    
@@ -1952,7 +1962,7 @@ isOnWall = (raycaster, selectedPoint, meshToCheck) =>{
                 sceneInvConfig.animLoader = true;
             };
         };
-
+console.log('sceneInvConfig',sceneInvConfig);
         this.sceneInventory = new D3DInventory(sceneInvConfig);
         
     }

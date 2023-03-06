@@ -35,6 +35,7 @@ import { Item, Item2d, ItemVRM, ChainAPI, ExtraData3DParser } from 'd3d';
     }
 
     add = (itemPost) =>{
+        console.log('add method transformControls: ',this.config.transformControls)
         let item = null;         
         let extraDataParser = this.getParser(itemPost.PostEntryResponse);
         let formats = extraDataParser.getAvailableFormats();                    
@@ -42,7 +43,7 @@ import { Item, Item2d, ItemVRM, ChainAPI, ExtraData3DParser } from 'd3d';
         let modelUrl = extraDataParser.getModelPath(0,'gltf','any');
         if(modelUrl){
             console.log('modelUrl: ',modelUrl)
-            item = this.initItem({modelUrl: modelUrl,
+            let placeItemConfig = {modelUrl: modelUrl,
                                         nftPostHashHex: itemPost.PostEntryResponse.postHashHex, 
                                             //pos: spot.pos,
                                            // rot:spot.rot,
@@ -51,8 +52,12 @@ import { Item, Item2d, ItemVRM, ChainAPI, ExtraData3DParser } from 'd3d';
                                             height:3,
                                             depth:3,
                                             scene: this.scene,
-                                            format: formats[0]
-                                    });    
+                                            format: formats[0],
+                                            transformControls: this.config.transformControls
+                                    };
+
+            console.log(placeItemConfig);
+            item = this.initItem(placeItemConfig);    
             this.items3d.push(item); 
 
         } else {
@@ -353,6 +358,8 @@ import { Item, Item2d, ItemVRM, ChainAPI, ExtraData3DParser } from 'd3d';
     format: opts.format
   };
   
+    itemParams.transformControls = this.config.transformControls;
+
   if (this.config.physicsWorld) {
     itemParams.physicsWorld = this.config.physicsWorld;
   }

@@ -32,6 +32,7 @@ export default class Item {
         if(!this.loader && this.config.is3D){
             console.log('cannot init item without loader is 3d? ',this.config.is3D,' hex: ',this.config.postHashHex);
         };
+        this.tControls = this.config.transformControls,
         this.scene = this.config.scene;
         this.height = this.config.height;
         this.width = this.config.width;
@@ -61,7 +62,11 @@ export default class Item {
         } else {
            // console.log('nophysicsWorld');
 
-        }
+        };
+
+        console.log('Item config Controls: ',this.config.transformControls);
+
+        console.log('new items tControls: ',this.tControls);
         this.anims = [];
         if(this.config.animLoader){
             console.log('config has animLoader');
@@ -454,7 +459,13 @@ export default class Item {
                         console.log('no that.animLoader on load model');
                     };
                     that.mesh.userData.owner = this;
-                    that.mesh.owner = this;                
+                    that.mesh.owner = this;       
+                    if(that.tControls){
+                        console.log('attaching tControls');
+                        that.tControls.attach(that.mesh);
+                    } else {
+                        console.log('no transformControls');
+                    };
                     let obj3D = this.convertToObj3D(loadedItem);
                     if(obj3D===false){
                         console.log('could not convert item for scene');
@@ -463,6 +474,10 @@ export default class Item {
                   
                     this.scaleToFitScene(obj3D, posVector);
                     //this.fixYCoord(obj3D, posVector); 
+                    if(that.tControls){
+                        that.scene.add(that.tControls);
+                    };
+
                     resolve(obj3D);
 
               //  }
