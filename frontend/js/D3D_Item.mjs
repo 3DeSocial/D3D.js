@@ -427,6 +427,8 @@ export default class Item {
                     that.mesh = loadedItem;
                     if(this.config.isAvatar){
                         this.swapMeshForProfilePic();
+                    } else {
+                        console.log('not an avatar!!! not swapping face');
                     }
                     if(that.animLoader){
                         that.mixer = new THREE.AnimationMixer(root);
@@ -499,7 +501,7 @@ onErrorCallback = (e)=> {
 
 swapMeshForProfilePic = () =>{
     let that = this;
-
+console.log('looking for  ProfilePicHere');
     let faceMesh = this.findChildByName(this.mesh, 'ProfilePicHere');
     if(faceMesh){
         this.faceMesh = faceMesh;
@@ -509,6 +511,8 @@ swapMeshForProfilePic = () =>{
             this.faceMesh.material =material;
         })
 
+    } else {
+        console.log('no faceMesh');
     }
 
 }

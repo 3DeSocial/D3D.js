@@ -39,6 +39,7 @@ export default class NFTImporter {
                     itemConfig = this.processMeta(nftParams, nftMeta);
 
                     importedItem = itemConfig; // return config by default
+
                 } else {
                     console.log('no 3D data, return 2d data');
                     importedItem = nftMeta;
@@ -52,8 +53,12 @@ export default class NFTImporter {
                         importedItem = new SceneryLoader(itemConfig);
                         break;
                     case 'item':
+                        // create config for 3D asset class
+                        importedItem = new Item(itemConfig);
+                        break;                        
                     case 'avatar':
                         // create config for 3D asset class
+                        itemConfig.isAvatar = true;
                         importedItem = new Item(itemConfig);
                         break;                  
                 };

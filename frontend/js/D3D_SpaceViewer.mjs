@@ -173,11 +173,11 @@ const params = {
             this.loadScenery().then(()=>{
         
              //   this.initPhysicsWorld();        
-
+                let importerParams=null;
 
                 if(this.avatarEnabled()){
                     if(!this.nftImporter){
-                        let importerParams= {isAvatar: true,
+                        importerParams= {isAvatar: true,
                                             chainAPI: that.config.chainAPI,
                                             loaders: that.loaders,
                                             modelsRoute:that.config.modelsRoute,
@@ -204,7 +204,7 @@ const params = {
                             if(that.avatar){
                                 that.initCameraThirdPerson();
                                 that.initPlayerThirdPerson();                                 
-                                this.initInventory(options); 
+
 
 
                             } else {
@@ -899,7 +899,7 @@ checkMouseDown = (e) =>{
                 if(item.config.spot){
                     nftDisplayData.spot = item.config.spot;
                 };
-                this.displayInHUD(nftDisplayData);            
+                //this.displayInHUD(nftDisplayData);            
             }
 
             //console.log(action.selection.object.userData.owner.config.nft);
@@ -2284,7 +2284,7 @@ console.log('sceneInvConfig',sceneInvConfig);
                 if(item.config.spot){
                     nftDisplayData.spot = item.config.spot;
                 };
-                this.displayInHUD(nftDisplayData);                
+                //this.displayInHUD(nftDisplayData);                
             }         
         });     
     } 
@@ -2479,10 +2479,9 @@ initPlayerFirstPerson = () => {
     let lookAtStartPos = that.player.position.clone();
     lookAtStartPos.setZ(lookAtStartPos.z+10); // look ahead
     lookAtStartPos.setY(that.player.position.y); // look ahead    
-    this.initControls();
     this.addListeners();   
     this.camera.position.copy(offsetStartPos);
-    this.camera.position.z=this.camera.position.z-2;
+    this.camera.position.z=this.camera.position.z-4;
     that.camera.lookAt(lookAtStartPos);
     that.resizeCanvas();
 
@@ -2544,9 +2543,8 @@ initPlayerThirdPerson = () => {
         let lookAtStartPos = that.player.position.clone();
         lookAtStartPos.setZ(lookAtStartPos.z+10); // look ahead
         lookAtStartPos.setY(that.player.position.y); // look ahead
-
-
         this.initControls();
+        this.initInventory(options);         
         this.addListeners();            
         this.camera.position.copy(offsetStartPos);
         this.camera.position.z=this.camera.position.z-2;
@@ -2554,7 +2552,6 @@ initPlayerThirdPerson = () => {
         that.resizeCanvas();        
         that.animate();
         that.sceneryloadingComplete = true;
-
     //    that.loadingScreen.hide();
     });       
    
