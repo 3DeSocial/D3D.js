@@ -203,7 +203,7 @@ const params = {
 
                             if(that.avatar){
                                 that.initCameraThirdPerson();
-                                that.initPlayerThirdPerson();                                 
+                                that.initPlayerThirdPerson(options);                                 
 
 
 
@@ -2491,7 +2491,7 @@ initPlayerFirstPerson = () => {
 
 }
 
-initPlayerThirdPerson = () => {
+initPlayerThirdPerson = (options) => {
 
     let that = this;
     let playerLoader = new GLTFLoader();
