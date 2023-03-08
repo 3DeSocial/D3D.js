@@ -485,6 +485,12 @@ initCameraFirstPerson = () =>{
         //Controls
 
         this.transformControls = new TransformControls( this.camera, this.renderer.domElement );
+        this.transformControls.addEventListener('mouseDown', function () {
+            this.controls.enabled = false;
+        });
+        this.transformControls.addEventListener('mouseUp', function () {
+            this.controls.enabled = true;
+        });
         console.log('initControls: ',this.transformControls);
         this.controls = new OrbitControls(this.camera, this.renderer.domElement);
         let playerx = this.player.position.x;
@@ -1628,8 +1634,9 @@ isOnWall = (raycaster, selectedPoint, meshToCheck) =>{
             this.renderer.setSize(this.parentDivElWidth, this.parentDivElHeight);
             console.log('resizeCanvas');
         };
-
-        this.controls.update();
+        if(this.controls){
+          this.controls.update();
+        };
     }
 
         
