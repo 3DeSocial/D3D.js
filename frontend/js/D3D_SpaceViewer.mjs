@@ -129,7 +129,7 @@ const params = {
         ctx.font = '40px Arial bold';
         ctx.fillStyle = 'white';
         ctx.textAlign = 'center';
-        ctx.fillText(text, canvas.width / 2, canvas.height / 2, canvas.width);
+        ctx.fillText(text, canvas.width / 2, canvas.height / 4, canvas.width);
 
         // Create a texture from the canvas
         var texture = new THREE.Texture(canvas);
@@ -483,15 +483,7 @@ initCameraFirstPerson = () =>{
 
     initControls = () =>{
         //Controls
-
-        this.transformControls = new TransformControls( this.camera, this.renderer.domElement );
-        this.transformControls.addEventListener('mouseDown', function () {
-            this.controls.enabled = false;
-        });
-        this.transformControls.addEventListener('mouseUp', function () {
-            this.controls.enabled = true;
-        });
-        console.log('initControls: ',this.transformControls);
+        let that = this;
         this.controls = new OrbitControls(this.camera, this.renderer.domElement);
         let playerx = this.player.position.x;
         let playery = this.player.position.y;
@@ -499,6 +491,16 @@ initCameraFirstPerson = () =>{
         //this.camPos.set(playerx,(playery),playerz);
         this.controls.target.set(playerx,(playery),(playerz+0.001));
         this.controls.update();
+
+
+        this.transformControls = new TransformControls( this.camera, this.renderer.domElement );
+        this.transformControls.addEventListener('mouseDown', function () {
+            that.controls.enabled = false;
+        });
+        this.transformControls.addEventListener('mouseUp', function () {
+            that.controls.enabled = true;
+        });
+        console.log('initControls: ',this.transformControls);        
     }
 
     restrictCameraToRoom = () => {
@@ -667,10 +669,42 @@ initCameraFirstPerson = () =>{
     }
     addEventListenerKeys = ()=>{
         let that = this;
-
+        let control = this.transformControls;
+        console.log('control: ', control);
         window.addEventListener( 'keydown', function ( e ) {
                 switch ( e.code ) {
 
+                        case 76: // Q
+                            control.setSpace( control.space === 'local' ? 'world' : 'local' );
+                            break;
+
+                        case 16: // Shift
+                            control.setTranslationSnap( 100 );
+                            control.setRotationSnap( THREE.MathUtils.degToRad( 15 ) );
+                            control.setScaleSnap( 0.25 );
+                            break;
+
+                        case 'KeyM': //  M   
+                            control.setMode( 'translate' );
+                            console.log('move')
+
+                            break;
+
+                        case 'KeyR': // R
+                            control.setMode( 'rotate' );
+                            console.log('rotate')
+                            break;
+
+                        case 'KeyY': // Y
+                            console.log('scale')
+
+                            control.setMode( 'scale' );
+                            break;
+
+                        case 187:
+                        case 107: // +, =, num+
+                            control.setSize( control.size + 0.1 );
+                            break;
                     case 'KeyW':
                         fwdPressed = true; 
                         that.controlProxy.dir = 'f';                         
@@ -841,18 +875,9 @@ initCameraFirstPerson = () =>{
         }, false);
     }
 
-checkMouseDown = (e) =>{
+    checkMouseDown = (e) =>{
         let that = this;
-        let action = this.raycast(e);
-        if(!action.selectedPoint){          
-            return false;
-        };
-       // console.log('action.btnIndex: ',action.btnIndex);
-        switch(parseInt(action.btnIndex)){
-            case 1:
-
-            break;
-        }
+       
     }
 
 

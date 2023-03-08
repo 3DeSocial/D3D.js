@@ -464,8 +464,7 @@ export default class Item {
                     that.mesh.owner = this;       
                     if(that.tControls){
                         console.log('attaching tControls');
-                        that.tControls.attach(that.mesh);
-                    } else {
+                     } else {
                         console.log('no transformControls');
                     };
                     let obj3D = this.convertToObj3D(loadedItem);
