@@ -211,8 +211,7 @@ const params = {
                                 //No avatar is available, use first person
                                 this.config.firstPerson =true;
                                 this.initCameraFirstPerson(); 
-                                this.initInventory(options);
-                                that.initPlayerFirstPerson();      
+                                that.initPlayerFirstPerson(options);      
                             }
 
                             that.sceneryloadingComplete = true;
@@ -228,8 +227,7 @@ const params = {
                     //No avatar is available, use first person
                     this.config.firstPerson =true;
                     this.initCameraFirstPerson(); 
-                    this.initInventory(options);                                                
-                    that.initPlayerFirstPerson();
+                    that.initPlayerFirstPerson(options);
                     if(this.config.onSceneLoad()){
                         this.config.onSceneLoad();
                      }              
@@ -2578,7 +2576,7 @@ initPlayerThirdPerson = (options) => {
         lookAtStartPos.setZ(lookAtStartPos.z+10); // look ahead
         lookAtStartPos.setY(that.player.position.y); // look ahead
         that.resizeCanvas();        
-        
+
         this.initControls();
         this.initInventory(options);         
         this.addListeners();            
