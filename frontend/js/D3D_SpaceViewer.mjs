@@ -211,8 +211,8 @@ const params = {
                                 //No avatar is available, use first person
                                 this.config.firstPerson =true;
                                 this.initCameraFirstPerson(); 
-                                that.initPlayerFirstPerson();      
                                 this.initInventory(options);
+                                that.initPlayerFirstPerson();      
                             }
 
                             that.sceneryloadingComplete = true;
@@ -228,8 +228,8 @@ const params = {
                     //No avatar is available, use first person
                     this.config.firstPerson =true;
                     this.initCameraFirstPerson(); 
+                    this.initInventory(options);                                                
                     that.initPlayerFirstPerson();
-                    this.initInventory(options);                            
                     if(this.config.onSceneLoad()){
                         this.config.onSceneLoad();
                      }              
@@ -2511,11 +2511,13 @@ initPlayerFirstPerson = () => {
     let lookAtStartPos = that.player.position.clone();
     lookAtStartPos.setZ(lookAtStartPos.z+10); // look ahead
     lookAtStartPos.setY(that.player.position.y); // look ahead    
+    that.resizeCanvas();    
+    this.initControls();
+    this.initInventory(options);         
     this.addListeners();   
     this.camera.position.copy(offsetStartPos);
     this.camera.position.z=this.camera.position.z-4;
     that.camera.lookAt(lookAtStartPos);
-    that.resizeCanvas();
 
     that.animate();
 
@@ -2575,13 +2577,14 @@ initPlayerThirdPerson = (options) => {
         let lookAtStartPos = that.player.position.clone();
         lookAtStartPos.setZ(lookAtStartPos.z+10); // look ahead
         lookAtStartPos.setY(that.player.position.y); // look ahead
+        that.resizeCanvas();        
+        
         this.initControls();
         this.initInventory(options);         
         this.addListeners();            
         this.camera.position.copy(offsetStartPos);
         this.camera.position.z=this.camera.position.z-2;
         that.camera.lookAt(lookAtStartPos);
-        that.resizeCanvas();        
         that.animate();
         that.sceneryloadingComplete = true;
     //    that.loadingScreen.hide();
