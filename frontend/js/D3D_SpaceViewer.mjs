@@ -2477,7 +2477,7 @@ console.log('sceneInvConfig',sceneInvConfig);
     }
 
 
-initPlayerFirstPerson = () => {
+initPlayerFirstPerson = (options) => {
 
     let that = this;
     let playerLoader = new GLTFLoader();
