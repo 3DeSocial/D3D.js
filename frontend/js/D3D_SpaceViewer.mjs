@@ -19,8 +19,8 @@ const params = {
     firstPerson: false,
     visualizeDepth: 10,
     gravity: - 30,
-    playerSpeed: 3,
-    physicsSteps: 16};
+    playerSpeed: 10,
+    physicsSteps: 20};
 
  export default class SpaceViewer {
     
