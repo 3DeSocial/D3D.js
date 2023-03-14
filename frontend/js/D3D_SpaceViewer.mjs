@@ -174,7 +174,12 @@ const params = {
         
              //   this.initPhysicsWorld();        
                 let importerParams=null;
-
+                if ( 'xr' in navigator ) {
+                    console.log('VR is enabled');
+                    that.initVR();
+                } else {
+                    console.log('no vr available');
+                };
                 if(this.avatarEnabled()){
                     if(!this.nftImporter){
                         importerParams= {isAvatar: true,
@@ -233,9 +238,7 @@ const params = {
                      }              
                 }
 
-                if ( 'xr' in navigator ) {
-                    that.initVR();
-                }   
+   
             
 //                this.renderer.render(this.scene,this.camera);
 
@@ -2117,13 +2120,16 @@ console.log('sceneInvConfig',sceneInvConfig);
         let that = this;
         
         VRButton.registerSessionGrantedListener();        
-        let vrBtnOptions = { btnCtr : 'div.view-vr-btn',
+        let vrBtnOptions = { btnCtr : 'view-vr-btn',
                              viewer: this,
                              onStartSession: ()=>{
                                 let vrType = 'walking';
 
                                 that.initVRSession(vrType);                                
                             } }
+                            console.log('vrBtnOptions: ',vrBtnOptions);
+                            console.log('creat button now...');
+                            console.log(VRButton);
         let vrButtonEl = VRButton.createButton(this.renderer, vrBtnOptions);
     }
 
