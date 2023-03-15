@@ -2389,6 +2389,7 @@ console.log('sceneInvConfig',sceneInvConfig);
         el.addEventListener("click", (e)=>{
             e.preventDefault();
             e.stopPropagation();
+            console.log('clicked, isFullScreen: ',that.isFullScreen);
             if(that.isFullScreen){
                 that.closeFullscreen();
                 that.toggleFullScreenBtnText(e.target,'Full')                
@@ -2398,6 +2399,21 @@ console.log('sceneInvConfig',sceneInvConfig);
             }
             that.resizeCanvas(true);
         });     
+
+ //console.log('adding listener for '+modelUrl);
+ el.addEventListener("touchend", (e)=>{
+    e.preventDefault();
+    e.stopPropagation();
+    console.log('touchend, isFullScreen: ',that.isFullScreen);
+        if(that.isFullScreen){
+            that.closeFullscreen();
+            that.toggleFullScreenBtnText(e.target,'Full')                
+        } else {
+            that.openFullscreen();
+            that.toggleFullScreenBtnText(e.target, 'Exit');
+        }
+        that.resizeCanvas(true);
+    });             
     }    
 
     toggleFullScreenBtnText = (link, msg) =>{
