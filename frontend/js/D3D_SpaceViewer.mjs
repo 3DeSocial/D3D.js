@@ -168,90 +168,91 @@ const params = {
                             chainAPI: that.config.chainAPI});*/
             this.initSkybox();
             this.initLighting();
+            let sceneryPostHash = 'c52c98742aa78a6836b8c4746dd278405ba1ded2816c5dabeed3949b04510137';
+            that.loadSceneryNFT(sceneryPostHash).then((sceneryConfig)=>{
 
-
-            this.loadScenery().then(()=>{
+                that.loadScenery(sceneryConfig).then(()=>{
         
-             //   this.initPhysicsWorld();        
-                let importerParams=null;
-                if ( 'xr' in navigator ) {
-                    console.log('VR is enabled');
-                    that.initVR();
-                } else {
-                    console.log('no vr available');
-                };
-                if(this.avatarEnabled()){
-                    if(!this.nftImporter){
-                        importerParams= {isAvatar: true,
-                                            chainAPI: that.config.chainAPI,
-                                            loaders: that.loaders,
-                                            modelsRoute:that.config.modelsRoute,
-                                            scene: that.scene};
+                    //   this.initPhysicsWorld();        
+                       let importerParams=null;
+                       if ( 'xr' in navigator ) {
+                           console.log('VR is enabled');
+                           that.initVR();
+                       } else {
+                           console.log('no vr available');
+                       };
+                       if(this.avatarEnabled()){
+                           if(!this.nftImporter){
+                               importerParams= {isAvatar: true,
+                                                   chainAPI: that.config.chainAPI,
+                                                   loaders: that.loaders,
+                                                   modelsRoute:that.config.modelsRoute,
+                                                   scene: that.scene};
+       
+                               this.nftImporter = new NFTImporter(importerParams);
+                           };
+       
+                           let nftImportParams = {assetType: 'avatar',
+                                                  nftPostHashHex: this.config.avatar}
+                           if(that.config.currentUser){
+                               nftImportParams.owner = {
+                                  ownerName: that.config.currentUser.Username,
+                                  ownerPublicKey: that.config.currentUser.PublicKeyBase58Check,
+                                  ownerDescription: that.config.currentUser.Description
+                               };                                  
+                           };
+       
+                           this.nftImporter.import(nftImportParams)
+       
+                               .then((avatar)=>{
+                                   that.avatar = avatar;
+       
+                                   if(that.avatar){
+                                       that.initCameraThirdPerson();
+                                       that.initPlayerThirdPerson(options);                                 
+       
+       
+       
+                                   } else {
+                                       //No avatar is available, use first person
+                                       this.config.firstPerson =true;
+                                       this.initCameraFirstPerson(); 
+                                       that.initPlayerFirstPerson(options);      
+                                   }
+       
+                                   that.sceneryloadingComplete = true;
+                                   if(this.config.onSceneLoad()){
+                                       this.config.onSceneLoad();
+                                    }
+                               }).catch(err=>{
+                                   console.log('could not import avatar: ');
+                                   console.log(err);
+                               })
+       
+                       } else {
+                           //No avatar is available, use first person
+                           this.config.firstPerson =true;
+                           this.initCameraFirstPerson(); 
+                           that.initPlayerFirstPerson(options);
+                           if(this.config.onSceneLoad()){
+                               this.config.onSceneLoad();
+                            }              
+                       }
+       
+          
+                   
+       //                this.renderer.render(this.scene,this.camera);
+       
+       
+                //   hat.addListeners();
+                  //     console.log('addListeners')
+                   //    that.audioListener.setMasterVolume(1);
+                   //  his.camera.setRotationFromEuler(new THREE.Euler( 0,Math.PI,0, 'XYZ' ));
+                    //   that.animate();
+                       sceneryloadingComplete = true;               
+                   });
 
-                        this.nftImporter = new NFTImporter(importerParams);
-                    };
-
-                    let nftImportParams = {assetType: 'avatar',
-                                           nftPostHashHex: this.config.avatar}
-                    if(that.config.currentUser){
-                        nftImportParams.owner = {
-                           ownerName: that.config.currentUser.Username,
-                           ownerPublicKey: that.config.currentUser.PublicKeyBase58Check,
-                           ownerDescription: that.config.currentUser.Description
-                        };                                  
-                    };
-
-                    this.nftImporter.import(nftImportParams)
-
-                        .then((avatar)=>{
-                            that.avatar = avatar;
-
-                            if(that.avatar){
-                                that.initCameraThirdPerson();
-                                that.initPlayerThirdPerson(options);                                 
-
-
-
-                            } else {
-                                //No avatar is available, use first person
-                                this.config.firstPerson =true;
-                                this.initCameraFirstPerson(); 
-                                that.initPlayerFirstPerson(options);      
-                            }
-
-                            that.sceneryloadingComplete = true;
-                            if(this.config.onSceneLoad()){
-                                this.config.onSceneLoad();
-                             }
-                        }).catch(err=>{
-                            console.log('could not import avatar: ');
-                            console.log(err);
-                        })
-
-                } else {
-                    //No avatar is available, use first person
-                    this.config.firstPerson =true;
-                    this.initCameraFirstPerson(); 
-                    that.initPlayerFirstPerson(options);
-                    if(this.config.onSceneLoad()){
-                        this.config.onSceneLoad();
-                     }              
-                }
-
-   
-            
-//                this.renderer.render(this.scene,this.camera);
-
-
-         //   hat.addListeners();
-           //     console.log('addListeners')
-            //    that.audioListener.setMasterVolume(1);
-            //  his.camera.setRotationFromEuler(new THREE.Euler( 0,Math.PI,0, 'XYZ' ));
-             //   that.animate();
-                sceneryloadingComplete = true;               
-            });
-
-  
+            })
 
         });
     }
@@ -322,18 +323,20 @@ const params = {
 
     }
 
-    loadScenery = () =>{
+    loadScenery = (sceneryOptions) =>{
         let that = this;
+        console.log('sceneryOptions from nft loader',sceneryOptions);
         return new Promise((resolve,reject)=>{
 
-            let sceneryOptions = {
+            let finalSceneryOptions = {
                 ...{visualize:(params.debug),
                     scene : that.scene,
                     castShadow: false,
                 receiveShadow : false},
-                ...that.config.sceneryOptions
+                ...sceneryOptions
             };
-            that.sceneryLoader = new SceneryLoader(sceneryOptions);
+            that.sceneryLoader = new SceneryLoader(finalSceneryOptions);
+            console.log('final scenery optins: ',finalSceneryOptions);
             that.sceneryLoader.loadScenery()
             .then((gltf)=>{
                 this.collider = that.sceneryLoader.collider;
@@ -597,6 +600,30 @@ initCameraFirstPerson = () =>{
         } else {
             console.log('no imageURLs[0] in nft');
         }
+    }
+
+    loadSceneryNFT = (nftPostHashHex) =>{
+        return new Promise((resolve, reject) => {
+            if(!this.nftImporter){
+                let importerParams= {chainAPI: this.config.chainAPI,
+                                    loaders: this.loaders,
+                                    modelsRoute:this.config.modelsRoute,
+                                    scene: this.scene};
+
+                this.nftImporter = new NFTImporter(importerParams);
+               
+            };
+
+            this.nftImporter.import({assetType:'scenery',
+                                    nftPostHashHex:nftPostHashHex}).then((sceneryConfig)=>{  
+                                       resolve(sceneryConfig);
+                                    }).catch(err=>{
+                                        console.log('error importing scenery');
+                                        console.log(err);
+                                        reject(err);
+                                    });            
+        })
+
     }
 
     addSky = () =>{
@@ -863,6 +890,7 @@ initCameraFirstPerson = () =>{
         this.renderer.domElement.addEventListener( 'mousedown', this.checkMouseDown, false );        
         this.renderer.domElement.addEventListener( 'dblclick', this.checkMouseDbl, false );
         this.renderer.domElement.addEventListener("touchstart", ()=>{
+            console.log('touchstart renderer');
         if(!this.holding){
             const d = new Date();
             that.startTime = d.getTime();
@@ -2401,10 +2429,10 @@ console.log('sceneInvConfig',sceneInvConfig);
         });     
 
  //console.log('adding listener for '+modelUrl);
- el.addEventListener("touchend", (e)=>{
+ el.addEventListener("touchstart", (e)=>{
     e.preventDefault();
     e.stopPropagation();
-    console.log('touchend, isFullScreen: ',that.isFullScreen);
+    console.log('touchstart, isFullScreen: ',that.isFullScreen);
         if(that.isFullScreen){
             that.closeFullscreen();
             that.toggleFullScreenBtnText(e.target,'Full')                

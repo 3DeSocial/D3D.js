@@ -23,7 +23,6 @@ export default class NFTImporter {
             ...defaults,
             ...config
         };
-        console.log('NFTImporter this.config: ', this.config);
 
     }
 
@@ -50,7 +49,13 @@ export default class NFTImporter {
                 switch(nftParams.assetType){
                     case 'scenery':
                         // create config for 3D asset class
-                        importedItem = new SceneryLoader(itemConfig);
+                        let sceneryConfig = {
+                            sceneryPath: itemConfig.modelUrl,
+                            sceneScale: 2.5,
+                            playerStartPos: { x: -0, y: 8 ,z: 0 },
+                         }
+                        importedItem = sceneryConfig;
+
                         break;
                     case 'item':
                         // create config for 3D asset class
@@ -131,8 +136,7 @@ export default class NFTImporter {
                 nft: nftMeta}
 
         };
-        console.log('imported itemConfig:');
-        console.log(itemConfig);
+
         return itemConfig;
     }
 
