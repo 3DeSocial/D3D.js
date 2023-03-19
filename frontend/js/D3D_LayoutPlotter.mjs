@@ -20,7 +20,14 @@ export default class LayoutPlotter  {
         this.inventory = this.config.inventory;
         this.sceneryLoader = this.config.sceneryLoader;
         if(this.sceneryLoader){
-            this.sceneryLoader.loadFloorPlan()
+            if(this.sceneryLoader.config.floorPlan){
+                if(this.sceneryLoader.config.floorPlan.length){
+                    if(this.sceneryLoader.config.floorPlan.length>0){
+                        console.log('calling loadFloorPlan', this.sceneryLoader.config.floorPlan);
+                        this.sceneryLoader.loadFloorPlan();
+                    }
+                }
+            };            
         };
 
         this.posVector = new THREE.Vector3();
@@ -223,6 +230,12 @@ export default class LayoutPlotter  {
 
     getNextFreePos = () =>{
 
+        if(!this.config.sceneryLoader){
+            return false;
+        };
+        if(!this.sceneryLoader.config.floorPlan){
+            return false
+        };      
         if(!this.posQ){
             this.initPosQ();
         };
@@ -234,6 +247,12 @@ export default class LayoutPlotter  {
 
     getNextFreePos3d = () =>{
 
+        if(!this.config.sceneryLoader){
+            return false;
+        };
+        if(!this.sceneryLoader.config.floorPlan){
+            return false
+        };   
         if(!this.posQ){
             this.initPosQ();
         };
@@ -371,6 +390,14 @@ export default class LayoutPlotter  {
     }
 
     getMaxItemCount = () =>{
+
+        if(!this.config.sceneryLoader){
+            return false;
+        };
+        if(!this.sceneryLoader.config.floorPlan){
+            return false
+        };   
+
         if(!this.posQ){
             this.initPosQ();
         };
@@ -378,6 +405,14 @@ export default class LayoutPlotter  {
     }
 
     getMaxItemCount3D = () =>{
+
+        if(!this.config.sceneryLoader){
+            return false;
+        };
+        if(!this.sceneryLoader.config.floorPlan){
+            return false
+        };   
+                
         if(!this.posQ){
             this.initPosQ();
         };

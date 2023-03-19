@@ -168,7 +168,7 @@ const params = {
                             chainAPI: that.config.chainAPI});*/
             this.initSkybox();
             this.initLighting();
-            let sceneryPostHash = 'c52c98742aa78a6836b8c4746dd278405ba1ded2816c5dabeed3949b04510137';
+            let sceneryPostHash = this.config.sceneryPostHash;
             that.loadSceneryNFT(sceneryPostHash).then((sceneryConfig)=>{
 
                 that.loadScenery(sceneryConfig).then(()=>{
@@ -2008,17 +2008,14 @@ console.log('init inventory this.transformControls: ',this.transformControls);
             let maxItems3D =this.layoutPlotter.getMaxItemCount3D();
             let items3d = options.sceneAssets.filter(nft => nft.is3D);
 
-            items3d = items3d.concat(spookyNFTs)
-            let items3dToRender = items3d.slice(0,maxItems3D);   
-
             sceneInvConfig.items2d = items2d;
-            sceneInvConfig.items3d = items3dToRender;
+            sceneInvConfig.items3d = items3d;
 
             if(this.world){
                 sceneInvConfig.physicsWorld = this.world;
             };
 
-            let haveVRM = this.haveVRM(items3dToRender);
+            let haveVRM = this.haveVRM(items3d);
             if(haveVRM){
                 sceneInvConfig.animLoader = true;
             };

@@ -39,7 +39,12 @@ export default class SceneryLoader {
             this.playerStartPos = this.config.center;
         }
         if(this.config.floorPlan){
-            this.loadFloorPlan();          
+            if(this.config.floorPlan.length){
+                if(this.config.floorPlan.length>0){
+                    console.log('calling loadFloorPlan', this.config.floorPlan);
+                    this.loadFloorPlan();
+                }
+            }
         };
     }
 
