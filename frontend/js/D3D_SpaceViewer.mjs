@@ -173,7 +173,7 @@ const params = {
 
                 console.log('sceneryConfig');
                 console.log(sceneryConfig);
-                
+
                 that.loadScenery(sceneryConfig).then(()=>{
         
                     //   this.initPhysicsWorld();        
@@ -592,7 +592,7 @@ initCameraFirstPerson = () =>{
             const geometry = new THREE.SphereGeometry( 500, 60, 40 );
             // invert the geometry on the x-axis so that all of the faces point inward
             geometry.scale( - 1, 1, 1 );
-            let fullImagePath = this.config.imageProxyUrl+skyBoxConfig.nft.imageURLs[0];
+            let fullImagePath = skyBoxConfig.nft.imageURLs[0];
             console.log('fullImagePath: ',fullImagePath);
             const texture = new THREE.TextureLoader().load(fullImagePath);
             const material = new THREE.MeshBasicMaterial( { map: texture } );
