@@ -171,6 +171,9 @@ const params = {
             let sceneryPostHash = this.config.sceneryPostHash;
             that.loadSceneryNFT(sceneryPostHash).then((sceneryConfig)=>{
 
+                console.log('sceneryConfig');
+                console.log(sceneryConfig);
+                
                 that.loadScenery(sceneryConfig).then(()=>{
         
                     //   this.initPhysicsWorld();        
