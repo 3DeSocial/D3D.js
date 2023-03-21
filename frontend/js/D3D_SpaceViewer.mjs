@@ -587,6 +587,7 @@ initCameraFirstPerson = () =>{
     }
 
     initNFTSkyBox = (skyBoxConfig) =>{
+        let that = this;
         console.log('skyBoxConfig: ',skyBoxConfig);
         if(skyBoxConfig.nft.imageURLs[0]){
             const geometry = new THREE.SphereGeometry( 500, 60, 40 );
@@ -594,12 +595,27 @@ initCameraFirstPerson = () =>{
             geometry.scale( - 1, 1, 1 );
             let fullImagePath = skyBoxConfig.nft.imageURLs[0];
             console.log('fullImagePath: ',fullImagePath);
-            const texture = new THREE.TextureLoader().load(fullImagePath);
-            const material = new THREE.MeshBasicMaterial( { map: texture } );
+            let loader = new THREE.TextureLoader();
+            loader.load(
+                fullImagePath,
+                function ( texture ) {
+                    // create a material using the loaded texture
+                    console.log('loaded: ',fullImagePath);
 
-            const mesh = new THREE.Mesh( geometry, material );
+                    const material = new THREE.MeshBasicMaterial( { map: texture } );
+        
+                    const mesh = new THREE.Mesh( geometry, material );
+        console.log('skycreated');
+                    that.scene.add( mesh );
+                },
+                function ( xhr ) {
+                    console.log( (xhr.loaded / xhr.total * 100) + '% loaded' );
+                },
+                function ( error ) {
+                    console.error( 'An error happened', error );
+                }
+            );
 
-            this.scene.add( mesh );
         } else {
             console.log('no imageURLs[0] in nft');
         }
@@ -616,7 +632,7 @@ initCameraFirstPerson = () =>{
                 this.nftImporter = new NFTImporter(importerParams);
                
             };
-
+console.log('loadSceneryNFT import');
             this.nftImporter.import({assetType:'scenery',
                                     nftPostHashHex:nftPostHashHex}).then((sceneryConfig)=>{  
                                        resolve(sceneryConfig);

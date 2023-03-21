@@ -86,6 +86,11 @@ export default class SceneryLoader {
                 that.centerScene(res.scene);
                 that.addScenery(res);
                 resolve(res.scene);
+            }, function ( xhr ) {
+                console.log( ( xhr.loaded / xhr.total * 100 ) + '% loaded' );
+            },
+            function ( error ) {
+                console.error( error );
             });
        });
 	}
