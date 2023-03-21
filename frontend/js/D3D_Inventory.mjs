@@ -67,6 +67,10 @@ import { Item, Item2d, ItemVRM, ChainAPI, ExtraData3DParser } from 'd3d';
     }
 
     getParser = (PostEntryResponse) =>{
+        if(!PostEntryResponse.PostExtraData){
+            console.log('no PostExtraData: ',PostEntryResponse);
+            return false;
+        }
         if(!PostEntryResponse.PostExtraData['3DExtraData']){
             console.log('selected item is not 3d');
             return false;

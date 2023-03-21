@@ -712,23 +712,18 @@ initCameraFirstPerson = () =>{
                             control.setScaleSnap( 0.25 );
                             break;
 
-                        case 'KeyM': //  M   
-                            control.setMode( 'translate' );
-                            console.log('move')
-
+                        case 'KeyT': //  M   
+                            if(control.mode==='translate'){
+                                control.setMode( 'rotate' );
+                            } else if(control.mode==='rotate'){
+                                control.setMode( 'scale' );
+                            } else if(control.mode==='scale'){
+                                control.setMode( 'translate' );
+                            }
                             break;
-
-                        case 'KeyR': // R
-                            control.setMode( 'rotate' );
-                            console.log('rotate')
-                            break;
-
-                        case 'KeyY': // Y
-                            console.log('scale')
-
-                            control.setMode( 'scale' );
-                            break;
-
+                        case 'KeyC':
+                            control.detatch();
+                        break;
                         case 187:
                         case 107: // +, =, num+
                             control.setSize( control.size + 0.1 );
