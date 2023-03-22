@@ -594,7 +594,9 @@ initCameraFirstPerson = () =>{
             // invert the geometry on the x-axis so that all of the faces point inward
             geometry.scale( - 1, 1, 1 );
             let fullImagePath = skyBoxConfig.nft.imageURLs[0];
+            console.log('no proxy test');
             console.log('fullImagePath: ',fullImagePath);
+            try{
             let loader = new THREE.TextureLoader();
             loader.load(
                 fullImagePath,
@@ -615,6 +617,10 @@ initCameraFirstPerson = () =>{
                     console.error( 'An error happened', error );
                 }
             );
+            } catch(error){
+                console.log('could not load texture');
+                console.log(error);
+            }
 
         } else {
             console.log('no imageURLs[0] in nft');
