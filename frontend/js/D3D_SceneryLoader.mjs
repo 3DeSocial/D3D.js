@@ -80,8 +80,14 @@ export default class SceneryLoader {
         let that = this;
 
         return new Promise((resolve, reject) => {
+            try{            
             this.gltfLoader = new GLTFLoader();
-            this.gltfLoader.load(this.config.sceneryPath, (res) => {
+            console.log('loadScenery: ',this.config.sceneryPath);
+            console.log('loadScenery: ',that.config.sceneryPath);
+
+            this.gltfLoader.load(that.config.sceneryPath, (res) => {
+                console.log('loadScenery ok: ');
+
             	that.scaleScene(res.scene);
                 that.centerScene(res.scene);
                 that.addScenery(res);
@@ -90,8 +96,14 @@ export default class SceneryLoader {
                 console.log( ( xhr.loaded / xhr.total * 100 ) + '% loaded' );
             },
             function ( error ) {
+                console.log('loadScenery error: ');
+
                 console.error( error );
             });
+        } catch (err){
+            console.log('error loading scenery');
+            console.log(err);
+        }
        });
 	}
 
