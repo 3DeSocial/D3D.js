@@ -302,9 +302,9 @@ import { Item, Item2d, ItemVRM, ChainAPI, ExtraData3DParser } from 'd3d';
                     spot = {pos:itemData.pos, rot:itemData.rot, scale:itemData.scale};
                 } else {
                     spot = that.config.layoutPlotter.getNextFreePos3d();
+                    let yPos = that.config.layoutPlotter.findFloorAt(spot.pos,4,0); 
+                    spot.pos.y = yPos;                    
                 }
-                let yPos = that.config.layoutPlotter.findFloorAt(spot.pos,4,0); 
-                spot.pos.y = yPos;
 
                 let formats = extraDataParser.getAvailableFormats();                    
                 let models = extraDataParser.getModelList();
