@@ -507,7 +507,37 @@ initCameraFirstPerson = () =>{
         this.transformControls.addEventListener('mouseUp', function () {
             that.controls.enabled = true;
         });
+        this.transformControls.addEventListener('change', function (e) {
+            console.log('Transform Change Event: ',e)
+            console.log(this.object);
+            that.updateState(this.object);
+        });        
+        this.transformControls.addEventListener('objectChange', function (e) {
+            console.log('Transform objectChange Event: ',e);
+            console.log(this.object);
+        });             
         console.log('initControls: ',this.transformControls);        
+    }
+
+    updateState = (controlledObject) => {
+
+        // Get position, rotation, and scale of the controlled object
+        const position = controlledObject.position;
+        const rotation = controlledObject.rotation;
+        const scale = controlledObject.scale;
+
+        // Convert the values into the desired format
+        console.log(controlledObject.owner.config);
+        const formattedValues = {
+            postHashHex: controlledObject.owner.config.nftPostHashHex,
+            pos: { x: position.x, y: position.y, z: position.z },
+            rot: { x: rotation.x, y: rotation.y, z: rotation.z },
+            scale: { x: scale.x, y: scale.y, z: scale.z },
+        };
+
+        if(this.config.chainAPI.updateObjectState){
+            this.config.chainAPI.updateObjectState([formattedValues]);
+        }
     }
 
     restrictCameraToRoom = () => {
@@ -611,7 +641,7 @@ initCameraFirstPerson = () =>{
                     that.scene.add( mesh );
                 },
                 function ( xhr ) {
-                    console.log( (xhr.loaded / xhr.total * 100) + '% loaded' );
+                   // console.log( (xhr.loaded / xhr.total * 100) + '% loaded' );
                 },
                 function ( error ) {
                     console.error( 'An error happened', error );
@@ -1988,7 +2018,7 @@ isOnWall = (raycaster, selectedPoint, meshToCheck) =>{
                                         });*/
         this.sceneInventory = null;
 
-console.log('init inventory this.transformControls: ',this.transformControls);
+    //console.log('init inventory this.transformControls: ',this.transformControls);
     let sceneInvConfig = {
         transformControls: this.transformControls,  
         animations: this.config.animations,
@@ -2022,11 +2052,15 @@ console.log('init inventory this.transformControls: ',this.transformControls);
 
             this.layoutPlotter = new LayoutPlotter(plotterOpts);  
             
+            let displayable = options.sceneAssets.filter(item => ((item.nft)&&(item.postHashHex)));     
+
             let maxItems =this.layoutPlotter.getMaxItemCount();
-            let items2d = options.sceneAssets.filter(nft => ((!nft.is3D)&&(nft.imageURLs[0])));     
+
+
+            let items2d = displayable.filter(nft => ((!nft.is3D)&&(nft.imageURLs[0])));     
 
             let maxItems3D =this.layoutPlotter.getMaxItemCount3D();
-            let items3d = options.sceneAssets.filter(nft => nft.is3D);
+            let items3d = displayable.filter(nft => nft.is3D);
 
             sceneInvConfig.items2d = items2d;
             sceneInvConfig.items3d = items3d;
@@ -2040,7 +2074,7 @@ console.log('init inventory this.transformControls: ',this.transformControls);
                 sceneInvConfig.animLoader = true;
             };
         };
-console.log('sceneInvConfig',sceneInvConfig);
+        //console.log('sceneInvConfig',sceneInvConfig);
         this.sceneInventory = new D3DInventory(sceneInvConfig);
         
     }
