@@ -2017,50 +2017,42 @@ isOnWall = (raycaster, selectedPoint, meshToCheck) =>{
                                         });*/
         this.sceneInventory = null;
 
-    //console.log('init inventory this.transformControls: ',this.transformControls);
-    let sceneInvConfig = {
-        transformControls: this.transformControls,  
-        animations: this.config.animations,
-        chainAPI: this.config.chainAPI,
-        imageProxyUrl: this.config.imageProxyUrl,    
-        items2d: [],
-        items3d: [],
-        scene: this.scene,
-        loader: this.loader,
-        loaders: this.loaders,
-        width: 3, // IMPORTANT! Default size for images unless specified in circle layout
-        depth: 0.1,
-        height: 2,
-        modelsRoute: this.config.modelsRoute,
-        nftsRoute: this.config.nftsRoute,
-        layoutPlotter: this.layoutPlotter
-    }
+        let plotterOpts ={
+            camera: this.camera,
+            scene: this.scene,
+            sceneryLoader: this.sceneryLoader}
+
+           this.layoutPlotter = new LayoutPlotter(plotterOpts);  
+           
+           //console.log('init inventory this.transformControls: ',this.transformControls);
+           let sceneInvConfig = {
+               transformControls: this.transformControls,  
+               animations: this.config.animations,
+               chainAPI: this.config.chainAPI,
+               imageProxyUrl: this.config.imageProxyUrl,    
+               items2d: [],
+               items3d: [],
+               scene: this.scene,
+               loader: this.loader,
+               loaders: this.loaders,
+               width: 3, // IMPORTANT! Default size for images unless specified in circle layout
+               depth: 0.1,
+               height: 2,
+               modelsRoute: this.config.modelsRoute,
+               nftsRoute: this.config.nftsRoute,
+               layoutPlotter: this.layoutPlotter
+           }
 
         if(options.sceneAssets){
 
-            let plotterOpts ={
-             camera: this.camera,
-             scene: this.scene,
-             sceneryLoader: this.sceneryLoader}
+            let displayable = options.sceneAssets.filter(item =>this.itemCanBePlaced(item));
 
-            if(this.config.isCurated){
-                plotterOpts.ceilY = 60;
-                plotterOpts.floorY = -1;
-
-            };
-
-            this.layoutPlotter = new LayoutPlotter(plotterOpts);  
-            
-            let displayable = options.sceneAssets.filter(item => (item.hasOwnProperty('nft')));     
-
-            let maxItems =this.layoutPlotter.getMaxItemCount();
-
+            //let maxItems =this.layoutPlotter.getMaxItemCount();
+            //let maxItems3D =this.layoutPlotter.getMaxItemCount3D();
 
             let items2d = displayable.filter(item => ((!item.nft.PostExtraData.hasOwnProperty('3DExtraData'))&&(item.nft.imageURLs.length)));     
-
-            let maxItems3D =this.layoutPlotter.getMaxItemCount3D();
             let items3d = displayable.filter(item => (item.nft.PostExtraData['3DExtraData'])?true:false);
-console.log('items3d:',items3d);
+
             sceneInvConfig.items2d = items2d;
             sceneInvConfig.items3d = items3d;
 
@@ -2076,6 +2068,22 @@ console.log('items3d:',items3d);
         //console.log('sceneInvConfig',sceneInvConfig);
         this.sceneInventory = new D3DInventory(sceneInvConfig);
         
+    }
+
+    itemCanBePlaced = (itemData) =>{
+        if(!itemData.hasOwnProperty('nft')){
+            return false;
+        };
+        if(!itemData.hasOwnProperty('pos')){
+            return false;
+        }
+        if(!itemData.hasOwnProperty('rot')){
+            return false;
+        }
+        if(!itemData.hasOwnProperty('scale')){
+            return false;
+        }          
+        return true;             
     }
 
     haveVRM = (items3dToRender) =>{

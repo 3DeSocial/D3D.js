@@ -263,6 +263,10 @@ export default class LayoutPlotter  {
 
     initPosQ = (opts) =>{
         let that = this;
+
+        if(!this.sceneryLoader.config.floorPlan){
+            return false;
+        };
         this.maxItems = 0;
         this.posQ = [];
         this.posQ3D = [];
@@ -272,6 +276,9 @@ export default class LayoutPlotter  {
                 this.defaultDims = opts.defaultDims;
             }
         }
+
+
+        
         this.sceneryLoader.loadFloorPlan(); 
         let lists = (this.sceneryLoader.lists)?this.sceneryLoader.lists:[];
         lists.forEach((list,idx)=>{

@@ -66,14 +66,15 @@ export default class SceneryLoader {
     }
 
     loadFloorPlan = () =>{
-
+        if(!this.config.floorPlan){
+            return false;
+        };
         this.circles =  this.config.floorPlan.filter(plan => (plan.type == 'circle')&&(plan.name !='snowmen'))
         this.centerPiece = this.config.floorPlan.filter(plan => plan.type == 'centerPiece');
         this.rows = this.config.floorPlan.filter(plan => plan.type == 'rows');
         this.lists =  this.config.floorPlan.filter(plan => plan.type == 'list');
         this.lists3d =  this.config.floorPlan.filter(plan => (plan.type == 'list3d')&&(plan.name !='snowmen'))
         this.circles3d =  this.config.floorPlan.filter(plan => (plan.type == 'circle3d')&&(plan.name !='snowmen'));     
-        this.snowmen =  this.config.floorPlan.filter(plan => (plan.type == 'circle3d')&&(plan.name =='snowmen'));     
 
     }
 	loadScenery = () =>{
