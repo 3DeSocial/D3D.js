@@ -93,7 +93,7 @@ export default class SceneryLoader {
                 that.addScenery(res);
                 resolve(res.scene);
             }, function ( xhr ) {
-                console.log( ( xhr.loaded / xhr.total * 100 ) + '% loaded' );
+             //   console.log( ( xhr.loaded / xhr.total * 100 ) + '% loaded' );
             },
             function ( error ) {
                 console.log('loadScenery error: ');

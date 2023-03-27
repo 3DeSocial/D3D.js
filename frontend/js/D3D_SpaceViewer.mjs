@@ -527,9 +527,9 @@ initCameraFirstPerson = () =>{
         const scale = controlledObject.scale;
 
         // Convert the values into the desired format
-        console.log(controlledObject.owner.config);
         const formattedValues = {
-            postHashHex: controlledObject.owner.config.nftPostHashHex,
+            postHashHex: (controlledObject.owner.config.nft)?controlledObject.owner.config.nft.PostHashHex:null,
+            nft: (controlledObject.owner.config.nft)?controlledObject.owner.config.nft:null,
             pos: { x: position.x, y: position.y, z: position.z },
             rot: { x: rotation.x, y: rotation.y, z: rotation.z },
             scale: { x: scale.x, y: scale.y, z: scale.z },
@@ -637,7 +637,7 @@ initCameraFirstPerson = () =>{
                     const material = new THREE.MeshBasicMaterial( { map: texture } );
         
                     const mesh = new THREE.Mesh( geometry, material );
-        console.log('skycreated');
+
                     that.scene.add( mesh );
                 },
                 function ( xhr ) {
@@ -1736,7 +1736,6 @@ isOnWall = (raycaster, selectedPoint, meshToCheck) =>{
             this.camera.aspect = this.parentDivElWidth/this.parentDivElHeight;
             this.camera.updateProjectionMatrix();
             this.renderer.setSize(this.parentDivElWidth, this.parentDivElHeight);
-            console.log('resizeCanvas');
         };
         if(this.controls){
           this.controls.update();
@@ -2052,16 +2051,16 @@ isOnWall = (raycaster, selectedPoint, meshToCheck) =>{
 
             this.layoutPlotter = new LayoutPlotter(plotterOpts);  
             
-            let displayable = options.sceneAssets.filter(item => ((item.nft)&&(item.postHashHex)));     
+            let displayable = options.sceneAssets.filter(item => (item.hasOwnProperty('nft')));     
 
             let maxItems =this.layoutPlotter.getMaxItemCount();
 
 
-            let items2d = displayable.filter(nft => ((!nft.is3D)&&(nft.imageURLs[0])));     
+            let items2d = displayable.filter(item => ((!item.nft.PostExtraData.hasOwnProperty('3DExtraData'))&&(item.nft.imageURLs.length)));     
 
             let maxItems3D =this.layoutPlotter.getMaxItemCount3D();
-            let items3d = displayable.filter(nft => nft.is3D);
-
+            let items3d = displayable.filter(item => (item.nft.PostExtraData['3DExtraData'])?true:false);
+console.log('items3d:',items3d);
             sceneInvConfig.items2d = items2d;
             sceneInvConfig.items3d = items3d;
 
