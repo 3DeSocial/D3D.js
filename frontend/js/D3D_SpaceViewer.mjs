@@ -777,7 +777,7 @@ console.log('loadSceneryNFT import');
                             }
                             break;
                         case 'KeyC':
-                            control.detatch();
+                            control.detach();
                         break;
                         case 187:
                         case 107: // +, =, num+

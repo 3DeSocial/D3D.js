@@ -275,21 +275,34 @@ import { Item, Item2d, ItemVRM, ChainAPI, ExtraData3DParser } from 'd3d';
                     itemConfig.nft = itemData.nft;               
                 };
 
+                let extraData3D = null;
+                if(itemData.path3D){
+                    extraData3D = itemData.path3D;
+                } else {
+                    if(itemData.nft.PostExtraData.hasOwnProperty('3DExtraData')){
+                        extraData3D = itemData.nft.PostExtraData['3DExtraData'];
+                    }
+                }
 
-                if(!itemData.path3D){
-                    console.log('no path3D on itemData');
-                    console.log(itemData);
-                    console.log(itemConfig);
-                };
+
+                if(!extraData3D){
+                    console.log('NO extraData3D and no parsed 3DExtraData for this NFT', itemData.nft);
+                    return false;
+                }
                 /*let path3D = versions[0];
                 let params;
                 if(path3D.indexOf('.')>-1){ // there is a file extension
                 let modelUrl = extraDataParser.getModelPath(0,'gltf','any');*/
                 let extraDataParser = new ExtraData3DParser({ nftPostHashHex: itemData.postHashHex,
-                                                              extraData3D:itemData.path3D,
+                                                              extraData3D:extraData3D,
                                                               endPoint:'https://desodata.azureedge.net/unzipped/'});
 
-                let spot = that.config.layoutPlotter.getNextFreePos3d();
+                let spot = null;
+                if(itemData.pos&&itemData.rot&&itemData.scale){
+                    spot = {pos:itemData.pos, rot:itemData.rot, scale:itemData.scale};
+                } else {
+                    spot = that.config.layoutPlotter.getNextFreePos3d();
+                }
                 let yPos = that.config.layoutPlotter.findFloorAt(spot.pos,4,0); 
                 spot.pos.y = yPos;
 
