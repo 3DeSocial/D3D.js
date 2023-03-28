@@ -89,8 +89,14 @@ export default class AnimLoader {
                             }
                         });
                         if(animToUse){
+                            if(animName==='walk'){
+                                console.log('walk duration: ',animToUse.duration);
+                                const playbackRate = 4; // Set to 2 to double the speed
+                                animationAction = mixer.clipAction(animToUse).setDuration(animToUse.duration / playbackRate);
+                            } else {
+                                animationAction = mixer.clipAction(animToUse)
+                            }
 
-                            animationAction = mixer.clipAction(animToUse);
                             that.animationActions[animName]= animationAction;
                             console.log('loaded: ',animName);                            
                             resolve(animationAction);                            
@@ -121,15 +127,11 @@ getDefaultAnim = (mesh, mixer) =>{
             return false;
         };
         if(!this.animationActions[animName]){
-            console.log('no anim called: ',animName);
-            console.log(this.animationActions);
             return false;
         };
         if(this.currentAnimName){
-        console.log('fade')            
             this.crossFade(this.animationActions[this.currentAnimName],  this.animationActions[animName], 0.2);
         } else {
-        console.log('play')            
             this.animationActions[animName].play();           
         }
 

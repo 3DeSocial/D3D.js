@@ -454,8 +454,15 @@ export default class Item {
                         let promise6 = that.animLoader.loadAnim(danceUrl3, that.mixer);
                         let promises = [promise1,promise2,promise3,promise4,promise5,promise6];
                         Promise.allSettled(promises).
-                          then((results) => results.forEach((result) => console.log(result.status)));                        
-                         console.log('all animations loaded');
+                          then((results) => results.forEach((result) => {
+                            console.log('all animations loaded');
+                            // Get the duration of the running animation clip
+   
+                          }));                        
+
+// Set the playback rate to speed up the animation
+//const playbackRate = 2; // Set to 2 to double the speed
+//mixer.clipAction(runningClip).setDuration(duration / playbackRate);
 
                     } else {
                         console.log('no that.animLoader on load model');

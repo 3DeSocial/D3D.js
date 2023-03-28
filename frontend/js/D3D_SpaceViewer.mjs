@@ -2671,8 +2671,7 @@ initPlayerThirdPerson = (options) => {
         that.player.updateMatrixWorld();
         that.player.avatar = that.avatar;
         let lowest = that.avatar.getLowestVertice(that.avatar.mesh);
-        console.log('lowest vertice: ',lowest);
-        console.log('floor: ',this.player.localToWorld(playerStartPos));
+
         that.avatars.push(that.avatar);
 
         let loggedInUserName = 'Guest';
