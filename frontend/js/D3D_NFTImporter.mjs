@@ -1,10 +1,11 @@
-import { Item, SceneryLoader, ExtraData3DParser } from 'd3d';
+import { Item, ItemVRM, SceneryLoader, ExtraData3DParser } from 'd3d';
 
 export default class NFTImporter {
 
     constructor(config){
 
         let defaults = {
+            animations: ['/mixamo/Arm_Stretching.fbx', '/mixamo/Looking_Around.fbx','/mixamo/Strut_Walking.fbx','/mixamo/Victory.fbx'],
             animLoader: true,
             isAvatar: false,
             width: 3, 
@@ -64,7 +65,20 @@ export default class NFTImporter {
                     case 'avatar':
                         // create config for 3D asset class
                         itemConfig.isAvatar = true;
-                        importedItem = new Item(itemConfig);
+                        let urlParts = itemConfig.modelUrl.split('.');
+                        let extension = urlParts[urlParts.length-1];
+
+                        if(extension.trim().toLowerCase()==='vrm'){
+                            console.log('avatar is VRM, extension: ',extension);
+                            itemConfig.animLoader = true;
+                            console.log(itemConfig);
+                            importedItem = new ItemVRM(itemConfig);
+                        } else {
+                            console.log('avatar is NOT VRM, extension: ',extension);
+                
+                            importedItem = new Item(itemConfig);
+                        };                        
+
                         break;                  
                 };
 

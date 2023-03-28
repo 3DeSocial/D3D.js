@@ -2158,12 +2158,12 @@ isOnWall = (raycaster, selectedPoint, meshToCheck) =>{
         }
 
         if(extension.trim().toLowerCase()==='vrm'){
-            console.log('avatar is VRM');
+            console.log('avatar is VRM, extension: ',extension);
             config.animations = this.config.animations;
             config.animLoader = true;
             item = new ItemVRM(config);
         } else {
-            console.log('avatar is NOT VRM');
+            console.log('avatar is NOT VRM, extension: ',extension);
 
             item = new Item(config);
         };
@@ -2588,7 +2588,6 @@ isOnWall = (raycaster, selectedPoint, meshToCheck) =>{
 initPlayerFirstPerson = (options) => {
 
     let that = this;
-    let playerLoader = new GLTFLoader();
     let newPos = null;
     let playerFloor = 0;
     let playerStartPos = this.calcPlayerStartPos();
@@ -2634,7 +2633,6 @@ initPlayerFirstPerson = (options) => {
 initPlayerThirdPerson = (options) => {
 
     let that = this;
-    let playerLoader = new GLTFLoader();
     let newPos = null;
     let playerFloor = 0;
     let playerStartPos = this.calcPlayerStartPos();
@@ -2670,7 +2668,6 @@ initPlayerThirdPerson = (options) => {
         that.scene.add( that.player );
         that.player.updateMatrixWorld();
         that.player.avatar = that.avatar;
-        let lowest = that.avatar.getLowestVertice(that.avatar.mesh);
 
         that.avatars.push(that.avatar);
 

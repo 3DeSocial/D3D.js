@@ -598,7 +598,8 @@ console.log('loading anim ',currentAnim.name);
 
                     if(!this.mixer && (this.animLoader)){
                         this.mixer = new THREE.AnimationMixer( this.currentVrm.scene );
-                       /* this.mixer.addEventListener('finished',(e)=>{
+                    /*
+                        this.mixer.addEventListener('finished',(e)=>{
                             console.log('finished a clip');
                             that.setAnimRunning(false);
                             that.currentAnim = that.animLoader.fetchUrlByName('walk');
@@ -612,11 +613,11 @@ console.log('loading anim ',currentAnim.name);
                             }
 
                                
-                            
+                 
 
                         //that.mesh.scene.position.copy(this.config.pos);
                         }, false);*/
-                    };
+                    };           
 
                     vrm.scene.position.copy(posVector);
 
@@ -639,7 +640,9 @@ console.log('loading anim ',currentAnim.name);
 
                     // rotate if the VRM is VRM0.0
                     THREE_VRM.VRMUtils.rotateVRM0( vrm );
-
+console.log('TRY START ANIM!');
+                    that.currentAnim = that.animLoader.fetchUrlByName('walk');
+                    that.setAnimRunning(true);                    
                     resolve(that.currentVrm);
 
                 },
