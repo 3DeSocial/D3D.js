@@ -567,11 +567,7 @@ console.log('loading anim ',currentAnim.name);
                     } );
 
             if(this.animLoader) {
-                that.anims['walk'] = that.animLoader.fetchUrlByName('walk');
-                that.anims['idle_warrior'] = that.animLoader.fetchUrlByName('idle_warrior');
-
-                 that.currentAnim = that.anims['idle_warrior'];
-                that.currentAnimationUrl = that.currentAnim.url;
+           
             }
           
             loader.load(
@@ -633,16 +629,15 @@ console.log('loading anim ',currentAnim.name);
 
                     if ( that.currentAnim ) {
 
-                        that.loadMixamo(that.anims['walk']);
-                        that.loadMixamo(that.anims['idle_warrior']);
+                       //that.loadMixamo(that.anims['walk']);
+                     //   that.loadMixamo(that.anims['idle_warrior']);
 
                     }
 
                     // rotate if the VRM is VRM0.0
                     THREE_VRM.VRMUtils.rotateVRM0( vrm );
-console.log('TRY START ANIM!');
-                    that.currentAnim = that.animLoader.fetchUrlByName('walk');
-                    that.setAnimRunning(true);                    
+             //       that.currentAnim = that.animLoader.fetchUrlByName('walk');
+            //        that.setAnimRunning(true);                    
                     resolve(that.currentVrm);
 
                 },
@@ -651,7 +646,7 @@ console.log('TRY START ANIM!');
                 ( progress ) => ()=>{},//console.log( 'Loading model...', 100.0 * ( progress.loaded / progress.total ), '%' ),
 
                 // called when loading has errors
-                ( error ) => console.error( error, that.config.nft.postHashHex ),
+                ( error ) => console.error( error ),
             );
           
         })

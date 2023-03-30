@@ -231,7 +231,7 @@ export default class Item {
             .then((model)=>{
                 resolve(model);
             }).catch((err=>{
-                console.log( err);
+                reject( err);
             }))
         })
     
@@ -240,6 +240,7 @@ export default class Item {
     place = (pos, destScene) =>{
         let that = this;
         
+
         if(typeof(pos)==='undefined'){
             throw('Cant place at undefined position');
         };
@@ -249,6 +250,11 @@ export default class Item {
         };
 
         return new Promise((resolve,reject)=>{
+
+            if(!this.loader){
+                reject('No loader for: ',that.config);
+                return;
+            };            
             if(that.mesh){
                 that.mesh.position.copy(pos);
                 that.scene.add(this.mesh);
@@ -287,10 +293,15 @@ export default class Item {
                             document.body.dispatchEvent(loadedEvent);
                             document.body.dispatchEvent(this.meshPlacedEvent);
                             resolve(model, pos);
+                        }).catch(err =>{
+                            console.log(err);
+                            reject(err);
                         })
                     };
                 }).catch(err =>{
                     console.log(err);
+                    reject(err);
+
                 })
             }
         });
@@ -404,7 +415,11 @@ export default class Item {
            // console.log('fetchModel: ',modelUrl);
            // console.log('that.loader: ',that.loader);            
 
-
+            if(!that.loader.load){
+                console.log();
+                console.log('that.loader: ',that.loader);  
+                reject('Item could not find loader : ',modelUrl);
+            };
             that.loader.load(modelUrl, (root)=> {
                 that.root = root;
                 let loadedItem = null;

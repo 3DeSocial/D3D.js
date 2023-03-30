@@ -995,6 +995,7 @@ console.log('loadSceneryNFT import');
     showSelectedMeshData =(action) =>{
         let item = null;
         if(!action.selection){
+            console.log('showSelectedMeshData: no selection');
             return false;
         };
         if(action.selection.object.userData.owner){
@@ -1009,6 +1010,9 @@ console.log('loadSceneryNFT import');
                 if(item.config.spot){
                     nftDisplayData.spot = item.config.spot;
                 };
+                console.log('selectTargetNFT: ',item.config.nft);
+                console.log('nftDisplayData: ',nftDisplayData);
+
                 //this.displayInHUD(nftDisplayData);            
             }
 
@@ -1017,7 +1021,7 @@ console.log('loadSceneryNFT import');
             //console.log('body: ',action.selection.object.userData.owner.config.nft.body);
 
         } else {
-           // console.log('no owner: ', action.selection.object);
+            console.log('no owner: ', action.selection.object);
             if(this.hud){
                 this.hud.clear();
             }
@@ -1057,7 +1061,7 @@ console.log('loadSceneryNFT import');
         let that = this;
 
         let item = this.getItemForAction(action)
-
+        console.log('selectTargetNFT',item);
         if(item){
             if(item.isGhost||item.isFootballPlayer||item.isFootball){
                 this.actionTargetPos = item.getPosition();       
@@ -2690,7 +2694,11 @@ initPlayerThirdPerson = (options) => {
         that.animate();
         that.sceneryloadingComplete = true;
     //    that.loadingScreen.hide();
-    });       
+    }).catch(err=>{
+        that.config.firstPerson =true;
+        that.initCameraFirstPerson(); 
+        that.initPlayerFirstPerson(options);      
+    })
    
     
    
