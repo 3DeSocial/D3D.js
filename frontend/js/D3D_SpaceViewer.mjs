@@ -164,8 +164,8 @@ const params = {
 
             this.initScene();
             this.initRenderer(this.config.el);
-            /*this.initHUD({scene:that.scene,
-                            chainAPI: that.config.chainAPI});*/
+            this.initHUD({scene:that.scene,
+                            chainAPI: that.config.chainAPI});
             this.initSkybox();
             this.initLighting();
             let sceneryPostHash = this.config.sceneryPostHash;
@@ -508,35 +508,43 @@ initCameraFirstPerson = () =>{
             that.controls.enabled = true;
         });
         this.transformControls.addEventListener('change', function (e) {
-            console.log('Transform Change Event: ',e)
-            console.log(this.object);
-            that.updateState(this.object);
+            if(this.object){
+                that.updateState(this.object);
+            }
+
         });        
         this.transformControls.addEventListener('objectChange', function (e) {
-            console.log('Transform objectChange Event: ',e);
-            console.log(this.object);
         });             
-        console.log('initControls: ',this.transformControls);        
     }
 
     updateState = (controlledObject) => {
+        if(!controlledObject){
 
+            return false;
+        }
         // Get position, rotation, and scale of the controlled object
         const position = controlledObject.position;
         const rotation = controlledObject.rotation;
         const scale = controlledObject.scale;
+        console.log(controlledObject);
+        let nft = (controlledObject.owner.config.nft)?controlledObject.owner.config.nft:null;
+        let nftSaveData = {PostHashHex: nft.PostHashHex,
+                            PostExtraData: nft.PostExtraData,
+                            Body: nft.Body,
+                            DiamondCount: nft.DiamondCount};
 
         // Convert the values into the desired format
         const formattedValues = {
             postHashHex: (controlledObject.owner.config.nft)?controlledObject.owner.config.nft.PostHashHex:null,
-            nft: (controlledObject.owner.config.nft)?controlledObject.owner.config.nft:null,
+            nft: nftSaveData,
             pos: { x: position.x, y: position.y, z: position.z },
             rot: { x: rotation.x, y: rotation.y, z: rotation.z },
             scale: { x: scale.x, y: scale.y, z: scale.z },
         };
+        console.log(formattedValues.nft);
+        if(this.config.chainAPI.saveSceneAsset){
+            this.config.chainAPI.saveSceneAsset(formattedValues);
 
-        if(this.config.chainAPI.updateObjectState){
-            this.config.chainAPI.updateObjectState([formattedValues]);
         }
     }
 
@@ -668,7 +676,7 @@ initCameraFirstPerson = () =>{
                 this.nftImporter = new NFTImporter(importerParams);
                
             };
-console.log('loadSceneryNFT import');
+
             this.nftImporter.import({assetType:'scenery',
                                     nftPostHashHex:nftPostHashHex}).then((sceneryConfig)=>{  
                                        resolve(sceneryConfig);
@@ -756,7 +764,15 @@ console.log('loadSceneryNFT import');
         console.log('control: ', control);
         window.addEventListener( 'keydown', function ( e ) {
                 switch ( e.code ) {
-
+                        case 'Delete':
+                            console.log('pressed del');
+                            let item = that.hud.getSelectedItem();
+                            if(item){
+                                that.scene.remove(item.mesh);
+                                that.hud.unSelectItem(item);
+                                that.sceneInventory.remove(item);
+                            };
+                            break;
                         case 76: // Q
                             control.setSpace( control.space === 'local' ? 'world' : 'local' );
                             break;
@@ -767,18 +783,20 @@ console.log('loadSceneryNFT import');
                             control.setScaleSnap( 0.25 );
                             break;
 
-                        case 'KeyT': //  M   
+                        case 'KeyT': //  M  
+                        if(!control.object) {
+                            return false;
+                        };
                             if(control.mode==='translate'){
                                 control.setMode( 'rotate' );
                             } else if(control.mode==='rotate'){
                                 control.setMode( 'scale' );
                             } else if(control.mode==='scale'){
                                 control.setMode( 'translate' );
-                            }
+                            } else if(control.mode==='scale'){
+                                control.detach();
+                            };
                             break;
-                        case 'KeyC':
-                            control.detach();
-                        break;
                         case 187:
                         case 107: // +, =, num+
                             control.setSize( control.size + 0.1 );
@@ -1054,6 +1072,21 @@ console.log('loadSceneryNFT import');
         }
     }
 
+    checkForTransformControls = (mesh) =>{
+        let ownerFound = false;
+        while((mesh.parent)&&(!ownerFound)){
+            mesh = mesh.parent;
+            if(mesh.isTransformControls){
+                ownerFound = true;
+            }
+
+        }
+        if(ownerFound){
+            return mesh;
+        } else {
+            return false;
+        }
+    }
     selectTargetNFT = (action) =>{
         let tracks = [];
 
@@ -1061,22 +1094,10 @@ console.log('loadSceneryNFT import');
         let that = this;
 
         let item = this.getItemForAction(action)
-        console.log('selectTargetNFT',item);
         if(item){
-            if(item.isGhost||item.isFootballPlayer||item.isFootball){
-                this.actionTargetPos = item.getPosition();       
-                this.actionTargetItem = item;
-                if(item.isGhost){
-                    this.targetGhost();
-                };
-                if(item.isFootballPlayer){
-                    this.targetFootballPlayer(item);
-                };
-                if(item.isFootball){
-                    this.targetFootball();
-                };
-            } else {
-                if(item.config.nft){
+           
+            if(item.config.nft){
+                    console.log('nft selected');
                     if(item.config.nft.isAudio){
               
                         this.config.chainAPI.fetchPostDetail({postHashHex:item.config.nft.postHashHex}).then((res)=>{
@@ -1100,48 +1121,20 @@ console.log('loadSceneryNFT import');
                     }
 
                     if(!item.isSelected) {
-                        if(this.hud){
-                            this.hud.unSelectItem(); // unselect prev
-                            this.config.chainAPI.getHeartStatus(item.config.nft.postHashHex).then((result)=>{
-                                that.hud.setSelectedItem(item);
-                                that.actionTargetItem = item;
-                                that.actionTargetMesh = item.mesh;
-                                that.showStatusBar(['diamond-count','select-preview','confirm-not','confirm']);
+                        console.log('nft isSelected is false');
 
-                                let diamondCountEl = document.querySelector('#d-count');
-                                diamondCountEl.innerHTML = String(0);
-                                let heartIcon = document.getElementById('heart');
-
-                                if(result){
-                                    heartIcon.style.display = 'inline-block';
-                                } else {
-                                    heartIcon.style.display = 'none';
-                            };                    
-                        })
-                    }
+                        if(that.hud){
+                            that.hud.unSelectItem(); // unselect prev
+                            that.hud.setSelectedItem(item);
+                            item.config.transformControls.attach(item.mesh);
+                            item.config.transformControls.setSize = 2 * item.mesh.scale.distanceTo(that.camera.position);
+                        }
                     };
-                } else {
-                    console.log('item has no config');
-                    console.log(item);
-                            //that.hud.setSelectedItem(item);
-
-                }
             };
             this.actionTargetPos = item.getPosition();
            // this.enableActionBtns();
         } else {
-            if(this.config.isCurated){
-                let e= action.e;
-                if(this.sounds.throwSound){
-                   this.sounds.throwSound.play();
-                } else {
-                    console.log('no throwSound');
-                }
-                let x = ( e.clientX / window.innerWidth ) * 2 - 1;
-                let y = - ( e.clientY / window.innerHeight ) * 2 + 1;
-                this.mouse.set(x,y);
-                //this.throwSnowBall(action.e, null);                    
-            }     
+   console.log(action);
             if(this.hud){         
                this.hud.unSelectItem();
             };
@@ -1259,6 +1252,28 @@ console.log('loadSceneryNFT import');
         detail.classList.add("disabled");        
     }
 
+    getVectorAhead = (distance) => {
+
+        let camera = this.camera;
+        // Step 1: Create a new Vector3 object to store the direction of the camera
+        const direction = new THREE.Vector3();
+      
+        // Step 2: Use the camera's getWorldDirection() method to obtain the world-space direction vector
+        camera.getWorldDirection(direction);
+      
+        // Step 3: Normalize the direction vector to ensure its length is 1
+        direction.normalize();
+      
+        // Step 4: Multiply the direction vector by the desired distance (2 meters in this case)
+        direction.multiplyScalar(distance);
+      
+        // Step 5: Add the resulting vector to the camera's world position to get the final Vector3 coordinate
+        const targetPosition = camera.position.clone().add(direction);
+      
+        return targetPosition;
+      }
+
+      
     enableActionBtns = () =>{
         let diamond = document.querySelector('#give-diamond');
         diamond.classList.remove("disabled");
@@ -2028,7 +2043,6 @@ isOnWall = (raycaster, selectedPoint, meshToCheck) =>{
 
            this.layoutPlotter = new LayoutPlotter(plotterOpts);  
            
-           //console.log('init inventory this.transformControls: ',this.transformControls);
            let sceneInvConfig = {
                transformControls: this.transformControls,  
                animations: this.config.animations,

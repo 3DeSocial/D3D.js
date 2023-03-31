@@ -35,14 +35,12 @@ import { Item, Item2d, ItemVRM, ChainAPI, ExtraData3DParser } from 'd3d';
     }
 
     add = (itemPost) =>{
-        console.log('add method transformControls: ',this.config.transformControls)
         let item = null;         
         let extraDataParser = this.getParser(itemPost.PostEntryResponse);
         let formats = extraDataParser.getAvailableFormats();                    
         let models = extraDataParser.getModelList();
         let modelUrl = extraDataParser.getModelPath(0,'gltf','any');
         if(modelUrl){
-            console.log('modelUrl: ',modelUrl)
             let placeItemConfig = {modelUrl: modelUrl,
                                         nftPostHashHex: itemPost.PostEntryResponse.postHashHex, 
                                             //pos: spot.pos,
@@ -52,20 +50,60 @@ import { Item, Item2d, ItemVRM, ChainAPI, ExtraData3DParser } from 'd3d';
                                             height:3,
                                             depth:3,
                                             scene: this.scene,
-                                            format: formats[0],
-                                            transformControls: this.config.transformControls
+                                            format: formats[0]
                                     };
 
-            console.log(placeItemConfig);
             item = this.initItem(placeItemConfig);    
-            this.items3d.push(item); 
-
+            this.items3d.push(item);
         } else {
             console.log('could not parse modelUrl');
         };
         return item;
     }
 
+    remove = (item) =>{
+        console.log('remove from sceneInventory: ',item);
+        this.removeItemByNftPostHashHex(item);
+        let sceneInventoryItems = this.getAllItems();
+        if(this.config.chainAPI.saveSceneAssets){
+            this.config.chainAPI.saveSceneAssets(sceneInventoryItems);
+            console.log('update saved, new list: ',sceneInventoryItems);
+        } else {
+            console.log('no chain api to save assets');
+        }
+    }
+
+    removeItemByNftPostHashHex(target, itemsArray) {
+        const targetNftPostHashHex = target.nftPostHashHex;
+        
+        // Find the index of the item with the matching nftPostHashHex
+        let itemIndex = this.items3d.findIndex(item => item.nftPostHashHex === targetNftPostHashHex);
+      
+        // If a matching item is found, remove it from the array
+        if (itemIndex !== -1) {
+            this.items3d.splice(itemIndex, 1);
+            console.log('3d removed');
+
+        }
+        // Find the index of the item with the matching nftPostHashHex
+        itemIndex = this.items2d.findIndex(item => item.nftPostHashHex === targetNftPostHashHex);
+
+        // If a matching item is found, remove it from the array
+        if (itemIndex !== -1) {
+            this.items2d.splice(itemIndex, 1);
+            console.log('2d removed');
+        }
+
+        // Find the index of the item with the matching nftPostHashHex
+        itemIndex = this.items.findIndex(item => item.nftPostHashHex === targetNftPostHashHex);
+
+        // If a matching item is found, remove it from the array
+        if (itemIndex !== -1) {
+            this.items.splice(itemIndex, 1);
+            console.log('all items list removed');
+        }
+
+    }
     getParser = (PostEntryResponse) =>{
         if(!PostEntryResponse.PostExtraData){
             console.log('no PostExtraData: ',PostEntryResponse);
@@ -312,8 +350,9 @@ import { Item, Item2d, ItemVRM, ChainAPI, ExtraData3DParser } from 'd3d';
 
                 let item = null;  
                 if(modelUrl){
-                    item = this.initItem({modelUrl: modelUrl,
-                                    nftPostHashHex: itemData.postHashHex, 
+                    item = this.initItem({transformControls: this.config.transformControls,
+                                                modelUrl: modelUrl,
+                                                nftPostHashHex: itemData.postHashHex, 
                                                 pos: spot.pos,
                                                 rot:spot.rot,
                                                 nft:itemData,
@@ -375,7 +414,7 @@ import { Item, Item2d, ItemVRM, ChainAPI, ExtraData3DParser } from 'd3d';
     format: opts.format
   };
   
-    itemParams.transformControls = this.config.transformControls;
+   itemParams.transformControls = this.config.transformControls;
 
   if (this.config.physicsWorld) {
     itemParams.physicsWorld = this.config.physicsWorld;
@@ -555,6 +594,34 @@ import { Item, Item2d, ItemVRM, ChainAPI, ExtraData3DParser } from 'd3d';
             return false;
         }
         return this.items[this.activeItemIdx];
+    }
+
+    getAllItems = () =>{
+        let allItems = this.combineUniqueItems(this.items2d, this.items3d);
+        console.log('combined items count: ',allItems.length);
+        console.log('inventry items count: ',this.items.length);
+        return allItems;
+    }
+
+    combineUniqueItems = (array1, array2)=> {
+        const combinedItemsMap = new Map();
+        
+        // Function to add unique items from an array to the combinedItemsMap
+        const addUniqueItems = (array) => {
+          array.forEach((item) => {
+            const nftPostHashHex = item.nftPostHashHex;
+            if (!combinedItemsMap.has(nftPostHashHex)) {
+              combinedItemsMap.set(nftPostHashHex, item);
+            }
+          });
+        };
+      
+        // Add unique items from each array to the combinedItemsMap
+        addUniqueItems(array1);
+        addUniqueItems(array2);
+      
+        // Convert the Map back to an array of objects and return it
+        return Array.from(combinedItemsMap.values());
     }
 
     getItems = () =>{
