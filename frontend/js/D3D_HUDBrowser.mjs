@@ -17,7 +17,8 @@ export default class HUDBrowser  {
      
         this.selectedItem = null;
         this.thumEl = document.querySelector('img#sp-img');
-        console.log(this.thumEl);
+        this.hudText = document.querySelector('#hud-text');
+
 
     }
 
@@ -36,9 +37,9 @@ export default class HUDBrowser  {
         };
         this.config.scene.add(this.selectedItem.helper); 
         if(this.selectedItem.config.nft){
-            this.showSelectedThumbnail();
-            let preview = document.querySelector('#select-preview');
-            preview.style.display = 'inline-block';
+          //  this.showSelectedThumbnail();
+          //  let preview = document.querySelector('#select-preview');
+         //   preview.style.display = 'inline-block';
             this.nftDisplayData = this.selectedItem.parseNFTDisplayData();               
         } 
      
@@ -62,7 +63,7 @@ export default class HUDBrowser  {
             console.log('newLengthMeshBounds',newLengthMeshBounds);
 
         const geometry = new THREE.PlaneGeometry(newLengthMeshBounds.x, newLengthMeshBounds.y);
-        const material = new THREE.MeshBasicMaterial({
+            const material = new THREE.MeshBasicMaterial({
             color:  0x99FF99
         });
 
@@ -89,7 +90,9 @@ export default class HUDBrowser  {
         this.selectedItem.isSelected = false;
         this.selectedItem = null;
         let preview = document.querySelector('#select-preview');
-        preview.style.display = 'none';
+        if(preview){
+            preview.style.display = 'none';
+        };
         this.nftDisplayData = null;
 
 
@@ -182,15 +185,17 @@ export default class HUDBrowser  {
             this.createSourceDiv();
         }
         this.closeBtn = document.querySelector('#close-hud');
-
+        if(this.closeBtn){
+            this.closeBtn.addEventListener('click',(e)=>{
+                that.hide();
+            });
+        }
         
-       this.closeBtn.addEventListener('click',(e)=>{
-            that.hide();
-        });
+
     }
 
     createSourceDiv =()=>{
-        newEl = document.createElement('div');
+        let newEl = document.createElement('div');
         newEl.setAttribute("id", "hud-content");
         newEl.setAttribute("class", "hud-content");
         newEl.setAttribute("style", "display: none;");
@@ -217,7 +222,9 @@ export default class HUDBrowser  {
     }
 
     updateOverlayMsg = (msg) =>{
-        document.querySelector('#hud-text').innerHTML = msg;
+        if(this.hudText){
+            this.hudText.innerHTML = msg;
+        }
     }
 
     updateHUDTexture = (dataUrl)  =>{
