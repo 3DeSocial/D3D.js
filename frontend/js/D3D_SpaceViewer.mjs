@@ -1096,8 +1096,7 @@ initCameraFirstPerson = () =>{
         let item = this.getItemForAction(action)
         if(item){
            
-            if(item.config.nft){
-                    console.log('nft selected');
+            if((item.config.nft)&&(item.mesh)){
                     if(item.config.nft.isAudio){
               
                         this.config.chainAPI.fetchPostDetail({postHashHex:item.config.nft.postHashHex}).then((res)=>{
@@ -1121,7 +1120,6 @@ initCameraFirstPerson = () =>{
                     }
 
                     if(!item.isSelected) {
-                        console.log('nft isSelected is false');
 
                         if(that.hud){
                             that.hud.unSelectItem(); // unselect prev
