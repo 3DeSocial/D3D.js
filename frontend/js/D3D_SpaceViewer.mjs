@@ -763,13 +763,16 @@ initCameraFirstPerson = () =>{
         window.addEventListener( 'keydown', function ( e ) {
                 switch ( e.code ) {
                         case 'Delete':
-                            console.log('pressed del');
-                            let item = that.hud.getSelectedItem();
-                            if(item){
-                                that.scene.remove(item.mesh);
-                                that.hud.unSelectItem(item);
-                                that.sceneInventory.remove(item);
-                            };
+                            if ((e.target.tagName.toLowerCase() !== 'textarea') && ( e.target.tagName.toLowerCase() !== 'input')){
+
+                                console.log('pressed del');
+                                let item = that.hud.getSelectedItem();
+                                if(item){
+                                    that.scene.remove(item.mesh);
+                                    that.hud.unSelectItem(item);
+                                    that.sceneInventory.remove(item);
+                                };
+                            }
                             break;
                         case 76: // Q
                             control.setSpace( control.space === 'local' ? 'world' : 'local' );
@@ -861,7 +864,7 @@ initCameraFirstPerson = () =>{
                         //that.moveMeshBack();
                     break;                     
                     case 'Enter':
-                        that.throwSnowBall(e, null);
+                       // that.throwSnowBall(e, null);
                     break;
                     case 'Digit0': that.inventory.setActive(0); break;
                     case 'Digit1': that.inventory.setActive(1); break;
