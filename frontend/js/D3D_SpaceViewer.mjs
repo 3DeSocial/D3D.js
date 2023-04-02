@@ -171,8 +171,6 @@ const params = {
             let sceneryPostHash = this.config.sceneryPostHash;
             that.loadSceneryNFT(sceneryPostHash).then((sceneryConfig)=>{
 
-                console.log('sceneryConfig');
-                console.log(sceneryConfig);
 
                 that.loadScenery(sceneryConfig).then(()=>{
         
@@ -802,22 +800,32 @@ initCameraFirstPerson = () =>{
                             control.setSize( control.size + 0.1 );
                             break;
                     case 'KeyW':
-                        fwdPressed = true; 
-                        that.controlProxy.dir = 'f';                         
+                        if ((e.target.tagName.toLowerCase() !== 'textarea') && ( e.target.tagName.toLowerCase() !== 'input')){
 
+                            fwdPressed = true; 
+                            that.controlProxy.dir = 'f';                         
+                        }
                           break;
                     case 'KeyS':
-                        bkdPressed = true; 
-                        that.controlProxy.dir = 'b';                         
+                        if ((e.target.tagName.toLowerCase() !== 'textarea') && ( e.target.tagName.toLowerCase() !== 'input')){
 
+                            bkdPressed = true; 
+                            that.controlProxy.dir = 'b';                         
+                        }
                         break;
                     case 'KeyD': 
-                        rgtPressed = true; 
-                        that.controlProxy.dir = 'r';                         
+                        if ((e.target.tagName.toLowerCase() !== 'textarea') && ( e.target.tagName.toLowerCase() !== 'input')){
+
+                            rgtPressed = true; 
+                            that.controlProxy.dir = 'r';                         
+                        }
                         break;
                     case 'KeyA': 
-                        lftPressed = true; 
-                        that.controlProxy.dir = 'l'; 
+                        if ((e.target.tagName.toLowerCase() !== 'textarea') && ( e.target.tagName.toLowerCase() !== 'input')){
+
+                            lftPressed = true; 
+                            that.controlProxy.dir = 'l'; 
+                        }
                         break;
                     case 'KeyO': 
 
@@ -865,21 +873,23 @@ initCameraFirstPerson = () =>{
                     case 'Digit7': that.inventory.setActive(7); break;
                     case 'Digit8': that.inventory.setActive(8); break;
                     case 'Space':
-                        e.preventDefault();
-                        if ( that.playerIsOnGround ) {
-                            if(that.player.avatar){
-                                that.player.avatar.animLoader.switchAnim('jump');
-                                that.player.state = 'jump';
-                                spacePressed = true;                                
+                        if ((e.target.tagName.toLowerCase() !== 'textarea') && ( e.target.tagName.toLowerCase() !== 'input')){
 
-                                that.playerVelocity.y = 6.0;
+                            e.preventDefault();
+                            if ( that.playerIsOnGround ) {
+                                if(that.player.avatar){
+                                    that.player.avatar.animLoader.switchAnim('jump');
+                                    that.player.state = 'jump';
+                                    spacePressed = true;                                
+
+                                    that.playerVelocity.y = 6.0;
 
 
-                            };
+                                };
 
 
+                            }
                         }
-
                         break;
                     case 'KeyB':
                         if ( that.playerIsOnGround ) {
@@ -1123,9 +1133,13 @@ initCameraFirstPerson = () =>{
 
                         if(that.hud){
                             that.hud.unSelectItem(); // unselect prev
-                            that.hud.setSelectedItem(item);
-                            item.config.transformControls.attach(item.mesh);
-                            item.config.transformControls.setSize = 2 * item.mesh.scale.distanceTo(that.camera.position);
+                            if(!item.isAvatar){
+                                that.hud.setSelectedItem(item);
+                                if(item.config.transformControls){
+                                    item.config.transformControls.attach(item.mesh);
+                                    item.config.transformControls.setSize = 2 * item.mesh.scale.distanceTo(that.camera.position);
+                                }
+                            }
                         }
                     };
             };
@@ -1798,13 +1812,13 @@ isOnWall = (raycaster, selectedPoint, meshToCheck) =>{
 
             this.controls.maxPolarAngle = Infinity;
             this.controls.minDistance = 1e-4;
-            this.controls.maxDistance = 1e-4;
+            this.controls.maxDistance = 60;
 
             } else {
 
                 this.controls.maxPolarAngle = Math.PI;
                 this.controls.minDistance = 0.5;
-                this.controls.maxDistance = 6;
+                this.controls.maxDistance = 60;
 
             }
 
