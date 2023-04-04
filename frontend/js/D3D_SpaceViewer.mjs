@@ -2081,11 +2081,17 @@ console.log('loading ',displayable.length, ' items');
             
             let items2d = displayable.filter(item =>{
                 if(item.nft){
+                    if(!item.nft.PostExtraData){
+                        return false;
+                    };
+                    console.log('item.nft.PostExtraData:',item.nft);
                     if(!item.nft.PostExtraData.hasOwnProperty('3DExtraData')){
                         if(item.nft.imageURLs){
                             return true; 
                         } else {
-                            console.log('no imageURLs on loaded nft: ',imageURLs);
+                            if(item.nft.ImageURLs){
+                                return true;
+                            }
                         }
                     }
                 } else {
@@ -2093,7 +2099,18 @@ console.log('loading ',displayable.length, ' items');
                 }
                 return false;
             });     
-            let items3d = displayable.filter(item => (item.nft.PostExtraData['3DExtraData'])?true:false);
+            let items3d = displayable.filter(item => {
+                if(!item.nft){
+                    return false;
+                };
+                if(!item.nft.PostExtraData){
+                    return false
+                };
+                if(!item.nft.PostExtraData['3DExtraData']){
+                    return false;
+                };
+                return true;
+            });
 
             sceneInvConfig.items2d = items2d;
             sceneInvConfig.items3d = items3d;
