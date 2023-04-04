@@ -37,14 +37,17 @@ import { Item, Item2d, ItemVRM, ChainAPI, ExtraData3DParser } from 'd3d';
     add = (itemPost) =>{
         let item = null;         
         let extraDataParser = this.getParser(itemPost.PostEntryResponse);
-        let formats = extraDataParser.getAvailableFormats();                    
-        let models = extraDataParser.getModelList();
-        let modelUrl = extraDataParser.getModelPath(0,'gltf','any');
-        if(modelUrl){
+        if(extraDataParser){
+            let formats = extraDataParser.getAvailableFormats();                    
+            let models = extraDataParser.getModelList();
+            let modelUrl = extraDataParser.getModelPath(0,'gltf','any');
+            if(!modelUrl){
+                return false;
+            };
             let placeItemConfig = {modelUrl: modelUrl,
                                         nftPostHashHex: itemPost.PostEntryResponse.postHashHex, 
                                             //pos: spot.pos,
-                                           // rot:spot.rot,
+                                        // rot:spot.rot,
                                             nft:itemPost.PostEntryResponse,
                                             width: 3,
                                             height:3,
@@ -52,14 +55,34 @@ import { Item, Item2d, ItemVRM, ChainAPI, ExtraData3DParser } from 'd3d';
                                             scene: this.scene,
                                             format: formats[0]
                                     };
+                item = this.initItem(placeItemConfig);    
+                this.items3d.push(item); 
+                return item;               
+          }
 
-            item = this.initItem(placeItemConfig);    
-            this.items3d.push(item);
-        } else {
-            console.log('could not parse modelUrl');
-        };
-        return item;
+
+
+        return false;
     }
+
+    add2D = (itemPost) =>{
+        let item = null;         
+        let itemConfig = {
+            width: 2,
+            height: 2,
+            depth: 0.1,
+            scene: this.scene,
+            loader: this.loader,
+            modelsRoute: this.config.modelsRoute,
+            nftsRoute:this.config.nftsRoute,
+            imageProxyUrl:this.config.imageProxyUrl,
+            isImage: true
+        }
+        item = this.initItem2d(itemConfig);
+
+    this.items2d.push(item);     
+    return item;                       
+}
 
     remove = (item) =>{
         console.log('remove from sceneInventory: ',item);
@@ -510,7 +533,9 @@ import { Item, Item2d, ItemVRM, ChainAPI, ExtraData3DParser } from 'd3d';
             layout: opts.layout,
             loadingScreen: this.config.loadingScreen,
             onLoad: ()=>{
-                this.config.loadingScreen.completeLoading();
+                if(this.config.loadingScreen){
+                    this.config.loadingScreen.completeLoading();
+                }
             }
 
         };

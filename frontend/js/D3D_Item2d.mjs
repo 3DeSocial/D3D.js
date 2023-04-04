@@ -184,10 +184,11 @@ class Item2d extends Item {
 
     initMesh = async(nft) =>{
         let that = this;
-     
+     console.log('initMEsh: ',nft);
         return new Promise(( resolve, reject ) => {
+            let imageUrls = (nft.imageURLs)?nft.imageURLs:nft.ImageURLs;
 
-            let imageUrl = nft.imageURLs[0];
+            let imageUrl = imageUrls[0];
             if(!imageUrl){
                 reject('No image for NFT ',this.config.nftPostHashHex);
                 return false;
@@ -196,13 +197,16 @@ class Item2d extends Item {
             let nftData = nft;
             var img = new Image();
                let targetWidth = this.width;
-
-            if(nft.spot.dims.width){
-                targetWidth = nft.spot.dims.width;
+            if(nft.spot){
+                if(nft.spot.dims.width){
+                    targetWidth = nft.spot.dims.width;
+                }
             }
             let targetHeight = this.height;
-            if(nft.spot.dims.height){
-               targetHeight = nft.spot.dims.height;
+            if(nft.spot){
+                if(nft.spot.dims.height){
+                targetHeight = nft.spot.dims.height;
+                }
             }
            // console.log('targetWidth: ', targetWidth,'targetHeight: ',targetHeight)
                 img.onload = function(){
