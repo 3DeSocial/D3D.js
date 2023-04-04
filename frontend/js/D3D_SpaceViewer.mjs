@@ -2082,8 +2082,17 @@ isOnWall = (raycaster, selectedPoint, meshToCheck) =>{
 
             //let maxItems =this.layoutPlotter.getMaxItemCount();
             //let maxItems3D =this.layoutPlotter.getMaxItemCount3D();
-
-            let items2d = displayable.filter(item => ((!item.nft.PostExtraData.hasOwnProperty('3DExtraData'))&&(item.nft.imageURLs.length)));     
+            
+            let items2d = displayable.filter(item =>{
+                if(item.nft){
+                    if(!item.nft.PostExtraData.hasOwnProperty('3DExtraData')){
+                        if(item.nft.imageURLs){
+                            return true; 
+                        }
+                    }
+                }
+                return false;
+            });     
             let items3d = displayable.filter(item => (item.nft.PostExtraData['3DExtraData'])?true:false);
 
             sceneInvConfig.items2d = items2d;
