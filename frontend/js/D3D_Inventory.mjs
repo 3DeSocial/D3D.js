@@ -4,6 +4,7 @@ export const name = 'd3d-inventory';
 let loader;
 
 import { Item, Item2d, ItemVRM, ChainAPI, ExtraData3DParser } from 'd3d';
+import { METHODS } from 'http';
 
  class D3DInventory {
     
@@ -68,6 +69,7 @@ import { Item, Item2d, ItemVRM, ChainAPI, ExtraData3DParser } from 'd3d';
     add2D = (itemPost) =>{
         let item = null;         
         let itemConfig = {
+            nft: itemPost,
             width: 2,
             height: 2,
             depth: 0.1,
@@ -360,6 +362,7 @@ import { Item, Item2d, ItemVRM, ChainAPI, ExtraData3DParser } from 'd3d';
 
                 let spot = null;
                 if(itemData.pos&&itemData.rot&&itemData.scale){
+                    console.log('inventor found data in itemData',itemData);
                     spot = {pos:itemData.pos, rot:itemData.rot, scale:itemData.scale};
                 } else {
                     spot = that.config.layoutPlotter.getNextFreePos3d();
@@ -378,6 +381,7 @@ import { Item, Item2d, ItemVRM, ChainAPI, ExtraData3DParser } from 'd3d';
                                                 nftPostHashHex: itemData.postHashHex, 
                                                 pos: spot.pos,
                                                 rot:spot.rot,
+                                                scale:spot.scale,
                                                 nft:itemData,
                                                 width: 3,
                                                 height:3,
@@ -411,12 +415,20 @@ import { Item, Item2d, ItemVRM, ChainAPI, ExtraData3DParser } from 'd3d';
                         if(item.isVRM){
                             mesh.scene.rotateY(spot.rot.y);
                         };
-
-                        if(mesh.rotateY){
-                            mesh.rotateY(spot.rot.y);
+                        if(mesh.setRotationFromEuler){
+                            let rotation = new THREE.Euler( spot.rot.x, spot.rot.y, spot.rot.z, 'XYZ' );
+                            mesh.setRotationFromEuler(rotation);
                         };
+                      
 
                     };
+                    if(spot.scale){ 
+                        mesh.scale.set(spot.scale.x,spot.scale.y,spot.scale.z);
+                        console.log('scaled item');
+                    } else {
+                        console.log('no scale');
+                    };
+                    console.log('placing saved item at spot: ',spot);
                     items.push(item);
                     this.placedItems3D.push(item);
                     that.items3d.push(item); 
@@ -455,10 +467,17 @@ import { Item, Item2d, ItemVRM, ChainAPI, ExtraData3DParser } from 'd3d';
     itemParams.position = opts.position;
   }
   
+  if (opts.pos) {
+    itemParams.position = opts.pos;
+  } 
   if (opts.rotation) {
     itemParams.rotation = opts.rotation;
   }
   
+  if (opts.rot) {
+    itemParams.rotation = opts.rot;
+  }
+    
   if (opts.width) {
     itemParams.width = opts.width;
   }

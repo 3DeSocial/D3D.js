@@ -638,7 +638,6 @@ initCameraFirstPerson = () =>{
                 fullImagePath,
                 function ( texture ) {
                     // create a material using the loaded texture
-                    console.log('loaded: ',fullImagePath);
 
                     const material = new THREE.MeshBasicMaterial( { map: texture } );
         
@@ -764,8 +763,6 @@ initCameraFirstPerson = () =>{
                 switch ( e.code ) {
                         case 'Delete':
                             if ((e.target.tagName.toLowerCase() !== 'textarea') && ( e.target.tagName.toLowerCase() !== 'input')){
-
-                                console.log('pressed del');
                                 let item = that.hud.getSelectedItem();
                                 if(item){
                                     that.scene.remove(item.mesh);
@@ -971,7 +968,6 @@ initCameraFirstPerson = () =>{
         this.renderer.domElement.addEventListener( 'mousedown', this.checkMouseDown, false );        
         this.renderer.domElement.addEventListener( 'dblclick', this.checkMouseDbl, false );
         this.renderer.domElement.addEventListener("touchstart", ()=>{
-            console.log('touchstart renderer');
         if(!this.holding){
             const d = new Date();
             that.startTime = d.getTime();
@@ -1136,7 +1132,7 @@ initCameraFirstPerson = () =>{
 
                         if(that.hud){
                             that.hud.unSelectItem(); // unselect prev
-                            if(!item.isAvatar){
+                            if(!item.config.isAvatar){
                                 that.hud.setSelectedItem(item);
                                 if(item.config.transformControls){
                                     item.config.transformControls.attach(item.mesh);
@@ -2079,7 +2075,7 @@ isOnWall = (raycaster, selectedPoint, meshToCheck) =>{
         if(options.sceneAssets){
 
             let displayable = options.sceneAssets.filter(item =>this.itemCanBePlaced(item));
-
+console.log('loading ',displayable.length, ' items');
             //let maxItems =this.layoutPlotter.getMaxItemCount();
             //let maxItems3D =this.layoutPlotter.getMaxItemCount3D();
             
@@ -2088,8 +2084,12 @@ isOnWall = (raycaster, selectedPoint, meshToCheck) =>{
                     if(!item.nft.PostExtraData.hasOwnProperty('3DExtraData')){
                         if(item.nft.imageURLs){
                             return true; 
+                        } else {
+                            console.log('no imageURLs on loaded nft: ',imageURLs);
                         }
                     }
+                } else {
+                    console.log('no nft in save object');
                 }
                 return false;
             });     
@@ -2097,7 +2097,7 @@ isOnWall = (raycaster, selectedPoint, meshToCheck) =>{
 
             sceneInvConfig.items2d = items2d;
             sceneInvConfig.items3d = items3d;
-
+            console.log('2d: ',items2d.length);
             if(this.world){
                 sceneInvConfig.physicsWorld = this.world;
             };

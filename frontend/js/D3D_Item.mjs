@@ -628,6 +628,7 @@ scaleToFitScene = (obj3D, posVector) =>{
         cbox.userData.owner = this; //set reference to Item
         that.scene.add(obj3D);    
         obj3D.position.copy(posVector);
+       
         cbox.updateMatrixWorld();    
     }
 
