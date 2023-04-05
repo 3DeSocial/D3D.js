@@ -1135,7 +1135,10 @@ initCameraFirstPerson = () =>{
                                 if(this.transformControls){
                                     this.transformControls.attach(item.mesh);
                                     console.log('transform attched');
-                                    this.transformControls.setSize = 4 * item.mesh.scale.distanceTo(that.camera.position);
+                                    console.log('attached to mesh: ',item.mesh);
+                                    console.log(this.transformControls);
+                                    this.transformControls.setSize = 2;
+                                    that.scene.add(this.transformControls);
                                 } else {
                                     console.log('no transformcontrosl to show');
                                 }
