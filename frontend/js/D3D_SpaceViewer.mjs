@@ -526,10 +526,7 @@ initCameraFirstPerson = () =>{
         const scale = controlledObject.scale;
         console.log(controlledObject);
         let nft = (controlledObject.owner.config.nft)?controlledObject.owner.config.nft:null;
-        let nftSaveData = {PostHashHex: nft.PostHashHex,
-                            PostExtraData: nft.PostExtraData,
-                            Body: nft.Body,
-                            DiamondCount: nft.DiamondCount};
+        let nftSaveData = nft;
 
         // Convert the values into the desired format
         const formattedValues = {
@@ -1134,9 +1131,13 @@ initCameraFirstPerson = () =>{
                             that.hud.unSelectItem(); // unselect prev
                             if(!item.config.isAvatar){
                                 that.hud.setSelectedItem(item);
-                                if(item.config.transformControls){
-                                    item.config.transformControls.attach(item.mesh);
-                                    item.config.transformControls.setSize = 2 * item.mesh.scale.distanceTo(that.camera.position);
+                                console.log('select item!!!!!');
+                                if(this.transformControls){
+                                    this.transformControls.attach(item.mesh);
+                                    console.log('transform attched');
+                                    this.transformControls.setSize = 4 * item.mesh.scale.distanceTo(that.camera.position);
+                                } else {
+                                    console.log('no transformcontrosl to show');
                                 }
                             }
                         }
@@ -2085,18 +2086,21 @@ console.log('loading ',displayable.length, ' items');
                         return false;
                     };
                     console.log('item.nft.PostExtraData:',item.nft);
-                    if(!item.nft.PostExtraData.hasOwnProperty('3DExtraData')){
-                        if(item.nft.imageURLs){
-                            return true; 
-                        } else {
-                            if(item.nft.ImageURLs){
-                                return true;
-                            }
-                        }
+                    if(item.nft.PostExtraData.hasOwnProperty('3DExtraData')){
+                        return false;
                     }
-                } else {
-                    console.log('no nft in save object');
+
+                    if(item.nft.imageURLs){
+                        return true; 
+                    };
+
+                    if(item.nft.ImageURLs){
+                        return true;
+                    }
+                    console.log('check for 2d: ',item);
+                        
                 }
+               
                 return false;
             });     
             let items3d = displayable.filter(item => {
@@ -2115,6 +2119,8 @@ console.log('loading ',displayable.length, ' items');
             sceneInvConfig.items2d = items2d;
             sceneInvConfig.items3d = items3d;
             console.log('2d: ',items2d.length);
+            console.log('3d: ',items3d.length);
+
             if(this.world){
                 sceneInvConfig.physicsWorld = this.world;
             };

@@ -182,20 +182,25 @@ class Item2d extends Item {
 
     }
 
-    initMesh = async(nft) =>{
+    initMesh = async(itemConfig) =>{
+        /* itemConfig contains save data itemConfig.nft is the post */
+        
         let that = this;
-     console.log('initMEsh: ',nft);
+     console.log('initMEsh: ',itemConfig);
         return new Promise(( resolve, reject ) => {
+            let nft = itemConfig.nft;
+            console.log('nft: ',nft);
             let imageUrls = (nft.imageURLs)?nft.imageURLs:nft.ImageURLs;
-
             let imageUrl = imageUrls[0];
+
+
             if(!imageUrl){
-                reject('No image for NFT ',this.config.nftPostHashHex);
+                console.log('Cannot display - no image for NFT ', itemConfig);
+                reject('Cannot display - no image for NFT ',this.config.nftPostHashHex);
                 return false;
             };
             let proxyImageURL = that.config.imageProxyUrl +imageUrl;
-            let nftData = nft;
-            var img = new Image();
+                var img = new Image();
                let targetWidth = this.width;
             if(nft.spot){
                 if(nft.spot.dims.width){
@@ -208,7 +213,7 @@ class Item2d extends Item {
                 targetHeight = nft.spot.dims.height;
                 }
             }
-           // console.log('targetWidth: ', targetWidth,'targetHeight: ',targetHeight)
+            console.log('targetWidth: ', targetWidth,'targetHeight: ',targetHeight)
                 img.onload = function(){
                   var height = this.height;
                   var width = this.width;
@@ -220,13 +225,14 @@ class Item2d extends Item {
                   const materials = that.createMats(texture);
                   const nftMesh = new THREE.Mesh( geometry, materials );
                   that.mesh = nftMesh;
-                  let nftImgData = {is3D:nft.is3D, nft:nftData, mesh: nftMesh, imageUrl: imageUrl, width:dims.width, height:dims.height, spot:that.config.spot};
+                  let nftImgData = {is3D:itemConfig.is3D, nft:nft, mesh: nftMesh, imageUrl: imageUrl, width:dims.width, height:dims.height, spot:that.config.spot};
+                  console.log('initMesh image onload returns... ',nftImgData);
                   resolve(nftImgData);
             };
 
             img.addEventListener('error', (img, error) =>{
-            //  console.log('could not load image',img.src);
-           //   console.log(error);
+              console.log('could not load image',img.src);
+               console.log(error);
               reject(img.src)
             });
             img.src = proxyImageURL;

@@ -204,7 +204,8 @@ import { METHODS } from 'http';
         return new Promise((resolve, reject) => {
 
             itemList.forEach((itemData)=>{
-            //    console.log(itemData)
+                console.log('itemData before')
+               console.log(itemData)
                 let item ;
                 let itemConfig;
                 if(itemData.params){
@@ -251,15 +252,20 @@ import { METHODS } from 'http';
                 };
                 itemConfig.imageProxyUrl = that.config.imageProxyUrl;
                 itemConfig.isImage = true;
-                itemConfig.spot = that.config.layoutPlotter.getNextFreePos();
+                if(itemData.pos){
+                    itemConfig.spot = {pos:itemData.pos, rot:itemData.rot, scale:itemData.scale, dims:{height:itemConfig.height,width:itemConfig.with,depth:itemConfig.depth}};
+                } else {
+                    itemConfig.spot = that.config.layoutPlotter.getNextFreePos();
+                }
 
                 item = this.initItem2d(itemConfig);
                 item.initMesh(itemConfig).then((nftImgData)=>{
+                    console.log('afterInitMEsh: ',nftImgData);
                   let spot = nftImgData.spot;
                     let halfHeight = nftImgData.height/2;
                   //  console.log('halfHeight: ',halfHeight,nftImgData);
-                        spot.pos.y = spot.pos.y+halfHeight;
-
+                    //    spot.pos.y = spot.pos.y+halfHeight;
+                    console.log('PLACE item2d at:',spot.pos)
                      item.place(spot.pos).then((mesh,pos)=>{
                          if(spot.rot){
                             mesh.rotateY(spot.rot.y);
@@ -272,7 +278,8 @@ import { METHODS } from 'http';
                                 }
                             }
                         }
-                        
+                        console.log('ITEM2D PLACED',item);
+                        mesh.owner = item;
                         items.push(item);
 
                         that.items2d.push(item);                            
@@ -402,7 +409,7 @@ import { METHODS } from 'http';
                         path: '/'+path3D,
                         format: 'gltf'
                       };
-                    item = this.initItem({nftRequestParams: nftRequestParams, nftPostHashHex: itemData.postHashHex, pos:spot.pos, rot:spot.rot, nft:itemData, width: 3, height:3, depth:3, scene: that.scene, format: formats[0]});
+                    item = this.initItem({transformControls: this.config.transformControls,nftRequestParams: nftRequestParams, nftPostHashHex: itemData.postHashHex, pos:spot.pos, rot:spot.rot, nft:itemData, width: 3, height:3, depth:3, scene: that.scene, format: formats[0]});
                    // console.log('item API request requried for modelUrl: ',modelUrl, ' format: ',formats[0]);
 
                 }      
@@ -540,6 +547,7 @@ import { METHODS } from 'http';
         let nftsRoute = '';
         let that = this;
         let itemParams = {
+            transformControls: this.config.transformControls,
             three: THREE,
             imageProxyUrl: opts.imageProxyUrl,
             scene: this.scene,
@@ -617,6 +625,7 @@ import { METHODS } from 'http';
                 return false;
             };              
         };
+        console.log('CREATING ITEM 2D!!!', itemParams);
         return new Item2d(itemParams);
 
     }
