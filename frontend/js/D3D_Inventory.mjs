@@ -278,6 +278,12 @@ import { METHODS } from 'http';
                                 }
                             }
                         }
+                        if(spot.scale){ 
+                            mesh.scale.set(spot.scale.x,spot.scale.y,spot.scale.z);
+                            console.log('scaled item');
+                        } else {
+                            console.log('no scale');
+                        };
                         console.log('ITEM2D PLACED',item);
                         mesh.owner = item;
                         items.push(item);
