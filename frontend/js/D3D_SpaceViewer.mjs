@@ -522,9 +522,8 @@ initCameraFirstPerson = () =>{
         }
         // Get position, rotation, and scale of the controlled object
         const position = controlledObject.position;
-        const rotation = controlledObject.rotation;
+        const rotation = controlledObject.rotation.toArray();
         const scale = controlledObject.scale;
-        console.log(controlledObject);
         let nft = (controlledObject.owner.config.nft)?controlledObject.owner.config.nft:null;
         let nftSaveData = nft;
 
@@ -536,7 +535,7 @@ initCameraFirstPerson = () =>{
             rot: { x: rotation.x, y: rotation.y, z: rotation.z },
             scale: { x: scale.x, y: scale.y, z: scale.z },
         };
-        console.log(formattedValues.nft);
+
         if(this.config.chainAPI.saveSceneAsset){
             this.config.chainAPI.saveSceneAsset(formattedValues);
 
