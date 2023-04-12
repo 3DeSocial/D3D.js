@@ -186,13 +186,16 @@ class Item2d extends Item {
         /* itemConfig contains save data itemConfig.nft is the post */
         
         let that = this;
-     console.log('initMEsh: ',itemConfig);
+
         return new Promise(( resolve, reject ) => {
             let nft = itemConfig.nft;
-            console.log('nft: ',nft);
+            let imageUrl;
             let imageUrls = (nft.imageURLs)?nft.imageURLs:nft.ImageURLs;
-            let imageUrl = imageUrls[0];
-
+            if(itemConfig.imgIndex){
+                imageUrl = imageUrls[idx];
+            } else {
+                imageUrl = imageUrls[0];                
+            }
 
             if(!imageUrl){
                 console.log('Cannot display - no image for NFT ', itemConfig);
@@ -226,7 +229,6 @@ class Item2d extends Item {
                   const nftMesh = new THREE.Mesh( geometry, materials );
                   that.mesh = nftMesh;
                   let nftImgData = {is3D:itemConfig.is3D, nft:nft, mesh: nftMesh, imageUrl: imageUrl, width:dims.width, height:dims.height, spot:that.config.spot};
-                  console.log('initMesh image onload returns... ',nftImgData);
                   resolve(nftImgData);
             };
 

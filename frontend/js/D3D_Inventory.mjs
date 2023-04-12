@@ -66,9 +66,10 @@ import { METHODS } from 'http';
         return false;
     }
 
-    add2D = (itemPost) =>{
+    add2D = (itemPost, imgIndex) =>{
         let item = null;         
         let itemConfig = {
+            imgIndex: imgIndex,
             nft: itemPost,
             width: 2,
             height: 2,
@@ -553,6 +554,7 @@ import { METHODS } from 'http';
         let nftsRoute = '';
         let that = this;
         let itemParams = {
+            imgIndex: (opts.imgIndex)?opts.imgIndex:0,
             transformControls: this.config.transformControls,
             three: THREE,
             imageProxyUrl: opts.imageProxyUrl,
@@ -631,7 +633,6 @@ import { METHODS } from 'http';
                 return false;
             };              
         };
-        console.log('CREATING ITEM 2D!!!', itemParams);
         return new Item2d(itemParams);
 
     }
