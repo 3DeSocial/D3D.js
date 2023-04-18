@@ -16,7 +16,7 @@ let nextPos = new THREE.Vector3();
 
 const params = {
     debug: false,
-    firstPerson: false,
+    firstPerson: true,
     visualizeDepth: 10,
     gravity: - 30,
     playerSpeed: 10,
@@ -218,14 +218,16 @@ console.log('this.nftImporter:',this.nftImporter);
        
                                    if(that.avatar){
                                     console.log('avatar: ',that.avatar);
+                                    that.config.firstPerson =false;                                    
                                        that.initCameraThirdPerson();
                                        that.initPlayerThirdPerson(options);                                 
-       
+
+
        
        
                                    } else {
                                        //No avatar is available, use first person
-                                       this.config.firstPerson =true;
+                                       that.config.firstPerson =true;
                                        this.initCameraFirstPerson(); 
                                        that.initPlayerFirstPerson(options);      
                                    }
@@ -241,7 +243,7 @@ console.log('this.nftImporter:',this.nftImporter);
        
                        } else {
                            //No avatar is available, use first person
-                           this.config.firstPerson =true;
+                           that.config.firstPerson =true;
                            this.initCameraFirstPerson(); 
                            that.initPlayerFirstPerson(options);
                            if(this.config.onSceneLoad()){
@@ -271,6 +273,7 @@ console.log('this.nftImporter:',this.nftImporter);
         
         if(!this.config.currentUser){
             console.log('Not logged in so no avatar availabe');
+            this.config.firstPerson = true;
             return false;
         };
 
@@ -438,6 +441,7 @@ console.log('this.nftImporter:',this.nftImporter);
     }
 
 initCameraFirstPerson = () =>{
+    console.log('initCameraFirstPerson!!!');
         // camera setup
         this.camera = new THREE.PerspectiveCamera( 60, window.innerWidth / window.innerHeight, 0.1, 1000 );
         this.camera.updateProjectionMatrix(); 
@@ -453,6 +457,8 @@ initCameraFirstPerson = () =>{
     }
 
     initCameraThirdPerson = () =>{
+        console.log('initCameraThirdPerson!!!');
+
         // camera setup
         this.camera = new THREE.PerspectiveCamera( 60, window.innerWidth / window.innerHeight, 0.1, 1000 );
         this.camera.updateProjectionMatrix(); 
@@ -750,7 +756,8 @@ initCameraFirstPerson = () =>{
                             if ((e.target.tagName.toLowerCase() !== 'textarea') && ( e.target.tagName.toLowerCase() !== 'input')){
                                 let item = that.hud.getSelectedItem();
                                 if(item){
-                                    that.scene.remove(this.transformControls);
+                                    control.detach();
+                                    that.scene.remove(control);
                                     that.scene.remove(item.mesh);
                                     that.hud.unSelectItem(item);
                                     that.sceneInventory.remove(item);
