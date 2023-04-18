@@ -1,4 +1,5 @@
 import { Item, ItemVRM, SceneryLoader, ExtraData3DParser } from 'd3d';
+import { resolve } from 'path';
 
 export default class NFTImporter {
 
@@ -89,6 +90,38 @@ export default class NFTImporter {
         })
     }
 
+    importAll =  async (itemsFromChain) =>{
+        let updatedItems = [];
+        return new Promise((resolve,reject)=>{
+            /* itemsFromChain = {postHashHex,pos,rot,scale} - need to add nft */
+            try {
+                // Create an array of Promises for all the requests
+                itemsFromChain.forEach((item)=>{
+                    let updatedItem = {};
+                    this.fetchMeta(item.postHashHex).then((nftMeta)=>{
+                        updatedItem = {
+                            ...item,
+                            ...nftMeta
+                        };
+                        console.log('merged updatedItem: ',updatedItem);
+                        
+                        updatedItems.push(updatedItem);
+                        if(updatedItems.length===itemsFromChain.length){
+                            resolve(updatedItems);
+                        } else {
+                            console.log('updatedItems.length: ',updatedItems.length, ' / ',itemsFromChain.length);
+                        }
+                    })
+                })
+
+            } catch (error) {
+                console.error('Error fetching URLs:', error);
+                reject();
+            }
+        })
+       
+    }
+
     fetchMeta = async (postHashHex) =>{
         return new Promise((resolve, reject) => {
 
@@ -103,7 +136,8 @@ export default class NFTImporter {
                     };
                     if(extraDataString){
                         resolve({extraDataString: extraDataString,
-                                    postHashHex: postHashHex})
+                                    postHashHex: postHashHex,
+                                    nft: json})
                     
                     } else {
                         resolve({extraDataString: null,

@@ -99,7 +99,16 @@ const params = {
         this.d = new Date();
         this.nftClaimed = false;
         this.avatars = [];
+        this.mouse = new THREE.Vector2(0,0,0);
+        this.getContainer(this.config.el);
 
+        this.initScene();
+        let importerParams= {chainAPI: this.config.chainAPI,
+            loaders: this.loaders,
+            modelsRoute:this.config.modelsRoute,
+            scene: this.scene};
+        this.nftImporter = new NFTImporter(importerParams);            
+console.log('this.nftImporter:',this.nftImporter);
     }
 
     initPhysicsWorld = () =>{
@@ -157,12 +166,11 @@ const params = {
         let that = this;
         let sceneryloadingComplete = false
         let nftLoadingComplete = false;
+        
 
         return new Promise((resolve, reject) => {
-            this.mouse = new THREE.Vector2(0,0,0);
-            this.getContainer(this.config.el);
+      
 
-            this.initScene();
             this.initRenderer(this.config.el);
             this.initHUD({scene:that.scene,
                             chainAPI: that.config.chainAPI});
@@ -209,6 +217,7 @@ const params = {
                                    that.avatar = avatar;
        
                                    if(that.avatar){
+                                    console.log('avatar: ',that.avatar);
                                        that.initCameraThirdPerson();
                                        that.initPlayerThirdPerson(options);                                 
        
@@ -520,27 +529,12 @@ initCameraFirstPerson = () =>{
 
             return false;
         }
-        // Get position, rotation, and scale of the controlled object
-        const position = controlledObject.position;
-        let rotation1 = controlledObject.rotation.toArray();
-        let rotation = {x: rotation1[0],y: rotation1[1],z: rotation1[2]};
-        console.log('rotaion: ',rotation);
-        const scale = controlledObject.scale;
-        let nft = (controlledObject.owner.config.nft)?controlledObject.owner.config.nft:null;
-        let nftSaveData = nft;
-
-        // Convert the values into the desired format
-        const formattedValues = {
-            postHashHex: (controlledObject.owner.config.nft)?controlledObject.owner.config.nft.PostHashHex:null,
-            nft: nftSaveData,
-            pos: { x: position.x, y: position.y, z: position.z },
-            rot: { x: rotation.x, y: rotation.y, z: rotation.z },
-            scale: { x: scale.x, y: scale.y, z: scale.z },
-        };
-console.log('formattedValues:',formattedValues);
-        if(this.config.chainAPI.saveSceneAsset){
-            this.config.chainAPI.saveSceneAsset(formattedValues);
-
+        let assetData = this.sceneInventory.convertItemForStorage(controlledObject,true);
+        if(assetData){
+            if(this.config.chainAPI.saveSceneAsset){
+                console.log('saving asset state: ',assetData);
+                this.config.chainAPI.saveSceneAsset(assetData);
+            }
         }
     }
 
@@ -603,21 +597,14 @@ console.log('formattedValues:',formattedValues);
     }
 
     loadEquiRectSkyBox = (nftPostHashHex) =>{
-        if(!this.nftImporter){
-                let importerParams= {chainAPI: this.config.chainAPI,
-                                    loaders: this.loaders,
-                                    modelsRoute:this.config.modelsRoute,
-                                    scene: this.scene};
 
-                this.nftImporter = new NFTImporter(importerParams);
-                this.nftImporter.import({type:'skybox',
-                                        nftPostHashHex:nftPostHashHex}).then((skyBoxConfig)=>{  
-                                            this.initNFTSkyBox(skyBoxConfig);
-                                        }).catch(err=>{
-                                            console.log('error importing skybox');
-                                            console.log(err);
-                                        })
-        }
+        this.nftImporter.import({type:'skybox',
+        nftPostHashHex:nftPostHashHex}).then((skyBoxConfig)=>{  
+            this.initNFTSkyBox(skyBoxConfig);
+        }).catch(err=>{
+            console.log('error importing skybox');
+            console.log(err);
+        })        
     }
 
     initNFTSkyBox = (skyBoxConfig) =>{
@@ -763,6 +750,7 @@ console.log('formattedValues:',formattedValues);
                             if ((e.target.tagName.toLowerCase() !== 'textarea') && ( e.target.tagName.toLowerCase() !== 'input')){
                                 let item = that.hud.getSelectedItem();
                                 if(item){
+                                    that.scene.remove(this.transformControls);
                                     that.scene.remove(item.mesh);
                                     that.hud.unSelectItem(item);
                                     that.sceneInventory.remove(item);
@@ -791,6 +779,8 @@ console.log('formattedValues:',formattedValues);
                                 control.setMode( 'translate' );
                             } else if(control.mode==='scale'){
                                 control.detach();
+                                that.scene.remove(control);
+
                             };
                             break;
                         case 187:
@@ -2032,10 +2022,11 @@ isOnWall = (raycaster, selectedPoint, meshToCheck) =>{
     }
 
     initInventory = (options) =>{
+
         let items =[];
         if(options.items){
             items = options.items;
-        };
+        }
      
     /*    this.inventory = new D3DInventory({ chainAPI: this.config.chainAPI,
                                             imageProxyUrl: this.config.imageProxyUrl,    
@@ -2078,7 +2069,8 @@ isOnWall = (raycaster, selectedPoint, meshToCheck) =>{
            }
 
         if(options.sceneAssets){
-
+            console.log('InitInventory: options.sceneAssets');
+            console.log(options.sceneAssets);
             let displayable = options.sceneAssets.filter(item =>this.itemCanBePlaced(item));
 console.log('loading ',displayable.length, ' items');
             //let maxItems =this.layoutPlotter.getMaxItemCount();
@@ -2086,35 +2078,54 @@ console.log('loading ',displayable.length, ' items');
             
             let items2d = displayable.filter(item =>{
                 if(item.nft){
-                    if(!item.nft.PostExtraData){
+                    if(item.nft.path3D){
                         return false;
-                    };
-                    console.log('item.nft.PostExtraData:',item.nft);
-                    if(item.nft.PostExtraData.hasOwnProperty('3DExtraData')){
-                        return false;
+                    };     
+                    let postExtraData = (item.nft.PostExtraData)?item.nft.PostExtraData: (item.nft.postExtraData)?item.nft.postExtraData:null;
+                    if(postExtraData){
+                        if(postExtraData.hasOwnProperty('3DExtraData')){
+                            console.log('2d not diaplayable, has 3DExtraData: ',item.nft.PostExtraData)
+
+                            return false;
+                        }
                     }
 
                     if(item.nft.imageURLs){
+                        console.log('2d IS diaplayable, has imageURLs');
                         return true; 
                     };
 
                     if(item.nft.ImageURLs){
+                        console.log('2d IS diaplayable, has ImageURLs');
+
                         return true;
                     }
-                    console.log('check for 2d: ',item);
+                    console.log('check for 2d faied: ',item);
                         
-                }
-               
+                } 
+               console.log('NO NFT 2D!!!');
                 return false;
             });     
             let items3d = displayable.filter(item => {
                 if(!item.nft){
+                    console.log('3d not diaplayable missing nft: ',item);
+
                     return false;
                 };
+                if(item.nft.path3D){
+                    return true;
+                }
                 if(!item.nft.PostExtraData){
-                    return false
+                    if(item.nft.postExtraData){
+                        item.nft.PostExtraData = item.nft.postExtraData;
+                    } else {
+                        console.log('3d not diaplayable missing nft.PostExtraData: ',item);   
+                        return false;
+                    }                    
                 };
                 if(!item.nft.PostExtraData['3DExtraData']){
+                    console.log('3d not diaplayable missing 3DExtraData: ',item);
+
                     return false;
                 };
                 return true;
@@ -2140,18 +2151,28 @@ console.log('loading ',displayable.length, ' items');
     }
 
     itemCanBePlaced = (itemData) =>{
+        console.log('can itemData be place?', itemData);
         if(!itemData.hasOwnProperty('nft')){
+            console.log('item missing nft prop - not displayable');
             return false;
         };
         if(!itemData.hasOwnProperty('pos')){
+            console.log('item missing pos prop - not displayable');
+
             return false;
         }
         if(!itemData.hasOwnProperty('rot')){
+            console.log('item missing rot prop - not displayable');
+
             return false;
         }
         if(!itemData.hasOwnProperty('scale')){
+            console.log('item missing scale prop - not displayable');
+
             return false;
         }          
+        console.log('itemData OK');
+
         return true;             
     }
 

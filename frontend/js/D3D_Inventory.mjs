@@ -83,12 +83,44 @@ import { METHODS } from 'http';
         }
         item = this.initItem2d(itemConfig);
 
-    this.items2d.push(item);     
-    return item;                       
-}
+        this.items2d.push(item);     
+        return item;                       
+    }
+
+    convertItemForStorage = (item, includeNFT)=>{
+        let postHashHex = null;
+        if(item.owner.config.nftPostHash){
+            postHashHex = item.owner.config.nftPostHash;
+        }else if(item.owner.config.nft){
+            postHashHex = item.owner.config.nft.PostHashHex;
+        };
+        if(!postHashHex){
+            return false;
+        }
+
+        // Get position, rotation, and scale of the controlled object
+        const position = item.position;
+        let rotation1 = item.rotation.toArray();
+        let rotation = {x: rotation1[0],y: rotation1[1],z: rotation1[2]};
+        const scale = item.scale;
+
+        // Convert the values into the desired format
+        const formattedValues = {
+            postHashHex: postHashHex,
+            pos: { x: position.x, y: position.y, z: position.z },
+            rot: { x: rotation.x, y: rotation.y, z: rotation.z },
+            scale: { x: scale.x, y: scale.y, z: scale.z },
+        };
+
+        if(includeNFT){ // save to idb
+            if(item.owner.config.nft){
+                formattedValues.nft = item.owner.config.nft;
+            };
+        };
+        return formattedValues;
+    }
 
     remove = (item) =>{
-        console.log('remove from sceneInventory: ',item);
         this.removeItemByNftPostHashHex(item);
         let sceneInventoryItems = this.getAllItems();
         if(this.config.chainAPI.saveSceneAssets){
@@ -349,7 +381,10 @@ import { METHODS } from 'http';
                     itemConfig.layout = itemData.layout;               
                 };
                 if(itemData.nft){
-                    itemConfig.nft = itemData.nft;               
+                    itemConfig.nft = itemData.nft;          
+                    if(itemData.nft.path3D){
+                        itemData.path3D = itemData.nft.path3D;
+                    }
                 };
 
                 let extraData3D = null;
@@ -682,6 +717,16 @@ import { METHODS } from 'http';
       
         // Convert the Map back to an array of objects and return it
         return Array.from(combinedItemsMap.values());
+    }
+
+    getItemsToSave = () =>{
+
+        // return array of objects with properties: PostHashHex,pos,rot,scale
+        const itemsToSave = this.items.map((item) =>{
+            return that.convertItemForStorage(item, false);
+        });
+          
+        return itemsToSave;
     }
 
     getItems = () =>{
