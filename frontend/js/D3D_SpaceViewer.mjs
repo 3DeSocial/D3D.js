@@ -858,7 +858,7 @@ initCameraFirstPerson = () =>{
                     case 'Enter':
                        // that.throwSnowBall(e, null);
                     break;
-                    case 'Digit0': that.inventory.setActive(0); break;
+                 /*   case 'Digit0': that.inventory.setActive(0); break;
                     case 'Digit1': that.inventory.setActive(1); break;
                     case 'Digit2': that.inventory.setActive(2); break;
                     case 'Digit3': that.inventory.setActive(3); break;
@@ -866,7 +866,7 @@ initCameraFirstPerson = () =>{
                     case 'Digit5': that.inventory.setActive(5); break;
                     case 'Digit6': that.inventory.setActive(6); break;
                     case 'Digit7': that.inventory.setActive(7); break;
-                    case 'Digit8': that.inventory.setActive(8); break;
+                    case 'Digit8': that.inventory.setActive(8); break;*/
                     case 'Space':
                         if ((e.target.tagName.toLowerCase() !== 'textarea') && ( e.target.tagName.toLowerCase() !== 'input')){
 
