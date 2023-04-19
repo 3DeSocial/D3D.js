@@ -783,9 +783,8 @@ initCameraFirstPerson = () =>{
                             } else if(control.mode==='rotate'){
                                 control.setMode( 'scale' );
                             } else if(control.mode==='scale'){
-                                control.setMode( 'translate' );
-                            } else if(control.mode==='scale'){
                                 control.detach();
+                                control.setMode( 'translate' );
                                 that.scene.remove(control);
 
                             };
@@ -999,10 +998,11 @@ initCameraFirstPerson = () =>{
     
             break;            
             case 2:
-                this.showSelectedMeshData(action);
+                this.selectTargetNFT(action);
+
             break;
             default:
-                this.showSelectedMeshData(action)
+                this.selectTargetNFT(action);
             break;
         }
     }
@@ -1098,64 +1098,23 @@ initCameraFirstPerson = () =>{
         let that = this;
 
         let item = this.getItemForAction(action)
-        if(item){
-           
-            if((item.config.nft)&&(item.mesh)){
-                    if(item.config.nft.isAudio){
-              
-                        this.config.chainAPI.fetchPostDetail({postHashHex:item.config.nft.postHashHex}).then((res)=>{
-                            res.json().then((json)=>{
-                                if(json.audioData){
-                                    tracks = this.parseAudioData(json.audioData);
-                                    let firstTrack = this.getTrackFullUrl(item.config.nft.postHashHex, tracks[0]);
-                                    if(that.currentAudioHash === item.config.nft.postHashHex){
-                                        that.currentAudio.pause();
-                                        that.currentAudioHash = null;
-                                    } else {
-                                        that.playAudioNFTTrack(item.config.nft.postHashHex, firstTrack);
-                                    }
-                                }
-                            })
-                           
-                        }).catch((err)=>{
-                            console.log('errpr getting audio data');
-                        });
-
-                    }
-
-                    if(!item.isSelected) {
-
-                        if(that.hud){
-                            that.hud.unSelectItem(); // unselect prev
-                            if(!item.config.isAvatar){
-                                that.hud.setSelectedItem(item);
-                                console.log('select item!!!!!');
-                                if(this.transformControls){
-                                    this.transformControls.attach(item.mesh);
-                                    console.log('transform attched');
-                                    console.log('attached to mesh: ',item.mesh);
-                                    console.log(this.transformControls);
-                                    this.transformControls.setSize = 2;
-                                    that.scene.add(this.transformControls);
-                                } else {
-                                    console.log('no transformcontrosl to show');
-                                }
-                            }
-                        }
-                    };
-            };
+        if(!item){
+            return false;
+        };
+        if(item.mesh){
+            console.log('transforming');
+            if(this.transformControls){
+                this.transformControls.attach(item.mesh);
+                console.log('transform attched');
+                console.log('attached to mesh: ',item.mesh);
+                console.log(this.transformControls);
+                this.transformControls.setSize = 2;
+                that.scene.add(this.transformControls);
+            }
             this.actionTargetPos = item.getPosition();
-           // this.enableActionBtns();
-        } else {
-   console.log(action);
-            if(this.hud){         
-               this.hud.unSelectItem();
-            };
-            //this.disableActionBtns();
-           // this.hideStatusBar(['heart','diamond-count','confirm']);
-
-        }
-
+        }           
+          
+       
 
     }
 
