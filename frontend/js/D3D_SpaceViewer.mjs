@@ -215,7 +215,7 @@ console.log('this.nftImporter:',this.nftImporter);
        
                                .then((avatar)=>{
                                    that.avatar = avatar;
-       
+                                   that.avatar.isActiveAvatar = true;
                                    if(that.avatar){
                                     console.log('avatar: ',that.avatar);
                                     that.config.firstPerson =false;                                    
@@ -441,7 +441,6 @@ console.log('this.nftImporter:',this.nftImporter);
     }
 
 initCameraFirstPerson = () =>{
-    console.log('initCameraFirstPerson!!!');
         // camera setup
         this.camera = new THREE.PerspectiveCamera( 60, window.innerWidth / window.innerHeight, 0.1, 1000 );
         this.camera.updateProjectionMatrix(); 
@@ -602,6 +601,23 @@ initCameraFirstPerson = () =>{
         }
     }
 
+    toggleAvatar = ()=>{
+        if(this.avatar){
+            if(this.avatar.mesh){
+                console.log('toggle avatar');
+                this.avatar.mesh.visible = (this.avatar.mesh.visible?false:true);
+                if(this.avatar.mesh.visible){
+                    this.camera.position.setZ(this.player.position.z-4);
+                    this.camera.position.lookAt(this.player.position);
+                } else {
+                    this.camera.position.copy(this.player.position);
+                    this.camera.position.setY(this.player.position.y+2);
+                }
+
+            }
+        }
+    }
+
     loadEquiRectSkyBox = (nftPostHashHex) =>{
 
         this.nftImporter.import({type:'skybox',
@@ -755,6 +771,16 @@ initCameraFirstPerson = () =>{
                         case 'Delete':
                             if ((e.target.tagName.toLowerCase() !== 'textarea') && ( e.target.tagName.toLowerCase() !== 'input')){
                                 let item = that.hud.getSelectedItem();
+                                if(!item){
+                                    console.log('no item selected by hud');
+                                    if(that.transformControls.object){
+                                        if(that.transformControls.object.mesh){
+                                            item = that.transformControls.object;
+                                        }
+                                    } else {
+                                        console.log('no tranformcontrols object')
+                                    }
+                                }
                                 if(item){
                                     control.detach();
                                     that.scene.remove(control);
@@ -830,6 +856,9 @@ initCameraFirstPerson = () =>{
 
                         that.controlProxy.dir = 'rr';
                         that.controlProxy.rot = 'rr';
+                        break;
+                    case 'KeyH':
+                        that.toggleAvatar();
                         break;
                    // case 'KeyM': that.throwActiveItem(); break;
                     case 'NumpadAdd': that.setMasterVolume(1); break;
@@ -1101,7 +1130,11 @@ initCameraFirstPerson = () =>{
         if(!item){
             return false;
         };
+        if(item.isActiveAvatar){
+            return false;
+        };
         if(item.mesh){
+            this.hud.setSelectedItem(item)
             console.log('transforming');
             if(this.transformControls){
                 this.transformControls.attach(item.mesh);
@@ -1378,7 +1411,7 @@ initCameraFirstPerson = () =>{
                     this.mouse.set(x,y);
                     //this.throwSnowBall(e, null);                    
                 } else {
-                    this.showSelectedMeshData(action);
+                   // this.showSelectedMeshData(action);
                 }
             break;
             default:
@@ -2677,7 +2710,6 @@ initPlayerFirstPerson = (options) => {
     this.initInventory(options);         
     this.addListeners();   
     this.camera.position.copy(offsetStartPos);
-    this.camera.position.z=this.camera.position.z-4;
     that.camera.lookAt(lookAtStartPos);
 
     that.animate();
@@ -2741,7 +2773,7 @@ initPlayerThirdPerson = (options) => {
         this.initInventory(options);         
         this.addListeners();            
         this.camera.position.copy(offsetStartPos);
-        this.camera.position.z=this.camera.position.z-2;
+        this.camera.position.z=this.camera.position.z-4;
         that.camera.lookAt(lookAtStartPos);
         that.animate();
         that.sceneryloadingComplete = true;

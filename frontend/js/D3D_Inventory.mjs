@@ -122,7 +122,7 @@ import { METHODS } from 'http';
 
     remove = (item) =>{
         this.removeItemByNftPostHashHex(item);
-        let sceneInventoryItems = this.getAllItems();
+        let sceneInventoryItems = this.getItemsToSave();
         if(this.config.chainAPI.saveSceneAssets){
             this.config.chainAPI.saveSceneAssets(sceneInventoryItems);
             console.log('update saved, new list: ',sceneInventoryItems);
@@ -720,9 +720,10 @@ import { METHODS } from 'http';
     }
 
     getItemsToSave = () =>{
+        let allItems = this.combineUniqueItems(this.items2d, this.items3d);
 
         // return array of objects with properties: PostHashHex,pos,rot,scale
-        const itemsToSave = this.items.map((item) =>{
+        const itemsToSave = allItems.map((item) =>{
             return that.convertItemForStorage(item, false);
         });
           
