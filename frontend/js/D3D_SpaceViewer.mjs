@@ -2305,7 +2305,8 @@ console.log('loading ',displayable.length, ' items');
                             console.log('vrBtnOptions: ',vrBtnOptions);
                             console.log('creat button now...');
                             console.log(VRButton);
-        let vrButtonEl = VRButton.createButton(this.renderer, vrBtnOptions);
+        this.vrButton = VRButton.createButton(this.renderer, vrBtnOptions);
+
     }
 
     stopAllAnimations = () =>{
@@ -2349,7 +2350,7 @@ console.log('loading ',displayable.length, ' items');
 
     initVRSession = (vrType) =>{
         let that = this;
-
+        console.log('initVRSession');
         this.controlProxy = {};
         this.vrControls = new VRControls({  renderer: this.renderer,
                                             scene:this.scene,
@@ -2609,7 +2610,8 @@ console.log('loading ',displayable.length, ' items');
 
 
     openVR = (el) =>{
-
+        console.log('clicking vr button: ',this.vrButton)
+        this.vrButton.click();
 
     }
     updateLink = (linkEl, linkText)=> {
