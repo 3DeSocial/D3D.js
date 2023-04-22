@@ -87,35 +87,57 @@ import { METHODS } from 'http';
         return item;                       
     }
 
-    convertItemForStorage = (item, includeNFT)=>{
+    convertItemForStorage = (mesh, includeNFT)=>{
         let postHashHex = null;
-        if(item.owner.config.nftPostHash){
-            postHashHex = item.owner.config.nftPostHash;
-        }else if(item.owner.config.nft){
-            postHashHex = item.owner.config.nft.PostHashHex;
-        };
+        let item = null;
+        let nft = null;
+        console.log('convertItemForStorage');
+        console.log(mesh);
+
+        if(mesh.isItem){
+            console.log('ITEM detected',mesh);
+            item = mesh;
+            mesh = item.mesh;
+        } else if (mesh.userData.owner){
+            console.log('mesh with owner: ',mesh.userData.owner);
+            item = mesh.userData.owner;    
+            mesh = item.mesh;
+        } else {
+            console.log('cant find item');
+            return false;
+        }
+
+       if(item.config.nft){
+            nft = item.config.nft;
+       };
+
+       postHashHex = nft.postHashHex||nft.PostHashHex;
+    
         if(!postHashHex){
+            console.log('no hex to save');
             return false;
         }
 
         // Get position, rotation, and scale of the controlled object
-        const position = item.position;
-        let rotation1 = item.rotation.toArray();
+        const position = mesh.position;
+        let rotation1 = mesh.rotation.toArray();
         let rotation = {x: rotation1[0],y: rotation1[1],z: rotation1[2]};
-        const scale = item.scale;
+        const scale = mesh.scale;
 
         // Convert the values into the desired format
         const formattedValues = {
             postHashHex: postHashHex,
             pos: { x: position.x, y: position.y, z: position.z },
             rot: { x: rotation.x, y: rotation.y, z: rotation.z },
-            scale: { x: scale.x, y: scale.y, z: scale.z },
+            scale: { x: scale.x, y: scale.y, z: scale.z }
         };
 
         if(includeNFT){ // save to idb
-            if(item.owner.config.nft){
-                formattedValues.nft = item.owner.config.nft;
-            };
+            formattedValues.nft = nft;
+           if(!formattedValues.nft){
+            console.log('WARNING!! NO NFT');
+            return false;
+           }
         };
         return formattedValues;
     }
@@ -123,7 +145,10 @@ import { METHODS } from 'http';
     remove = (item) =>{
         this.removeItemByNftPostHashHex(item);
         let sceneInventoryItems = this.getItemsToSave();
+        console.log('new list to save: ',sceneInventoryItems);
+
         if(this.config.chainAPI.saveSceneAssets){
+            console.log('attempting scene assest save');
             this.config.chainAPI.saveSceneAssets(sceneInventoryItems);
             console.log('update saved, new list: ',sceneInventoryItems);
         } else {
@@ -358,6 +383,7 @@ import { METHODS } from 'http';
             itemList.forEach((itemData)=>{
               //  console.log(itemData)
                 let itemConfig;
+                let nft = null;
                 if(itemData.params){
                     itemConfig = itemData.params;
                 } else {
@@ -381,18 +407,20 @@ import { METHODS } from 'http';
                     itemConfig.layout = itemData.layout;               
                 };
                 if(itemData.nft){
-                    itemConfig.nft = itemData.nft;          
-                    if(itemData.nft.path3D){
-                        itemData.path3D = itemData.nft.path3D;
-                    }
-                };
+                    nft = itemData.nft;
+                    console.log('NFT PASSED OK!!');
+                } else {
+                    console.log('NFT NOT PASSED!');
+                    console.log('itemData',itemData);
+                }
+
 
                 let extraData3D = null;
-                if(itemData.path3D){
-                    extraData3D = itemData.path3D;
+                if(nft.path3D){
+                    extraData3D = nft.path3D;
                 } else {
-                    if(itemData.nft.PostExtraData.hasOwnProperty('3DExtraData')){
-                        extraData3D = itemData.nft.PostExtraData['3DExtraData'];
+                    if(nft.PostExtraData.hasOwnProperty('3DExtraData')){
+                        extraData3D = nft.PostExtraData['3DExtraData'];
                     }
                 }
 
@@ -425,13 +453,14 @@ import { METHODS } from 'http';
 
                 let item = null;  
                 if(modelUrl){
+                    console.log('have modelurl for init item');
                     item = this.initItem({transformControls: this.config.transformControls,
                                                 modelUrl: modelUrl,
                                                 nftPostHashHex: itemData.postHashHex, 
                                                 pos: spot.pos,
                                                 rot:spot.rot,
                                                 scale:spot.scale,
-                                                nft:itemData,
+                                                nft:nft,
                                                 width: 3,
                                                 height:3,
                                                 depth:3,
@@ -440,6 +469,7 @@ import { METHODS } from 'http';
                   //  console.log('item returned. have modelUrl: ',modelUrl, ' format: ',formats[0]);
                 } else {
 
+                    console.log('no modelurl for init item');
 
                     let versions = extraDataParser.getAvailableVersions(0,'gltf');
                  //   console.log('versions:', versions);
@@ -451,7 +481,7 @@ import { METHODS } from 'http';
                         path: '/'+path3D,
                         format: 'gltf'
                       };
-                    item = this.initItem({transformControls: this.config.transformControls,nftRequestParams: nftRequestParams, nftPostHashHex: itemData.postHashHex, pos:spot.pos, rot:spot.rot, nft:itemData, width: 3, height:3, depth:3, scene: that.scene, format: formats[0]});
+                    item = this.initItem({transformControls: this.config.transformControls,nftRequestParams: nftRequestParams, nftPostHashHex: itemData.postHashHex, pos:spot.pos, rot:spot.rot, nft:nft, width: 3, height:3, depth:3, scene: that.scene, format: formats[0]});
                    // console.log('item API request requried for modelUrl: ',modelUrl, ' format: ',formats[0]);
 
                 }      
@@ -473,11 +503,7 @@ import { METHODS } from 'http';
                     };
                     if(spot.scale){ 
                         mesh.scale.set(spot.scale.x,spot.scale.y,spot.scale.z);
-                        console.log('scaled item');
-                    } else {
-                        console.log('no scale');
                     };
-                    console.log('placing saved item at spot: ',spot);
                     items.push(item);
                     this.placedItems3D.push(item);
                     that.items3d.push(item); 
@@ -704,7 +730,8 @@ import { METHODS } from 'http';
         // Function to add unique items from an array to the combinedItemsMap
         const addUniqueItems = (array) => {
           array.forEach((item) => {
-            const nftPostHashHex = item.nftPostHashHex;
+            console.log('combineUniqueItem: ',item);
+            const nftPostHashHex = item.config.nft.postHashHex || item.config.nft.PostHashHex;
             if (!combinedItemsMap.has(nftPostHashHex)) {
               combinedItemsMap.set(nftPostHashHex, item);
             }
@@ -721,7 +748,9 @@ import { METHODS } from 'http';
 
     getItemsToSave = () =>{
         let allItems = this.combineUniqueItems(this.items2d, this.items3d);
-
+        let that = this;
+        console.log('getItemsToSave, combined:');
+        console.log(allItems)
         // return array of objects with properties: PostHashHex,pos,rot,scale
         const itemsToSave = allItems.map((item) =>{
             return that.convertItemForStorage(item, false);

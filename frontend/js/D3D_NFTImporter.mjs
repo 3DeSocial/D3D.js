@@ -99,6 +99,8 @@ export default class NFTImporter {
                 itemsFromChain.forEach((item)=>{
                     let updatedItem = {};
                     this.fetchMeta(item.postHashHex).then((nftMeta)=>{
+                        console.log('item pre merge: ',item);
+                        console.log('item nftMeta: ',nftMeta);                        
                         updatedItem = {
                             ...item,
                             ...nftMeta
