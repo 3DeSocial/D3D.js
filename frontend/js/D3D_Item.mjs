@@ -64,25 +64,16 @@ export default class Item {
 
         };
 
-        console.log('Item config Controls: ',this.config.transformControls);
-
-        console.log('new items tControls: ',this.tControls);
         this.anims = [];
         if(this.config.animLoader){
-            console.log('config has animLoader');
             this.animLoader = this.initAnimLoader({animHashes:[ '287cb636f6a8fc869f5c0f992fa2608a2332226c6251b1dc6908c827ab87eee4',
                                                                     '8d931cbd0fda4e794c3154d42fb6aef7cf094481ad83a83e97be8113cd702b85',
                                                                     '95c405260688db9fbb76d126334ee911a263352c58dbb77b6d562750c5ce1ed2',
                                                                     '1a27c2f8a2672adbfdb4df7b31586a890b7f3a95b49a6937edc01de5d74072f2']});
-            console.log('we have this.animLoader');
-        } else {
-            console.log('config has NO animLoader');
-
         }
     }
 
     initPhysics = () =>{
-        console.log('initPhysics');
         this.physics = new Physics({world:this.config.physicsWorld, scene:this.config.scene});
     }
 
@@ -161,7 +152,6 @@ export default class Item {
         }
 
         if(!scene.children){
-            console.log('scene has no children');
             return false;
         }
    
@@ -271,7 +261,6 @@ export default class Item {
                         reject('Invalid ModelUrl in ExtraData: '+modelUrl);
                         return;
                     } else {
-                        //console.log('validated modelUrl: ',modelUrl);
                         that.modelUrl = modelUrl;
                         that.placeModel(pos)
                         .then((model)=>{
@@ -377,7 +366,6 @@ export default class Item {
                 return;
             } else {
                 let url = this.config.nftsRoute;
-                console.log('fetchModelUrl: ',this.config.nftsRoute);
                 if(url.trim()===''){
                     reject('No nftsRoute or modelUrl exists for this item');
                     return;
@@ -402,7 +390,6 @@ export default class Item {
     }
 
     initAnimLoader = (config) =>{
-        console.log('initAnimLoader');
         let animLoader = new AnimLoader(config);
         return animLoader;
     }
@@ -416,8 +403,6 @@ export default class Item {
            // console.log('that.loader: ',that.loader);            
 
             if(!that.loader.load){
-                console.log();
-                console.log('that.loader: ',that.loader);  
                 reject('Item could not find loader : ',modelUrl);
             };
             that.loader.load(modelUrl, (root)=> {
@@ -426,11 +411,8 @@ export default class Item {
 
                 if(root.scene){
                     loadedItem = root.scene;
-                    console.log('use scene');
                 } else {
                     loadedItem = root;
-                    console.log('use root');
-
                 };     
 
             /*               
@@ -442,9 +424,7 @@ export default class Item {
                     that.mesh = loadedItem;
                     if(this.config.isAvatar){
                         this.swapMeshForProfilePic();
-                    } else {
-                        console.log('not an avatar!!! not swapping face');
-                    }
+                    };
                     if(that.animLoader){
                         that.mixer = new THREE.AnimationMixer(root);
                         that.animLoader.getDefaultAnim(root,that.mixer);
@@ -455,12 +435,6 @@ export default class Item {
                         let danceUrl2 = that.config.avatarPath+'dance2.fbx';                        
                         let danceUrl3 = that.config.avatarPath+'dance3.fbx';                        
 
-
-                        console.log('walkUrl: ',walkUrl);
-                        console.log('runUrl: ',runUrl);
-                        console.log('jumpUrl: ',jumpUrl);
-                        console.log('danceUrl: ',danceUrl);
-
                         let promise1 = that.animLoader.loadAnim(walkUrl, that.mixer);
                         let promise2 = that.animLoader.loadAnim(runUrl, that.mixer);
                         let promise3 = that.animLoader.loadAnim(jumpUrl, that.mixer);
@@ -470,8 +444,7 @@ export default class Item {
                         let promises = [promise1,promise2,promise3,promise4,promise5,promise6];
                         Promise.allSettled(promises).
                           then((results) => results.forEach((result) => {
-                            console.log('all animations loaded');
-                            // Get the duration of the running animation clip
+
    
                           }));                        
 
@@ -479,19 +452,12 @@ export default class Item {
 //const playbackRate = 2; // Set to 2 to double the speed
 //mixer.clipAction(runningClip).setDuration(duration / playbackRate);
 
-                    } else {
-                        console.log('no that.animLoader on load model');
                     };
                     that.mesh.userData.owner = this;
                     that.mesh.owner = this;       
-                    if(that.tControls){
-                        console.log('attaching tControls');
-                     } else {
-                        console.log('no transformControls');
-                    };
+
                     let obj3D = this.convertToObj3D(loadedItem);
                     if(obj3D===false){
-                        console.log('could not convert item for scene');
                         return false;
                     };
                   
@@ -522,7 +488,6 @@ onErrorCallback = (e)=> {
 
 swapMeshForProfilePic = () =>{
     let that = this;
-console.log('looking for  ProfilePicHere');
     let faceMesh = this.findChildByName(this.mesh, 'ProfilePicHere');
     if(faceMesh){
         this.faceMesh = faceMesh;
@@ -532,8 +497,6 @@ console.log('looking for  ProfilePicHere');
             this.faceMesh.material =material;
         })
 
-    } else {
-        console.log('no faceMesh');
     }
 
 }
@@ -573,7 +536,6 @@ scaleToFitScene = (obj3D, posVector) =>{
 
         //console.log('posVector:',posVector);
         let boxMesh = this.createContainerBox(posVector);
-        console.log(boxMesh);
         let sceneBounds = new THREE.Box3().setFromObject( boxMesh );
 
         let meshBounds = null    

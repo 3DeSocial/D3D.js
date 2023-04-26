@@ -439,7 +439,6 @@ import { METHODS } from 'http';
 
                 let spot = null;
                 if(itemData.pos&&itemData.rot&&itemData.scale){
-                    console.log('inventor found data in itemData',itemData);
                     spot = {pos:itemData.pos, rot:itemData.rot, scale:itemData.scale};
                 } else {
                     spot = that.config.layoutPlotter.getNextFreePos3d();
@@ -453,7 +452,6 @@ import { METHODS } from 'http';
 
                 let item = null;  
                 if(modelUrl){
-                    console.log('have modelurl for init item');
                     item = this.initItem({transformControls: this.config.transformControls,
                                                 modelUrl: modelUrl,
                                                 nftPostHashHex: itemData.postHashHex, 
@@ -469,7 +467,6 @@ import { METHODS } from 'http';
                   //  console.log('item returned. have modelUrl: ',modelUrl, ' format: ',formats[0]);
                 } else {
 
-                    console.log('no modelurl for init item');
 
                     let versions = extraDataParser.getAvailableVersions(0,'gltf');
                  //   console.log('versions:', versions);
