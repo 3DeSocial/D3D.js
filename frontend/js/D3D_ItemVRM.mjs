@@ -143,9 +143,8 @@ export default class ItemVRM {
                 that.mixer = new THREE.AnimationMixer( that.currentVrm.scene );
                 that.loadMixamoAnimation( that.currentAnimationUrl, that.currentVrm ).then( ( clip ) => {
                     // Apply the loaded animation to mixer and play
-                    that.mixer.clipAction(clip).play();
-                    console.log('playing clipaction');
-                    resolve();
+                    let action = that.mixer.clipAction(clip);
+                    resolve(action);
                 });
               }
         });
@@ -564,9 +563,6 @@ export default class ItemVRM {
 
                     } );
 
-            if(this.animLoader) {
-           
-            }
           
             loader.load(
                 // URL of the VRM you want to load
@@ -588,6 +584,8 @@ export default class ItemVRM {
                     // put the model to the scene
                     that.currentVrm = vrm;
                     that.scene.add( vrm.scene );
+                    that.mixer = new THREE.AnimationMixer(vrm.scene);
+                    that.animLoader.setMixer(that.mixer);
                     vrm.scene.userData.owner = this; //set reference to 
 
 
@@ -608,12 +606,10 @@ export default class ItemVRM {
                     // rotate if the VRM is VRM0.0
                     THREE_VRM.VRMUtils.rotateVRM0( vrm );
                     // get anim url by name
-                    that.currentAnim = that.animLoader.fetchUrlByName('idle_warrior');
-                    that.loadMixamo(that.currentAnim);
-                
-
-
-                    resolve(that.currentVrm);
+                    that.animLoader.createClipsFBX(vrm).then(()=>{
+                        that.animLoader.playAnimByName('idle');
+                        resolve(that.currentVrm);                        
+                    })                    
 
                 },
 

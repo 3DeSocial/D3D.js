@@ -2233,9 +2233,9 @@ console.log('loading ',displayable.length, ' items');
             loader: this.loaders.getLoaderForFormat(extension),
             scene: this.scene,
             animLoader: (opts.animLoader)?opts.animLoader:false,
-            height: (opts.height)?opts.height:this.config.scaleModelToHeight,
-            width: (opts.width)?opts.width:this.config.scaleModelToWidth,
-            depth: (opts.depth)?opts.depth:this.config.scaleModelToDepth,
+            height: 2,
+            width: 2,
+            depth: 2,
             modelUrl: opts.modelUrl,
             modelsRoute: this.config.modelsRoute,
             nftsRoute: this.config.nftsRoute,
@@ -2250,6 +2250,9 @@ console.log('loading ',displayable.length, ' items');
             console.log('avatar is VRM, extension: ',extension);
             config.animations = this.config.animations;
             config.animLoader = true;
+            config.height=4;
+            config.width=4;
+            config.depth=4;            
             item = new ItemVRM(config);
         } else {
             console.log('avatar is NOT VRM, extension: ',extension);

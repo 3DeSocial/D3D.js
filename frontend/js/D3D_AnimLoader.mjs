@@ -1,6 +1,65 @@
 import * as THREE from 'three';
 
 import { FBXLoader } from "three/examples/jsm/loaders/FBXLoader.js";
+const helperRoot = new THREE.Group();
+
+    /**
+     * A map from Mixamo rig name to VRM Humanoid bone name
+     */
+    const mixamoVRMRigMap = {
+        mixamorigHips: 'hips',
+        mixamorigSpine: 'spine',
+        mixamorigSpine1: 'chest',
+        mixamorigSpine2: 'upperChest',
+        mixamorigNeck: 'neck',
+        mixamorigHead: 'head',
+        mixamorigLeftShoulder: 'leftShoulder',
+        mixamorigLeftArm: 'leftUpperArm',
+        mixamorigLeftForeArm: 'leftLowerArm',
+        mixamorigLeftHand: 'leftHand',
+        mixamorigLeftHandThumb1: 'leftThumbMetacarpal',
+        mixamorigLeftHandThumb2: 'leftThumbProximal',
+        mixamorigLeftHandThumb3: 'leftThumbDistal',
+        mixamorigLeftHandIndex1: 'leftIndexProximal',
+        mixamorigLeftHandIndex2: 'leftIndexIntermediate',
+        mixamorigLeftHandIndex3: 'leftIndexDistal',
+        mixamorigLeftHandMiddle1: 'leftMiddleProximal',
+        mixamorigLeftHandMiddle2: 'leftMiddleIntermediate',
+        mixamorigLeftHandMiddle3: 'leftMiddleDistal',
+        mixamorigLeftHandRing1: 'leftRingProximal',
+        mixamorigLeftHandRing2: 'leftRingIntermediate',
+        mixamorigLeftHandRing3: 'leftRingDistal',
+        mixamorigLeftHandPinky1: 'leftLittleProximal',
+        mixamorigLeftHandPinky2: 'leftLittleIntermediate',
+        mixamorigLeftHandPinky3: 'leftLittleDistal',
+        mixamorigRightShoulder: 'rightShoulder',
+        mixamorigRightArm: 'rightUpperArm',
+        mixamorigRightForeArm: 'rightLowerArm',
+        mixamorigRightHand: 'rightHand',
+        mixamorigRightHandPinky1: 'rightLittleProximal',
+        mixamorigRightHandPinky2: 'rightLittleIntermediate',
+        mixamorigRightHandPinky3: 'rightLittleDistal',
+        mixamorigRightHandRing1: 'rightRingProximal',
+        mixamorigRightHandRing2: 'rightRingIntermediate',
+        mixamorigRightHandRing3: 'rightRingDistal',
+        mixamorigRightHandMiddle1: 'rightMiddleProximal',
+        mixamorigRightHandMiddle2: 'rightMiddleIntermediate',
+        mixamorigRightHandMiddle3: 'rightMiddleDistal',
+        mixamorigRightHandIndex1: 'rightIndexProximal',
+        mixamorigRightHandIndex2: 'rightIndexIntermediate',
+        mixamorigRightHandIndex3: 'rightIndexDistal',
+        mixamorigRightHandThumb1: 'rightThumbMetacarpal',
+        mixamorigRightHandThumb2: 'rightThumbProximal',
+        mixamorigRightHandThumb3: 'rightThumbDistal',
+        mixamorigLeftUpLeg: 'leftUpperLeg',
+        mixamorigLeftLeg: 'leftLowerLeg',
+        mixamorigLeftFoot: 'leftFoot',
+        mixamorigLeftToeBase: 'leftToes',
+        mixamorigRightUpLeg: 'rightUpperLeg',
+        mixamorigRightLeg: 'rightLowerLeg',
+        mixamorigRightFoot: 'rightFoot',
+        mixamorigRightToeBase: 'rightToes',
+    };
 
 export default class AnimLoader {
 
@@ -64,11 +123,10 @@ export default class AnimLoader {
         this.animUrls =  [  {name:'walk',hex:'0c91b85ef07adc0feeb0a8cb7215e3c678a39ede0f842fb6fac6f9009dc30653',url:'https://desodata.azureedge.net/unzipped/0c91b85ef07adc0feeb0a8cb7215e3c678a39ede0f842fb6fac6f9009dc30653/fbx/normal/StandardWalk.fbx'},
                             {name:'stretch',hex:'1a27c2f8a2672adbfdb4df7b31586a890b7f3a95b49a6937edc01de5d74072f2',url:'https://desodata.azureedge.net/unzipped/1a27c2f8a2672adbfdb4df7b31586a890b7f3a95b49a6937edc01de5d74072f2/fbx/normal/Arm_Stretching.fbx'},
                             {name:'idle_happy',hex:'95c405260688db9fbb76d126334ee911a263352c58dbb77b6d562750c5ce1ed2',url:'https://desodata.azureedge.net/unzipped/95c405260688db9fbb76d126334ee911a263352c58dbb77b6d562750c5ce1ed2/fbx/normal/Happy_Idle.fbx'},
-                            {name:'idle_warrior',hex:'8d931cbd0fda4e794c3154d42fb6aef7cf094481ad83a83e97be8113cd702b85',url:'https://desodata.azureedge.net/unzipped/8d931cbd0fda4e794c3154d42fb6aef7cf094481ad83a83e97be8113cd702b85/fbx/normal/Warrior_Idle.fbx'},
+                            {name:'idle',hex:'8d931cbd0fda4e794c3154d42fb6aef7cf094481ad83a83e97be8113cd702b85',url:'https://desodata.azureedge.net/unzipped/8d931cbd0fda4e794c3154d42fb6aef7cf094481ad83a83e97be8113cd702b85/fbx/normal/Warrior_Idle.fbx'},
                             {name:'victory',hex:'287cb636f6a8fc869f5c0f992fa2608a2332226c6251b1dc6908c827ab87eee4',url:'https://desodata.azureedge.net/unzipped/287cb636f6a8fc869f5c0f992fa2608a2332226c6251b1dc6908c827ab87eee4/fbx/normal/Victory.fbx'}];
-
+        this.currentAnimName = 'idle';
         this.lastPlayed = 0;
-        
     }
 
     loadAnim = async (animUrl, mixer) =>{
@@ -123,30 +181,41 @@ getDefaultAnim = (mesh, mixer) =>{
 }
 
     switchAnim =(animName)=>{
-        if(animName===this.currentAnimName){
+        let anim = null;
+        if(animName===this.currentAnim.name){
             return false;
         };
-        if(!this.animationActions[animName]){
-            return false;
-        };
-        if(this.currentAnimName){
-            this.crossFade(this.animationActions[this.currentAnimName],  this.animationActions[animName], 0.2);
+        if(this.animationActions[animName]){
+           anim = this.animationActions[animName]; 
         } else {
-            this.animationActions[animName].play();           
+            anim = this.fetchUrlByName(animName);
+        }
+        if(!anim){
+            console.log('no anim called: ',animName)
+
+            return false; 
+         };        
+    
+        if(this.currentAnim){
+            this.crossFade(this.currentAnim.action,  anim.action, 0.2);
+        } else {
+
+            anim.play();           
         }
 
         this.currentAnimName = animName;
+        this.currentAnim = anim;
         return true;
     }
 
     crossFade = (from, to, duration) =>{
-
-    to.reset();  
-    to.setEffectiveTimeScale( 1 )
-    to.setEffectiveWeight( 1 )      
-    to.clampWhenFinished = true;
-    to.crossFadeFrom(from, duration, true);
-    to.play();
+        console.log('crossFade',from,to,duration);
+        to.reset();  
+        to.setEffectiveTimeScale( 1 )
+        to.setEffectiveWeight( 1 )      
+        to.clampWhenFinished = true;
+        to.crossFadeFrom(from, duration, true);
+        to.play();
 
     }
 
@@ -158,6 +227,30 @@ getDefaultAnim = (mesh, mixer) =>{
     }
     createAnimRequest = () =>{
         return 'https://nftzapi.azurewebsites.net/api/post/getposts?hexesStr='+this.config.animHashes.join(',');
+    }
+    setMixer = (mixer)=>{
+        this.mixer = mixer;
+    }
+
+    createClipsFBX = async (vrm) =>{
+        let that = this;
+        let animClips = [];
+        let loadedCtr = 0;
+        let loadingCounter = this.animUrls.length;
+        this.fbxLoader = new FBXLoader();
+        return new Promise((resolve,reject)=>{
+            that.animUrls.forEach((animMeta)=>{
+
+                that.loadMixamo(animMeta, vrm).then((action)=>{
+                    animMeta.action = action;
+                    --loadingCounter;
+                    if(loadingCounter===0){
+                        that.animationActions = that.animUrls;
+                        resolve(animMeta);
+                    }
+                })
+            })
+        })
     }
 
     createClips = async (mesh) =>{
@@ -180,18 +273,127 @@ getDefaultAnim = (mesh, mixer) =>{
                     })
 
                     let action = mixer.clipAction(animToProcess);
-                        animClips[animMeta.name] = animMeta;
-                        animClips[animMeta.name].action = action;                        
+                    that.animationActions[animMeta.name] = animMeta;
+                    that.animationActions[animMeta.name].action = action;                        
                         loadedCtr++;
                       
                         if(loadedCtr===that.animUrls.length){
 
-                            resolve(animClips);
+                            resolve(that.animationActions);
                         }
                 });
             })
         })
     }
+
+        // mixamo animation
+        loadMixamo = ( currentAnim, vrm) => {
+            let that = this;
+            return new Promise((resolve,reject)=>{
+               
+                if(currentAnim.url){
+                    // create AnimationMixer for VRM
+                    that.loadMixamoAnimation(currentAnim.url, vrm ).then( ( clip ) => {
+                        // Apply the loaded animation to mixer and play
+                        let action = that.mixer.clipAction(clip);
+                        resolve(action);
+                    });
+                  }
+            });
+        }
+
+
+        loadMixamoAnimation = ( url, vrm ) => {
+
+            const loader = new FBXLoader(); // A loader which loads FBX
+            return loader.loadAsync( url ).then( ( asset ) => {
+            const clip = THREE.AnimationClip.findByName( asset.animations, 'mixamo.com' ); // extract the AnimationClip
+    
+            const tracks = []; // KeyframeTracks compatible with VRM will be added here
+    
+            const restRotationInverse = new THREE.Quaternion();
+            const parentRestWorldRotation = new THREE.Quaternion();
+            const _quatA = new THREE.Quaternion();
+            const _vec3 = new THREE.Vector3();
+    
+            // Adjust with reference to hips height.
+            const motionHipsHeight = asset.getObjectByName( 'mixamorigHips' ).position.y;
+            const vrmHipsY = vrm.humanoid?.getNormalizedBoneNode( 'hips' ).getWorldPosition( _vec3 ).y;
+            const vrmRootY = vrm.scene.getWorldPosition( _vec3 ).y;
+            const vrmHipsHeight = Math.abs( vrmHipsY - vrmRootY );
+            const hipsPositionScale = vrmHipsHeight / motionHipsHeight;
+    
+            clip.tracks.forEach( ( track ) => {
+    
+                // Convert each tracks for VRM use, and push to `tracks`
+                const trackSplitted = track.name.split( '.' );
+                const mixamoRigName = trackSplitted[ 0 ];
+                const vrmBoneName = mixamoVRMRigMap[ mixamoRigName ];
+                const vrmNodeName = vrm.humanoid?.getNormalizedBoneNode( vrmBoneName )?.name;
+                const mixamoRigNode = asset.getObjectByName( mixamoRigName );
+    
+                if ( vrmNodeName != null ) {
+    
+                    const propertyName = trackSplitted[ 1 ];
+    
+                    // Store rotations of rest-pose.
+                    mixamoRigNode.getWorldQuaternion( restRotationInverse ).invert();
+                    mixamoRigNode.parent.getWorldQuaternion( parentRestWorldRotation );
+                    let protoType = Object.getPrototypeOf(track);
+                    if (( protoType.ValueTypeName==='quaternion' )) {
+    
+                        // Retarget rotation of mixamoRig to NormalizedBone.
+                        for ( let i = 0; i < track.values.length; i += 4 ) {
+    
+                            const flatQuaternion = track.values.slice( i, i + 4 );
+    
+                            _quatA.fromArray( flatQuaternion );
+    
+                            // 親のレスト時ワールド回転 * トラックの回転 * レスト時ワールド回転の逆
+                            _quatA
+                                .premultiply( parentRestWorldRotation )
+                                .multiply( restRotationInverse );
+    
+                            _quatA.toArray( flatQuaternion );
+    
+                            flatQuaternion.forEach( ( v, index ) => {
+    
+                                track.values[ index + i ] = v;
+    
+                            } );
+    
+                        }
+                        tracks.push(
+                            new THREE.QuaternionKeyframeTrack(
+                                `${vrmNodeName}.${propertyName}`,
+                                track.times,
+                                track.values.map( ( v, i ) => ( vrm.meta?.metaVersion === '0' && i % 2 === 0 ? - v : v ) ),
+                            ),
+                        );
+    
+                    } else if ( protoType.ValueTypeName==='vector') {
+                        const value = track.values.map( ( v, i ) => ( vrm.meta?.metaVersion === '0' && i % 3 !== 1 ? - v : v ) * hipsPositionScale );
+                        tracks.push( new THREE.VectorKeyframeTrack( `${vrmNodeName}.${propertyName}`, track.times, value ) );
+    
+                    } else {
+                        console.log('what kind of track?');
+                        console.log('THREE.VectorKeyframeTrack:',THREE.VectorKeyframeTrack);                
+                        console.log('THREE.QuaternionKeyframeTrack:',THREE.QuaternionKeyframeTrack);        
+                    }
+    
+                } else {
+                    console.log('vrmNodeName is null')
+                }
+    
+            } );
+          ///  console.log('loaded fbx:  clip.duration: ', clip.duration,' tracks:', tracks);
+    
+            return new THREE.AnimationClip( 'vrmAnimation', clip.duration, tracks );
+    
+        } );
+    
+    }
+
     playNextAnim = (animationUrl) =>{
         let animIndex = this.config.animations.indexOf(animationUrl);
         animIndex++;
@@ -308,6 +510,22 @@ getDefaultAnim = (mesh, mixer) =>{
         return (anims[0])?anims[0]:false;
 
     }    
+
+    playAnimByName = (name) => {
+        let anim = this.fetchUrlByName(name);
+        if(!anim){ 
+            console.log('playAnimByName: could not find ',name);
+            return false;
+        };
+        
+        if(!anim.action){
+            return false;        
+        }
+
+        this.currentAnim = anim;
+        this.currentAnim.action.play();
+
+    }     
 
     fetchRandAnimUrl = () =>{
         let animIdx = this.getRandomInt(0,this.animUrls.length-1);
