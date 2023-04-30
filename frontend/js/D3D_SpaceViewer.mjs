@@ -901,7 +901,7 @@ initCameraFirstPerson = () =>{
                             e.preventDefault();
                             if ( that.playerIsOnGround ) {
                                 if(that.player.avatar){
-                                    that.player.avatar.animLoader.switchAnim('jump');
+                                    that.player.avatar.animLoader.switchAnim(that.player.avatar.config.format, 'jump');
                                     that.player.state = 'jump';
                                     spacePressed = true;                                
 
@@ -925,7 +925,7 @@ initCameraFirstPerson = () =>{
                                 } else if(that.player.state == 'dance3'){
                                     newState = 'dance';
                                 };
-                                that.player.avatar.animLoader.switchAnim(newState);
+                                that.player.avatar.animLoader.switchAnim(that.player.avatar.config.format, that.player.avatar.config.format, newState);
                                 that.player.state = newState;
                                 KeyBPressed = true;
                             };
@@ -2816,7 +2816,7 @@ initPlayerThirdPerson = (options) => {
     }
 
 updatePlayer = ( delta )=> {
-
+    let that = this;
     this.playerVelocity.y += this.playerIsOnGround ? 0 : delta * params.gravity;
     this.player.position.addScaledVector( this.playerVelocity, delta );
 
@@ -2847,7 +2847,7 @@ updatePlayer = ( delta )=> {
             if(!spacePressed){
                 if(this.playerIsOnGround){
                   if(this.player.state!='walk'){
-                        if(this.player.avatar.animLoader.switchAnim('walk')){
+                        if(this.player.avatar.animLoader.switchAnim(that.player.avatar.config.format, 'walk')){
                             this.player.state = 'walk'                    
                         }
                   }
@@ -2860,14 +2860,14 @@ updatePlayer = ( delta )=> {
             case 'walk':
             case 'run':
                 // state has not been updated to idle yet
-                if(this.player.avatar.animLoader.switchAnim('idle')){
+                if(this.player.avatar.animLoader.switchAnim(that.player.avatar.config.format, 'idle')){
                     this.player.state = 'idle';
                 };                   
                 break;
             case 'jump':
                 // only update state if we hit the ground
             if(this.playerIsOnGround){
-                if(this.player.avatar.animLoader.switchAnim('idle')){
+                if(this.player.avatar.animLoader.switchAnim(that.player.avatar.config.format, 'idle')){
                     this.player.state = 'idle';
                 };
             };

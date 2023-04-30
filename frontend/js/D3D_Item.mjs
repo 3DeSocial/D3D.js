@@ -52,7 +52,6 @@ export default class Item {
         this.rotVelocity = new THREE.Vector3();
         this.nftDisplayData = this.parseNFTDisplayData();
         if(this.config.modelUrl){
-            console.log('check modelUrl');
             this.getFormatFromModelUrl();
         } else {
            // console.log('no modelUrl');
@@ -70,6 +69,7 @@ export default class Item {
                                                                     '8d931cbd0fda4e794c3154d42fb6aef7cf094481ad83a83e97be8113cd702b85',
                                                                     '95c405260688db9fbb76d126334ee911a263352c58dbb77b6d562750c5ce1ed2',
                                                                     '1a27c2f8a2672adbfdb4df7b31586a890b7f3a95b49a6937edc01de5d74072f2']});
+            this.animLoader.setAvatarFormat('fbx');
         }
     }
 
@@ -391,6 +391,7 @@ export default class Item {
 
     initAnimLoader = (config) =>{
         let animLoader = new AnimLoader(config);
+     //   animLoader.createClips();
         return animLoader;
     }
 
@@ -425,6 +426,17 @@ export default class Item {
                     if(this.config.isAvatar){
                         this.swapMeshForProfilePic();
                     };
+                   
+                    that.mesh.userData.owner = this;
+                    that.mesh.owner = this;       
+
+                    let obj3D = this.convertToObj3D(loadedItem);
+                    if(obj3D===false){
+                        return false;
+                    };
+                  
+                    this.scaleToFitScene(obj3D, posVector);
+                    //this.fixYCoord(obj3D, posVector); 
                     if(that.animLoader){
                         that.mixer = new THREE.AnimationMixer(root);
                         that.animLoader.getDefaultAnim(root,that.mixer);
@@ -444,25 +456,16 @@ export default class Item {
                         let promises = [promise1,promise2,promise3,promise4,promise5,promise6];
                         Promise.allSettled(promises).
                           then((results) => results.forEach((result) => {
-
-   
+                            console.log('play anim by name' );
+                            that.animLoader.playFBXAnimByName('idle');
+                                
                           }));                        
 
 // Set the playback rate to speed up the animation
 //const playbackRate = 2; // Set to 2 to double the speed
 //mixer.clipAction(runningClip).setDuration(duration / playbackRate);
 
-                    };
-                    that.mesh.userData.owner = this;
-                    that.mesh.owner = this;       
-
-                    let obj3D = this.convertToObj3D(loadedItem);
-                    if(obj3D===false){
-                        return false;
-                    };
-                  
-                    this.scaleToFitScene(obj3D, posVector);
-                    //this.fixYCoord(obj3D, posVector); 
+                    };                    
                     if(that.tControls){
                         that.scene.add(that.tControls);
                     };

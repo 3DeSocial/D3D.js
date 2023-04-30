@@ -97,7 +97,8 @@ export default class AnimLoader {
         this.animations = null;
         this.isItem = false;
         this.isImage = false;
-        this.animationActions = [];        
+        this.animationActions = [];      
+        this.avatarFormat =(this.config.avatarFormat)?this.config.avatarFormat:'fbx';
         if(this.config.modelUrl){
             console.log('check modelUrl');
             this.getFormatFromModelUrl();
@@ -107,10 +108,13 @@ export default class AnimLoader {
         this.preloadAnims();
     }
 
+    setAvatarFormat= (format)=>{
+        this.avatarFormat = format;
+
+    }
     preloadAnims = () =>{
         let that = this;
-        let url =this.createAnimRequest();
-        console.log('requestString: ',url);
+        
 
 /*
         fetch(url,{ method: "get"})
@@ -148,15 +152,19 @@ export default class AnimLoader {
                         });
                         if(animToUse){
                             if(animName==='walk'){
-                                console.log('walk duration: ',animToUse.duration);
                                 const playbackRate = 4; // Set to 2 to double the speed
                                 animationAction = mixer.clipAction(animToUse).setDuration(animToUse.duration / playbackRate);
                             } else {
                                 animationAction = mixer.clipAction(animToUse)
                             }
 
-                            that.animationActions[animName]= animationAction;
-                            console.log('loaded: ',animName);                            
+                            let anim = {name:animName,
+                                url:animUrl,
+                                action:animationAction};
+                            console.log('loadAnim created: ',anim);
+                            console.log(anim);
+                            that.animationActions.push(anim);
+                                                
                             resolve(animationAction);                            
                         };
 
@@ -173,14 +181,16 @@ getDefaultAnim = (mesh, mixer) =>{
     });
     if(defaultAnimToUse){
         const animationAction = mixer.clipAction(defaultAnimToUse)
-        this.animationActions['idle']= animationAction;
+        this.currentAnim = {name: 'idle',
+            action:animationAction};
         animationAction.play();
+        this.animationActions.push(this.currentAnim);
         this.currentAnimName = 'idle';
     };
 
 }
 
-    switchAnim =(animName)=>{
+    switchAnim =(format, animName)=>{
         let anim = null;
         if(animName===this.currentAnim.name){
             return false;
@@ -188,13 +198,23 @@ getDefaultAnim = (mesh, mixer) =>{
         if(this.animationActions[animName]){
            anim = this.animationActions[animName]; 
         } else {
-            anim = this.fetchUrlByName(animName);
+            if(format==='vrm'){
+                anim = this.fetchUrlByName(animName);
+            } else {
+                anim = this.fetchFBXUrlByName(animName)
+            }
         }
         if(!anim){
             console.log('no anim called: ',animName)
 
             return false; 
-         };        
+         };     
+         
+         if(!anim.action){
+            console.log('no ACTION for anim  called: ',animName)
+
+            return false; 
+         };           
     
         if(this.currentAnim){
             this.crossFade(this.currentAnim.action,  anim.action, 0.2);
@@ -209,7 +229,6 @@ getDefaultAnim = (mesh, mixer) =>{
     }
 
     crossFade = (from, to, duration) =>{
-        console.log('crossFade',from,to,duration);
         to.reset();  
         to.setEffectiveTimeScale( 1 )
         to.setEffectiveWeight( 1 )      
@@ -511,6 +530,29 @@ getDefaultAnim = (mesh, mixer) =>{
 
     }    
 
+    fetchFBXUrlByName = (name) => {
+        let anims = this.animationActions.filter(anim => (anim.name===name));
+        return (anims[0])?anims[0]:false;
+
+    }
+    playFBXAnimByName = (name) => {
+        let anim = this.fetchFBXUrlByName(name);
+        if(!anim){ 
+            console.log('playAnimByName: could not find ',name);
+            return false;
+        };
+        
+        if(!anim.action){
+            console.log('playAnimByName: no anim ACTIONto play with name: ',name);
+            return false;        
+        }
+        console.log('playAnimByName: anim: ',anim);
+
+        this.currentAnim = anim;
+        this.currentAnim.action.play();
+
+    } 
+
     playAnimByName = (name) => {
         let anim = this.fetchUrlByName(name);
         if(!anim){ 
@@ -519,6 +561,7 @@ getDefaultAnim = (mesh, mixer) =>{
         };
         
         if(!anim.action){
+            console.log('playAnimByName: no anim ACTIONto play with name: ',name);
             return false;        
         }
 
