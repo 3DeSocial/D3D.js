@@ -25,8 +25,9 @@ import { CollisionChecker } from  './frontend/js/D3D_CollisionChecker.mjs';
 import { LoadingScreen } from  './frontend/js/D3D_LoadingScreen.mjs'; 
 import { PlayerVR } from  './frontend/js/D3D_PlayerVR.mjs'; 
 import { Physics } from  './frontend/js/D3D_Physics.mjs'; 
-
+import { Giffer } from  './frontend/js/D3D_Giffer.mjs'; 
 export {
+Giffer,
 NFTImporter,
 PlayerVR,
 Physics,

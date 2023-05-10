@@ -5,7 +5,7 @@ import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import { RoundedBoxGeometry } from 'three/examples/jsm/geometries/RoundedBoxGeometry.js';
 import { TransformControls } from 'three/examples/jsm/controls/TransformControls.js';
-import {NFTImporter, ExtraData3DParser, Loaders, PlayerVR, AudioClipRemote, Physics, AudioClip, Item, ItemVRM, LoadingScreen, HUDBrowser, HUDVR, SceneryLoader, Lighting, LayoutPlotter, D3DInventory, NFTViewerOverlay, VRButton, VRControls } from 'd3d';
+import {Giffer, NFTImporter, ExtraData3DParser, Loaders, PlayerVR, AudioClipRemote, Physics, AudioClip, Item, ItemVRM, LoadingScreen, HUDBrowser, HUDVR, SceneryLoader, Lighting, LayoutPlotter, D3DInventory, NFTViewerOverlay, VRButton, VRControls } from 'd3d';
 let clock, gui, stats, delta;
 let environment, visualizer, player, controls, geometries;
 let playerIsOnGround = false;
@@ -2146,7 +2146,20 @@ console.log('loading ',displayable.length, ' items');
         };
         //console.log('sceneInvConfig',sceneInvConfig);
         this.sceneInventory = new D3DInventory(sceneInvConfig);
+        this.gifs = this.sceneInventory.getGifs();
+        if(this.gifs.length>0){
+            console.log('initialize gifs: ',this.gifs.length);
+            this.initGifs();
+        } else {
+            console.log('NO GIFS :(');
+        }
         
+    }
+
+    initGifs = ()=>{
+        const gifs = this.gifs.map((obj) => this.config.imageProxyUrl+obj.config.nft.imageURLs[0]);
+console.log('gif paths: ',gifs);
+        this.giffer = new Giffer({gifs:gifs});
     }
 
     itemCanBePlaced = (itemData) =>{

@@ -20,6 +20,7 @@ import { METHODS } from 'http';
             ...defaults,
             ...config
         };
+        this.gifs = [];
         this.items2d = [];
         this.items3d = [];
         this.items = [];
@@ -691,7 +692,23 @@ import { METHODS } from 'http';
                 return false;
             };              
         };
-        return new Item2d(itemParams);
+        let imageUrl;
+        let imageUrls = (itemParams.nft.imageURLs)?itemParams.nft.imageURLs:itemParams.nft.ImageURLs;
+            imageUrl = imageUrls[0];                
+    
+        let parts = imageUrl.split('.');
+        console.log('ISGIF?? parts:', parts);
+
+        if(parts[parts.length-1].toLowerCase()==='gif'){
+            itemParams.isGif = true;
+            let item = new Item2d(itemParams);            
+            this.gifs.push(item);
+            return item;
+        } else {
+            itemParams.isGif = false;
+            return new Item2d(itemParams);            
+        }
+
 
     }
 
@@ -701,6 +718,10 @@ import { METHODS } from 'http';
 
     has3d = () =>{
         return (this.config.items3d.length>0);
+    }
+
+    getGifs = () =>{
+        return this.gifs;
     }
 
     getActiveItem = () =>{
