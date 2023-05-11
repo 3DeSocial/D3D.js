@@ -229,7 +229,7 @@ class Item2d extends Item {
                   const nftMesh = new THREE.Mesh( geometry, materials );
                   that.mesh = nftMesh;
                   if(that.spritesheetTexture){
-                    that.updateTexture(this.spritesheetTexture);
+                    that.updateTexture(that.spritesheetTexture);
                 } else {
                     console.log('no spritesheet texture after initmesh')
                 }
@@ -564,6 +564,10 @@ scaleToFitScene = (obj3D, posVector) =>{
     updateTexture(newTexture) {
         console.log('updating texture');
         // Assuming 'mesh' is a reference to the mesh object whose texture you want to update
+        if(!this.mesh){
+            console.log('no mehs to update texture yet');
+            return false;
+        };
         this.mesh.material.map = newTexture;
     
         // Set this flag to tell Three.js to update the GPU texture

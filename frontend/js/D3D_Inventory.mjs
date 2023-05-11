@@ -319,7 +319,6 @@ import { METHODS } from 'http';
 
                 item = this.initItem2d(itemConfig);
                 item.initMesh(itemConfig).then((nftImgData)=>{
-                    console.log('afterInitMEsh: ',nftImgData);
                   let spot = nftImgData.spot;
                     let halfHeight = nftImgData.height/2;
                   //  console.log('halfHeight: ',halfHeight,nftImgData);

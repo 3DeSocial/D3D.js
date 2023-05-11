@@ -1,18 +1,26 @@
+import * as THREE from 'three';
 import { parseGIF, decompressFrames } from 'gifuct-js';
-
+let gifWorker = null;
 export default class Giffer {
 
     //interface for deso api based on passed config
     constructor(config){
         let defaults = {
-              proxy:''
+              proxy:'',
+              gifWorker: null
+
         };
     
         this.config = {
             ...defaults,
             ...config
         };
+      this.loadWorker('/public/workers/gifWorker.js');
+      this.gifs = [];
+    }
 
+    loadWorker = async (workerURL) => {
+      gifWorker = new Worker(workerURL, { type: "module" });
     }
 
     createSpritesheet = (frames) => {
@@ -43,7 +51,7 @@ export default class Giffer {
         const gifData = parseGIF(buffer);
         const frames = decompressFrames(gifData, true);
       
-        const spritesheetCanvas = createSpritesheet(frames);
+        const spritesheetCanvas = this.createSpritesheet(frames);
         const spritesheetTexture = new THREE.CanvasTexture(spritesheetCanvas);
         spritesheetTexture.repeat.set(1 / frames.length, 1);
         gifItem.spritesheetTexture = spritesheetTexture;
@@ -53,7 +61,7 @@ export default class Giffer {
       }
 
       loadGifs = async (gifs) => {
-
+        this.gifs =[...this.gifs, ...gifs];
         const sharedBuffer = new SharedArrayBuffer(Float64Array.BYTES_PER_ELEMENT * (1 + gifs.length * 5));
         const sharedArray = new Float64Array(sharedBuffer);
         const gifItems = await Promise.all(gifs.map(this.loadGifAsSpritesheet));      
@@ -62,6 +70,19 @@ export default class Giffer {
         gifItems.forEach((gifItem, index) => {
           frameSets.push(gifItem.frames);
         });
+        gifWorker.postMessage({
+          sharedBuffer,
+          frameSets
+        });
+      }
+
+      updateGifs = ()=>{
+spheres.forEach((sphere, index) => {
+      sphere.position.set(sharedArray[1 + gifUrls.length * 3 + index * 2], 0, sharedArray[1 + gifUrls.length * 3 + index * 2 + 1]);
+      if (sphere.material.map) {
+        sphere.material.map.offset.x = sharedArray[1 + gifUrls.length + index] / frameSets[index].length;
+      }
+    });        
       }
 
 }
