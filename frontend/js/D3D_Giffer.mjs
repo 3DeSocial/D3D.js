@@ -15,7 +15,7 @@ export default class Giffer {
             ...defaults,
             ...config
         };
-      this.loadWorker('/public/workers/gifWorker.js');
+      this.loadWorker('/api/worker/gifWorker.js');
       this.gifs = [];
     }
 
@@ -62,14 +62,17 @@ export default class Giffer {
 
       loadGifs = async (gifs) => {
         this.gifs =[...this.gifs, ...gifs];
+        this.gifCount = this.gifs.length;
         const sharedBuffer = new SharedArrayBuffer(Float64Array.BYTES_PER_ELEMENT * (1 + gifs.length * 5));
-        const sharedArray = new Float64Array(sharedBuffer);
+        this.sharedArray = new Float64Array(sharedBuffer);
         const gifItems = await Promise.all(gifs.map(this.loadGifAsSpritesheet));      
         console.log('gifs loaded: ',gifItems);
         let frameSets = [];
         gifItems.forEach((gifItem, index) => {
           frameSets.push(gifItem.frames);
         });
+        this.frameSets = frameSets;
+        console.log('sending message to wokrer: ',gifWorker);
         gifWorker.postMessage({
           sharedBuffer,
           frameSets
@@ -77,12 +80,14 @@ export default class Giffer {
       }
 
       updateGifs = ()=>{
-spheres.forEach((sphere, index) => {
-      sphere.position.set(sharedArray[1 + gifUrls.length * 3 + index * 2], 0, sharedArray[1 + gifUrls.length * 3 + index * 2 + 1]);
-      if (sphere.material.map) {
-        sphere.material.map.offset.x = sharedArray[1 + gifUrls.length + index] / frameSets[index].length;
-      }
-    });        
+        let that = this;
+        this.gifs.forEach((gifItem, index) => {
+        if (gifItem.mesh.material.map) {
+          let xOffSet = that.sharedArray[1 + that.gifCount.length + index] / that.frameSets[index].length;
+          console.log(xOffSet);
+          gifItem.mesh.material.map.offset.x = xOffSet;
+        }
+      });        
       }
 
 }
