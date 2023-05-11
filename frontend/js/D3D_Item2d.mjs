@@ -216,8 +216,8 @@ class Item2d extends Item {
                 targetHeight = nft.spot.dims.height;
                 }
             }
-            console.log('targetWidth: ', targetWidth,'targetHeight: ',targetHeight)
-                img.onload = function(){
+
+            img.onload = function(){
                   var height = this.height;
                   var width = this.width;
                   let dims = that.calculateAspectRatioFit(width, height, targetWidth,targetHeight);
@@ -228,6 +228,11 @@ class Item2d extends Item {
                   const materials = that.createMats(texture);
                   const nftMesh = new THREE.Mesh( geometry, materials );
                   that.mesh = nftMesh;
+                  if(that.spritesheetTexture){
+                    that.updateTexture(this.spritesheetTexture);
+                } else {
+                    console.log('no spritesheet texture after initmesh')
+                }
                   let nftImgData = {is3D:itemConfig.is3D, nft:nft, mesh: nftMesh, imageUrl: imageUrl, width:dims.width, height:dims.height, spot:that.config.spot};
                   resolve(nftImgData);
             };
@@ -237,6 +242,7 @@ class Item2d extends Item {
                console.log(error);
               reject(img.src)
             });
+            console.log('loading image from: ',proxyImageURL);
             img.src = proxyImageURL;
 
         })
@@ -553,6 +559,16 @@ scaleToFitScene = (obj3D, posVector) =>{
             boxMesh.position.copy(posVector);
 
         return boxMesh;
+    }
+
+    updateTexture(newTexture) {
+        console.log('updating texture');
+        // Assuming 'mesh' is a reference to the mesh object whose texture you want to update
+        this.mesh.material.map = newTexture;
+    
+        // Set this flag to tell Three.js to update the GPU texture
+        this.mesh.material.needsUpdate = true;
+        console.log('updateTexture: ',newTexture,' on ', this.mesh);
     }
 
     convertToObj3D = (loadedItem) =>{

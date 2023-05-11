@@ -2157,9 +2157,10 @@ console.log('loading ',displayable.length, ' items');
     }
 
     initGifs = ()=>{
-        const gifs = this.gifs.map((obj) => this.config.imageProxyUrl+obj.config.nft.imageURLs[0]);
-console.log('gif paths: ',gifs);
-        this.giffer = new Giffer({gifs:gifs});
+
+console.log('gif data: ',this.gifs);
+        this.giffer = new Giffer({proxy: this.config.imageProxyUrl});
+        this.giffer.loadGifs(this.gifs);
     }
 
     itemCanBePlaced = (itemData) =>{
