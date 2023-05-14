@@ -218,23 +218,28 @@ class Item2d extends Item {
             }
 
             img.onload = function(){
-                  var height = this.height;
-                  var width = this.width;
-                  let dims = that.calculateAspectRatioFit(width, height, targetWidth,targetHeight);
-              
-                  const textureLoader = new THREE.TextureLoader()
-                  const texture = textureLoader.load(this.src);
-                  const geometry = new THREE.BoxGeometry( dims.width, dims.height, 0.10 );
-                  const materials = that.createMats(texture);
-                  const nftMesh = new THREE.Mesh( geometry, materials );
-                  that.mesh = nftMesh;
-                  if(that.spritesheetTexture){
-                    that.updateTexture(that.spritesheetTexture);
+                var height = this.height;
+                var width = this.width;
+                let dims = that.calculateAspectRatioFit(width, height, targetWidth,targetHeight);
+            
+                const textureLoader = new THREE.TextureLoader()
+                const texture = textureLoader.load(this.src);
+                const geometry = new THREE.BoxGeometry( dims.width, dims.height, 0.10 );
+                const materials = that.createMats(texture);
+                let nftMesh = null;
+                if(that.spritesheetTexture){
+                    const materials = that.createMats(that.spritesheetTexture);
+                    nftMesh = new THREE.Mesh( geometry, materials );
+
                 } else {
-                    console.log('no spritesheet texture after initmesh')
+                    const materials = that.createMats(texture);
+                    nftMesh = new THREE.Mesh( geometry, materials );
                 }
-                  let nftImgData = {is3D:itemConfig.is3D, nft:nft, mesh: nftMesh, imageUrl: imageUrl, width:dims.width, height:dims.height, spot:that.config.spot};
-                  resolve(nftImgData);
+
+
+                that.mesh = nftMesh;                
+                 let nftImgData = {is3D:itemConfig.is3D, nft:nft, mesh: nftMesh, imageUrl: imageUrl, width:dims.width, height:dims.height, spot:that.config.spot};
+                 resolve(nftImgData);
             };
 
             img.addEventListener('error', (img, error) =>{
@@ -242,19 +247,28 @@ class Item2d extends Item {
                console.log(error);
               reject(img.src)
             });
-            console.log('loading image from: ',proxyImageURL);
             img.src = proxyImageURL;
 
         })
     }
 
     createMats = (texture) =>{
+
         var topside = new THREE.MeshBasicMaterial({color: '#AAAAAA'});
         var bottomside = new THREE.MeshBasicMaterial({color: '#AAAAAA'});        
         var leftside = new THREE.MeshBasicMaterial({color: '#AAAAAA'}); 
         var rightside = new THREE.MeshBasicMaterial({color: '#AAAAAA'});
         var backside = new THREE.MeshBasicMaterial( { map: texture } );
         var frontside = new THREE.MeshBasicMaterial( { map: texture } );
+
+        let offsetXFront = 0;
+        let offsetYFront = 0;
+        
+        let offsetXBack = 0;
+        let offsetYBack = 0;
+        frontside.map.offset.set(offsetXFront, offsetYFront);
+        backside.map.offset.set(offsetXBack, offsetYBack);
+        console.log('frontside ',frontside);
 
         var materials = [
           rightside,          // Right side
@@ -562,10 +576,8 @@ scaleToFitScene = (obj3D, posVector) =>{
     }
 
     updateTexture(newTexture) {
-        console.log('updating texture');
         // Assuming 'mesh' is a reference to the mesh object whose texture you want to update
         if(!this.mesh){
-            console.log('no mehs to update texture yet');
             return false;
         };
         this.mesh.material.map = newTexture;

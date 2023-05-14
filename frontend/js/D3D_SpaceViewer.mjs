@@ -1846,6 +1846,9 @@ isOnWall = (raycaster, selectedPoint, meshToCheck) =>{
 
         this.renderer.render(this.scene, this.camera);
         this.updateAvatarAnimations(delta);        
+        if(this.giffer){
+            this.giffer.updateGifs();
+        }
         //this.hud.render();
 
     }

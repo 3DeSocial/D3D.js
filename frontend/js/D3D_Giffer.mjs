@@ -21,6 +21,10 @@ export default class Giffer {
 
     loadWorker = async (workerURL) => {
       gifWorker = new Worker(workerURL, { type: "module" });
+
+      gifWorker.onmessage = (event) => {
+        console.log('Worker sent a message:', event.data);
+      };      
     }
 
     createSpritesheet = (frames) => {
@@ -43,9 +47,7 @@ export default class Giffer {
       }
       
       loadGifAsSpritesheet = async (gifItem) => {
-        console.log('loadGifAsSpritesheet: ',gifItem);
         let url = this.config.proxy+gifItem.config.nft.imageURLs[0];
-        console.log('gifUrl: ', url);
         const response = await fetch(url);
         const buffer = await response.arrayBuffer();
         const gifData = parseGIF(buffer);
@@ -56,37 +58,39 @@ export default class Giffer {
         spritesheetTexture.repeat.set(1 / frames.length, 1);
         gifItem.spritesheetTexture = spritesheetTexture;
         gifItem.frames = frames;
-        gifItem.updateTexture(spritesheetTexture);
         return gifItem;
       }
 
       loadGifs = async (gifs) => {
-        this.gifs =[...this.gifs, ...gifs];
+        this.gifs =gifs;
         this.gifCount = this.gifs.length;
         const sharedBuffer = new SharedArrayBuffer(Float64Array.BYTES_PER_ELEMENT * (1 + gifs.length * 5));
         this.sharedArray = new Float64Array(sharedBuffer);
-        const gifItems = await Promise.all(gifs.map(this.loadGifAsSpritesheet));      
-        console.log('gifs loaded: ',gifItems);
+        await Promise.all(this.gifs.map(this.loadGifAsSpritesheet));      
         let frameSets = [];
-        gifItems.forEach((gifItem, index) => {
+        this.gifs.forEach((gifItem, index) => {
           frameSets.push(gifItem.frames);
         });
         this.frameSets = frameSets;
-        console.log('sending message to wokrer: ',gifWorker);
         gifWorker.postMessage({
           sharedBuffer,
           frameSets
         });
+        console.log('message sent');
       }
 
       updateGifs = ()=>{
         let that = this;
         this.gifs.forEach((gifItem, index) => {
-        if (gifItem.mesh.material.map) {
-          let xOffSet = that.sharedArray[1 + that.gifCount.length + index] / that.frameSets[index].length;
-          console.log(xOffSet);
-          gifItem.mesh.material.map.offset.x = xOffSet;
-        }
+          if(gifItem.mesh){
+            if ((gifItem.mesh.material)&&(gifItem.frames)) {
+            
+                  let xOffSet = that.sharedArray[1 + that.gifCount + index] / gifItem.frames.length;
+                  gifItem.mesh.material[4].map.offset.x = xOffSet;
+                  gifItem.mesh.material[5].map.offset.x = xOffSet;                
+              
+            }
+          }
       });        
       }
 
