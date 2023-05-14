@@ -24,7 +24,11 @@ export default class Giffer {
 
       gifWorker.onmessage = (event) => {
         console.log('Worker sent a message:', event.data);
-      };      
+        if (event.data.event === 'sharedArrayUpdate') {
+          this.updateGifs();
+        }        
+      };    
+
     }
 
     createSpritesheet = (frames) => {
@@ -46,7 +50,7 @@ export default class Giffer {
         return spritesheetCanvas;
       }
       
-      loadGifAsSpritesheet = async (gifItem) => {
+      loadGifAsSpritesheet = async (gifItem, index) => {
         let url = this.config.proxy+gifItem.config.nft.imageURLs[0];
         const response = await fetch(url);
         const buffer = await response.arrayBuffer();
@@ -55,13 +59,16 @@ export default class Giffer {
       
         const spritesheetCanvas = this.createSpritesheet(frames);
         const spritesheetTexture = new THREE.CanvasTexture(spritesheetCanvas);
+        spritesheetTexture.matrixAutoUpdate = true;
         spritesheetTexture.repeat.set(1 / frames.length, 1);
         gifItem.spritesheetTexture = spritesheetTexture;
         gifItem.frames = frames;
+        gifItem.gifCount = this.gifCount;
         return gifItem;
       }
 
       loadGifs = async (gifs) => {
+        let that = this;
         this.gifs =gifs;
         this.gifCount = this.gifs.length;
         const sharedBuffer = new SharedArrayBuffer(Float64Array.BYTES_PER_ELEMENT * (1 + gifs.length * 5));
@@ -69,6 +76,10 @@ export default class Giffer {
         await Promise.all(this.gifs.map(this.loadGifAsSpritesheet));      
         let frameSets = [];
         this.gifs.forEach((gifItem, index) => {
+          let gifArrayIndex = 1 + that.gifCount + index;
+          that.gifs[index].offset = that.sharedArray[gifArrayIndex];
+          that.gifs[index].sharedArray = that.sharedArray;
+          that.gifs[index].gifIndex = index;
           frameSets.push(gifItem.frames);
         });
         this.frameSets = frameSets;
@@ -76,19 +87,18 @@ export default class Giffer {
           sharedBuffer,
           frameSets
         });
-        console.log('message sent');
       }
 
       updateGifs = ()=>{
         let that = this;
         this.gifs.forEach((gifItem, index) => {
           if(gifItem.mesh){
-            if ((gifItem.mesh.material)&&(gifItem.frames)) {
-            
-                  let xOffSet = that.sharedArray[1 + that.gifCount + index] / gifItem.frames.length;
-                  gifItem.mesh.material[4].map.offset.x = xOffSet;
-                  gifItem.mesh.material[5].map.offset.x = xOffSet;                
-              
+            if ((gifItem.mesh.material)&&(gifItem.sharedArray)) {
+
+                  let xOffSet = that.sharedArray[1 + that.gifCount + index];
+                  gifItem.mesh.material[5].map.offset.x =xOffSet;
+                
+           
             }
           }
       });        

@@ -228,11 +228,11 @@ class Item2d extends Item {
                 const materials = that.createMats(texture);
                 let nftMesh = null;
                 if(that.spritesheetTexture){
-                    const materials = that.createMats(that.spritesheetTexture);
+                    const materials = that.createMats(that.spritesheetTexture, that.offset);
                     nftMesh = new THREE.Mesh( geometry, materials );
 
                 } else {
-                    const materials = that.createMats(texture);
+                    const materials = that.createMats(texture, 0);
                     nftMesh = new THREE.Mesh( geometry, materials );
                 }
 
@@ -260,16 +260,7 @@ class Item2d extends Item {
         var rightside = new THREE.MeshBasicMaterial({color: '#AAAAAA'});
         var backside = new THREE.MeshBasicMaterial( { map: texture } );
         var frontside = new THREE.MeshBasicMaterial( { map: texture } );
-
-        let offsetXFront = 0;
-        let offsetYFront = 0;
-        
-        let offsetXBack = 0;
-        let offsetYBack = 0;
-        frontside.map.offset.set(offsetXFront, offsetYFront);
-        backside.map.offset.set(offsetXBack, offsetYBack);
-        console.log('frontside ',frontside);
-
+       
         var materials = [
           rightside,          // Right side
           leftside,          // Left side

@@ -323,7 +323,6 @@ import { METHODS } from 'http';
                     let halfHeight = nftImgData.height/2;
                   //  console.log('halfHeight: ',halfHeight,nftImgData);
                     //    spot.pos.y = spot.pos.y+halfHeight;
-                    console.log('PLACE item2d at:',spot.pos)
                      item.place(spot.pos).then((mesh,pos)=>{
                          if(spot.rot){
                             mesh.rotateY(spot.rot.y);
@@ -338,12 +337,9 @@ import { METHODS } from 'http';
                         }
                         if(spot.scale){ 
                             mesh.scale.set(spot.scale.x,spot.scale.y,spot.scale.z);
-                            console.log('scaled item');
-                        } else {
-                            console.log('no scale');
                         };
-                        console.log('ITEM2D PLACED',item);
                         mesh.owner = item;
+                       
                         items.push(item);
 
                         that.items2d.push(item);                            
