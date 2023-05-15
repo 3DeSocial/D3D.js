@@ -23,7 +23,6 @@ export default class Giffer {
       gifWorker = new Worker(workerURL, { type: "module" });
       console.log('worker loaded: ', gifWorker);
       gifWorker.onmessage = (event) => {
-        console.log('main thread recieved message: ',event);
         if (event.data.event === 'sharedArrayUpdate') {
           this.updateGifs();
         }        
