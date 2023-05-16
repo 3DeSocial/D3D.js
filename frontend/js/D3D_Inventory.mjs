@@ -404,12 +404,8 @@ import { METHODS } from 'http';
                 };
                 if(itemData.nft){
                     nft = itemData.nft;
-                    console.log('NFT PASSED OK!!');
-                } else {
-                    console.log('NFT NOT PASSED!');
-                    console.log('itemData',itemData);
-                }
 
+                }
 
                 let extraData3D = null;
                 if(nft.path3D){
@@ -422,7 +418,6 @@ import { METHODS } from 'http';
 
 
                 if(!extraData3D){
-                    console.log('NO extraData3D and no parsed 3DExtraData for this NFT', itemData.nft);
                     return false;
                 }
                 /*let path3D = versions[0];

@@ -73,11 +73,11 @@ export default class AnimLoader {
             isImage: false,
             // override the actions array to set click handlers
             actions: {'click': function(e){ 
-                console.log('clicked');
-                console.log(this);
+              //  console.log('clicked');
+             //   console.log(this);
             },'dblclick': function(e){
-                console.log('dblclick');
-                console.log(this);
+             //   console.log('dblclick');
+             //   console.log(this);
             }}
         };
     
@@ -100,10 +100,7 @@ export default class AnimLoader {
         this.animationActions = [];      
         this.avatarFormat =(this.config.avatarFormat)?this.config.avatarFormat:'fbx';
         if(this.config.modelUrl){
-            console.log('check modelUrl');
             this.getFormatFromModelUrl();
-        } else {
-            console.log('no modelUrl');
         }
         this.preloadAnims();
     }
@@ -161,8 +158,7 @@ export default class AnimLoader {
                             let anim = {name:animName,
                                 url:animUrl,
                                 action:animationAction};
-                            console.log('loadAnim created: ',anim);
-                            console.log(anim);
+
                             that.animationActions.push(anim);
                                                 
                             resolve(animationAction);                            
@@ -394,10 +390,6 @@ getDefaultAnim = (mesh, mixer) =>{
                         const value = track.values.map( ( v, i ) => ( vrm.meta?.metaVersion === '0' && i % 3 !== 1 ? - v : v ) * hipsPositionScale );
                         tracks.push( new THREE.VectorKeyframeTrack( `${vrmNodeName}.${propertyName}`, track.times, value ) );
     
-                    } else {
-                        console.log('what kind of track?');
-                        console.log('THREE.VectorKeyframeTrack:',THREE.VectorKeyframeTrack);                
-                        console.log('THREE.QuaternionKeyframeTrack:',THREE.QuaternionKeyframeTrack);        
                     }
     
                 } else {
@@ -546,7 +538,6 @@ getDefaultAnim = (mesh, mixer) =>{
             console.log('playAnimByName: no anim ACTIONto play with name: ',name);
             return false;        
         }
-        console.log('playAnimByName: anim: ',anim);
 
         this.currentAnim = anim;
         this.currentAnim.action.play();
@@ -620,7 +611,6 @@ getDefaultAnim = (mesh, mixer) =>{
                   
                     this.scaleToFitScene(obj3D, posVector);
                    
-                    console.log('DO fix Y coord');
                     this.fixYCoord(obj3D, posVector); 
                     resolve(obj3D);
 
@@ -647,7 +637,6 @@ scaleToFitScene = (obj3D, posVector) =>{
 
         //console.log('posVector:',posVector);
         let boxMesh = this.createContainerBox(posVector);
-        console.log(boxMesh);
         let sceneBounds = new THREE.Box3().setFromObject( boxMesh );
 
         let meshBounds = null    
@@ -702,9 +691,7 @@ scaleToFitScene = (obj3D, posVector) =>{
         cbox.userData.owner = this; //set reference to Item
         that.scene.add(obj3D);    
         obj3D.position.copy(posVector);
-        console.log('set position after render in scale');
-       console.log('scaleToFitScene wants to add');
-       console.log(obj3D);
+
         cbox.updateMatrixWorld();    
     }
 
@@ -918,15 +905,11 @@ scaleToFitScene = (obj3D, posVector) =>{
                 this.action.play();
                 this.animRunning = true;
                 this.mixer.addEventListener('finished',(e)=>{
-                    console.log('animation not running now');                    
                     that.setAnimRunning(false);
                 }, false);
             } else {
                 console.log('animation', animIndex, 'doesnt exist');
             }
-        } else {
-            console.log('no animations: ');
-            console.log(this.mesh);
         }
     }
 
@@ -940,7 +923,6 @@ scaleToFitScene = (obj3D, posVector) =>{
 
     setAnimRunning =(value)=>{
         this.animRunning = value;
-        console.log('animation running set to: ',value);
     }
 
     shouldBeCentered = (children) =>{

@@ -41,7 +41,6 @@ export default class SceneryLoader {
         if(this.config.floorPlan){
             if(this.config.floorPlan.length){
                 if(this.config.floorPlan.length>0){
-                    console.log('calling loadFloorPlan', this.config.floorPlan);
                     this.loadFloorPlan();
                 }
             }
@@ -83,11 +82,8 @@ export default class SceneryLoader {
         return new Promise((resolve, reject) => {
             try{            
             this.gltfLoader = new GLTFLoader();
-            console.log('loadScenery: ',this.config.sceneryPath);
-            console.log('loadScenery: ',that.config.sceneryPath);
 
             this.gltfLoader.load(that.config.sceneryPath, (res) => {
-                console.log('loadScenery ok: ');
 
             	that.scaleScene(res.scene);
                 that.centerScene(res.scene);
@@ -125,7 +121,6 @@ export default class SceneryLoader {
 
     getSceneDims = () =>{
         if(!this.sceneDims){
-            console.log('no sceneDims');
             return false;
         } else {
             return this.sceneDims;
@@ -266,7 +261,6 @@ export default class SceneryLoader {
     }
 
     findFloorAt = (pos, ceilHeight, floorHeight) =>{
-        console.log('findFloorAt, pos: ',pos);
         const invMat = new THREE.Matrix4();
         invMat.copy( this.sceneryMesh.matrixWorld ).invert();
 

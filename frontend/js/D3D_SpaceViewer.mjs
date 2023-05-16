@@ -2159,13 +2159,11 @@ console.log('loading ',displayable.length, ' items');
 
     initGifs = ()=>{
 
-console.log('gif data: ',this.gifs);
         this.giffer = new Giffer({proxy: this.config.imageProxyUrl});
         this.giffer.loadGifs(this.gifs);
     }
 
     itemCanBePlaced = (itemData) =>{
-        console.log('can itemData be place?', itemData);
         if(!itemData.hasOwnProperty('nft')){
             console.log('item missing nft prop - not displayable');
             return false;
@@ -2185,7 +2183,6 @@ console.log('gif data: ',this.gifs);
 
             return false;
         }          
-        console.log('itemData OK');
 
         return true;             
     }
@@ -2226,8 +2223,6 @@ console.log('gif data: ',this.gifs);
                             format: formats[0]}
 
                     };
-                    console.log('final avatarParams');
-                    console.log(avatarParams);
                     let item = new Item(avatarParams);                
 
                     return item;                    
