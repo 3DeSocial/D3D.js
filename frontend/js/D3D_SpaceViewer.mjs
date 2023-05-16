@@ -2069,10 +2069,8 @@ isOnWall = (raycaster, selectedPoint, meshToCheck) =>{
            }
 
         if(options.sceneAssets){
-            console.log('InitInventory: options.sceneAssets');
-            console.log(options.sceneAssets);
+
             let displayable = options.sceneAssets.filter(item =>this.itemCanBePlaced(item));
-console.log('loading ',displayable.length, ' items');
             //let maxItems =this.layoutPlotter.getMaxItemCount();
             //let maxItems3D =this.layoutPlotter.getMaxItemCount3D();
             
@@ -2084,32 +2082,23 @@ console.log('loading ',displayable.length, ' items');
                     let postExtraData = (item.nft.PostExtraData)?item.nft.PostExtraData: (item.nft.postExtraData)?item.nft.postExtraData:null;
                     if(postExtraData){
                         if(postExtraData.hasOwnProperty('3DExtraData')){
-                            console.log('2d not diaplayable, has 3DExtraData: ',item.nft.PostExtraData)
-
                             return false;
                         }
                     }
 
                     if(item.nft.imageURLs){
-                        console.log('2d IS diaplayable, has imageURLs');
                         return true; 
                     };
 
                     if(item.nft.ImageURLs){
-                        console.log('2d IS diaplayable, has ImageURLs');
-
                         return true;
                     }
-                    console.log('check for 2d faied: ',item);
                         
                 } 
-               console.log('NO NFT 2D!!!');
                 return false;
             });     
             let items3d = displayable.filter(item => {
                 if(!item.nft){
-                    console.log('3d not diaplayable missing nft: ',item);
-
                     return false;
                 };
                 if(item.nft.path3D){
@@ -2119,13 +2108,10 @@ console.log('loading ',displayable.length, ' items');
                     if(item.nft.postExtraData){
                         item.nft.PostExtraData = item.nft.postExtraData;
                     } else {
-                        console.log('3d not diaplayable missing nft.PostExtraData: ',item);   
                         return false;
                     }                    
                 };
                 if(!item.nft.PostExtraData['3DExtraData']){
-                    console.log('3d not diaplayable missing 3DExtraData: ',item);
-
                     return false;
                 };
                 return true;
@@ -2133,8 +2119,6 @@ console.log('loading ',displayable.length, ' items');
 
             sceneInvConfig.items2d = items2d;
             sceneInvConfig.items3d = items3d;
-            console.log('2d: ',items2d.length);
-            console.log('3d: ',items3d.length);
 
             if(this.world){
                 sceneInvConfig.physicsWorld = this.world;
@@ -2151,8 +2135,6 @@ console.log('loading ',displayable.length, ' items');
         if(this.gifs.length>0){
             console.log('initialize gifs: ',this.gifs.length);
             this.initGifs();
-        } else {
-            console.log('NO GIFS :(');
         }
         
     }
