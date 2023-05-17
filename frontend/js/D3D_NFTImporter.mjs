@@ -42,7 +42,6 @@ export default class NFTImporter {
                     importedItem = itemConfig; // return config by default
 
                 } else {
-                    console.log('no 3D data, return 2d data');
                     importedItem = nftMeta;
                     nftParams.assetType = 'Not 3D';              
                 }
@@ -70,13 +69,9 @@ export default class NFTImporter {
                         let extension = urlParts[urlParts.length-1];
 
                         if(extension.trim().toLowerCase()==='vrm'){
-                            console.log('avatar is VRM, extension: ',extension);
                             itemConfig.animLoader = true;
-                            console.log(itemConfig);
                             importedItem = new ItemVRM(itemConfig);
-                        } else {
-                            console.log('avatar is NOT VRM, extension: ',extension);
-                
+                        } else {            
                             importedItem = new Item(itemConfig);
                         };                        
 
@@ -99,19 +94,15 @@ export default class NFTImporter {
                 itemsFromChain.forEach((item)=>{
                     let updatedItem = {};
                     this.fetchMeta(item.postHashHex).then((nftMeta)=>{
-                        console.log('item pre merge: ',item);
-                        console.log('item nftMeta: ',nftMeta);                        
+                        
                         updatedItem = {
                             ...item,
                             ...nftMeta
                         };
-                        console.log('merged updatedItem: ',updatedItem);
                         
                         updatedItems.push(updatedItem);
                         if(updatedItems.length===itemsFromChain.length){
                             resolve(updatedItems);
-                        } else {
-                            console.log('updatedItems.length: ',updatedItems.length, ' / ',itemsFromChain.length);
                         }
                     })
                 })
@@ -129,7 +120,7 @@ export default class NFTImporter {
 
             this.config.chainAPI.fetchPostDetail({postHashHex:postHashHex}).then((res)=>{
                 res.json().then((json)=>{
-                        console.log('got nft meta', json);
+                      //  console.log('got nft meta', json);
                     let extraDataString = null;
                     if(json.PostExtraData){
                         extraDataString = json.PostExtraData['3DExtraData']
@@ -179,7 +170,9 @@ export default class NFTImporter {
         let itemConfig = {
             ...this.config,
             ...nftParams,            
-            ...{avatarPath: folderPath, // current minter does not allow subfolders so anims on the same level
+            ...{
+                imageProxyUrl: this.config.imageProxyUrl,                
+                avatarPath: folderPath, // current minter does not allow subfolders so anims on the same level
                 loader: this.config.loaders.getLoaderForFormat(extension),                        
                 modelUrl: modelUrl,
                 format: formats[0],

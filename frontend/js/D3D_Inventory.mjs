@@ -263,8 +263,7 @@ import { METHODS } from 'http';
         return new Promise((resolve, reject) => {
 
             itemList.forEach((itemData)=>{
-                console.log('itemData before')
-               console.log(itemData)
+
                 let item ;
                 let itemConfig;
                 if(itemData.params){
@@ -687,7 +686,6 @@ import { METHODS } from 'http';
             imageUrl = imageUrls[0];                
     
         let parts = imageUrl.split('.');
-        console.log('ISGIF?? parts:', parts);
 
         if(parts[parts.length-1].toLowerCase()==='gif'){
             itemParams.isGif = true;

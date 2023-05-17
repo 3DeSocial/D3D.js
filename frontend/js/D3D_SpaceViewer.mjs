@@ -185,14 +185,12 @@ console.log('this.nftImporter:',this.nftImporter);
                     //   this.initPhysicsWorld();        
                        let importerParams=null;
                        if ( 'xr' in navigator ) {
-                           console.log('VR is enabled');
                            that.initVR();
-                       } else {
-                           console.log('no vr available');
                        };
                        if(this.avatarEnabled()){
                            if(!this.nftImporter){
-                               importerParams= {isAvatar: true,
+                               importerParams= {imageProxyUrl: this.config.imageProxyUrl,
+                                                isAvatar: true,
                                                    chainAPI: that.config.chainAPI,
                                                    loaders: that.loaders,
                                                    modelsRoute:that.config.modelsRoute,
@@ -217,7 +215,6 @@ console.log('this.nftImporter:',this.nftImporter);
                                    that.avatar = avatar;
                                    that.avatar.isActiveAvatar = true;
                                    if(that.avatar){
-                                    console.log('avatar: ',that.avatar);
                                     that.config.firstPerson =false;                                    
                                        that.initCameraThirdPerson();
                                        that.initPlayerThirdPerson(options);                                 
@@ -291,31 +288,6 @@ console.log('this.nftImporter:',this.nftImporter);
         };
         return false;
     }
-
-    initTestAnimation = () =>{
-        let that = this;
-        let itemConfig = { animLoader: true,
-                            scene: this.scene,
-                            height:2.5,
-                            width:2.5,
-                            depth:2.5,
-                            modelUrl: this.config.avatarPath};
-
-        this.testAvatar = this.initItemForModel(itemConfig);
-        console.log('initTestAnimation');
-        console.log(itemConfig);
-        that.avatars.push(this.testAvatar);
-
-        let playerFloor = this.sceneryLoader.findFloorAt(new THREE.Vector3(3,1,2), 1, -2);
-
-        let placePos = new THREE.Vector3(0,playerFloor,0);
-        this.testAvatar.place(placePos, this.scene).then((mesh, pos)=>{
-          //  that.testAvatar.currentAnim.action.play();
-            //console.log('play started and mesh added');
-
-        })
-    }
-
 
     initLoader = (ownerData) =>{
         this.loadingScreen = new LoadingScreen(ownerData);
@@ -2198,6 +2170,7 @@ isOnWall = (raycaster, selectedPoint, meshToCheck) =>{
                     let avatarParams = {
                         ...opts,
                         ...{animLoader: true,
+                            imageProxyUrl: this.config.imageProxyUrl,
                             avatarPath: folderPath, // current minter does not allow subfolders so anims on the same level
                             loader: this.loaders.getLoaderForFormat(extension),                        
                             modelUrl: modelUrl,

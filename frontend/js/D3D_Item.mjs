@@ -8,6 +8,7 @@ export default class Item {
     constructor(config){
         let defaults = {
             modelUrl: '',
+            imageProxyUrl: '',
             modelsRoute: 'models',
             nftsRoute: 'nfts',
             castShadow: true,
@@ -494,7 +495,8 @@ swapMeshForProfilePic = () =>{
     let faceMesh = this.findChildByName(this.mesh, 'ProfilePicHere');
     if(faceMesh){
         this.faceMesh = faceMesh;
-        let remoteProfilePic = 'https://node.deso.org/api/v0/get-single-profile-picture/'+this.config.owner.ownerPublicKey;
+        let remoteProfilePic =this.config.imageProxyUrl+'https://node.deso.org/api/v0/get-single-profile-picture/'+this.config.owner.ownerPublicKey;
+        console.log('remoteProfilePic: ',remoteProfilePic);
         this.loadRemoteTexture(remoteProfilePic).then((texture)=>{
             var material = new THREE.MeshBasicMaterial({ map: texture });    
             this.faceMesh.material =material;
@@ -507,7 +509,7 @@ swapMeshForProfilePic = () =>{
 
 loadRemoteTexture = (imageUrl) =>{
     let that = this;
-    let proxyImageURL = 'https://nftzapi.azurewebsites.net/api/query/getimage?url=' +imageUrl;    
+    let proxyImageURL = this.config.imageProxyUrl+imageUrl;    
     return new Promise((resolve,reject)=>{
         var img = new Image();
             img.onload = function(){
