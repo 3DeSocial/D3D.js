@@ -73,18 +73,18 @@ export default class Giffer {
         const sharedBuffer = new SharedArrayBuffer(Float64Array.BYTES_PER_ELEMENT * (1 + gifs.length * 5));
         this.sharedArray = new Float64Array(sharedBuffer);
         await Promise.all(this.gifs.map(this.loadGifAsSpritesheet));      
-        let frameSets = [];
+        let frameSetLengths = [];
         this.gifs.forEach((gifItem, index) => {
           let gifArrayIndex = 1 + that.gifCount + index;
           that.gifs[index].offset = that.sharedArray[gifArrayIndex];
           that.gifs[index].sharedArray = that.sharedArray;
           that.gifs[index].gifIndex = index;
-          frameSets.push(gifItem.frames);
+          frameSetLengths.push(gifItem.frames.length);
         });
-        this.frameSets = frameSets;
+        this.frameSetLengths = frameSetLengths;
         gifWorker.postMessage({
           sharedBuffer,
-          frameSets
+          frameSetLengths
         });
 
         console.log('sent postMessage');
