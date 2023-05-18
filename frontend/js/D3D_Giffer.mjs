@@ -23,12 +23,52 @@ export default class Giffer {
       gifWorker = new Worker(workerURL, { type: "module" });
       console.log('worker loaded: ', gifWorker);
       gifWorker.onmessage = (event) => {
-        if (event.data.event === 'sharedArrayUpdate') {
-          this.updateGifs();
-        }        
+        console.log('event: ',event);
+        switch(event.data.method){
+          case 'sharedArrayUpdate':
+            this.updateGifs();
+          break;
+          case 'prepareGifs':
+            this.startAnimation(event.data.payload);
+            break;
+          } 
+        
       };    
-
     }
+
+   startAnimation = async (spriteSheetData) => {
+    // spritesheet created and recieved back from worker
+
+  const sharedBuffer = new SharedArrayBuffer(Float64Array.BYTES_PER_ELEMENT * (1 + spriteSheetData.length * 5));
+  const sharedArray = new Float64Array(sharedBuffer);
+
+  let frameSetLengths = [];
+  spriteSheetData.forEach((spriteSheet, index) => {
+
+    const imageBitmap = spriteSheet.spriteSheet;
+
+    const spritesheetTexture = new THREE.Texture(imageBitmap);
+    spritesheetTexture.repeat.set(1 / spriteSheetData.length, 1);
+    spritesheetTexture.needsUpdate = true;    
+
+    const frameCount = spriteSheet.frameCount; 
+    frameSetLengths.push(frameCount);
+
+    that.gifs[index].spritesheetTexture = spritesheetTexture;
+    that.gifs[index].frames = frames;
+    that.gifs[index].gifCount = that.gifCount;
+  });
+
+  
+
+  gifWorker.postMessage({method:'animate',
+    data:{
+      sharedBuffer,
+      frameSetLengths
+    }}
+  );
+
+  }
 
     createSpritesheet = (frames) => {
         const spritesheetCanvas = document.createElement('canvas');
@@ -69,25 +109,23 @@ export default class Giffer {
       loadGifs = async (gifs) => {
         let that = this;
         this.gifs =gifs;
-        this.gifCount = this.gifs.length;
-        const sharedBuffer = new SharedArrayBuffer(Float64Array.BYTES_PER_ELEMENT * (1 + gifs.length * 5));
-        this.sharedArray = new Float64Array(sharedBuffer);
-        await Promise.all(this.gifs.map(this.loadGifAsSpritesheet));      
-        let frameSetLengths = [];
-        this.gifs.forEach((gifItem, index) => {
-          let gifArrayIndex = 1 + that.gifCount + index;
-          that.gifs[index].offset = that.sharedArray[gifArrayIndex];
-          that.gifs[index].sharedArray = that.sharedArray;
-          that.gifs[index].gifIndex = index;
-          frameSetLengths.push(gifItem.frames.length);
-        });
-        this.frameSetLengths = frameSetLengths;
-        gifWorker.postMessage({
-          sharedBuffer,
-          frameSetLengths
-        });
+        this.gifCount = this.gifs.length;        
 
-        console.log('sent postMessage');
+        let gifUrls = this.getGifUrls();
+        let payload = {method:'prepareGifs',
+        data:gifUrls}
+        console.log(payload);
+        gifWorker.postMessage(payload);  
+
+      }
+
+      getGifUrls = () =>{
+        let gifUrls = [];
+        this.gifs.forEach((gifItem, index) => {
+          let url = this.config.proxy+gifItem.config.nft.imageURLs[0];
+          gifUrls.push(url);
+        });
+        return gifUrls;
       }
 
       updateGifs = ()=>{
@@ -103,7 +141,7 @@ export default class Giffer {
             }
           }
       });        
-      }
+    }
 
 }
 export {Giffer}
