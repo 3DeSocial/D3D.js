@@ -1,5 +1,3 @@
-import * as THREE from 'three';
-import { parseGIF, decompressFrames } from 'gifuct-js';
 let gifWorker = null;
 export default class Giffer {
 
@@ -15,27 +13,27 @@ export default class Giffer {
             ...defaults,
             ...config
         };
-      this.loadWorker('/api/worker/gifWorker.js');
+      this.loadWorker();
       this.gifs = [];
     }
 
-    loadWorker = async (workerURL) => {
+  loadWorker = async (workerURL) => {
+    console.log('process.client: ',process.client);
       gifWorker = new Worker(workerURL, { type: "module" });
-      console.log('worker loaded: ', gifWorker);
-      gifWorker.onmessage = (event) => {
-        console.log('event: ',event);
-        switch(event.data.method){
-          case 'sharedArrayUpdate':
-            this.updateGifs();
-          break;
-          case 'prepareGifs':
-            this.startAnimation(event.data.payload);
-            break;
-          } 
-        
-      };    
-    }
 
+        gifWorker.onmessage = (event) => {
+          switch(event.data.method){
+            case 'sharedArrayUpdate':
+              setInterval(this.updateGifs(), 500);
+              break;
+            case 'prepareGifs':
+              this.startAnimation(event.data.payload);
+              break;
+            } 
+          
+        };    
+   }
+    
    startAnimation = async (spriteSheetData) => {
     // spritesheet created and recieved back from worker
 

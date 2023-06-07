@@ -136,14 +136,9 @@ export default class PlayerVR {
                 this.dolly.position.addScaledVector( this.worldDir, speedFactor );
             break;
             case 'l':
-                console.log('move dolly left');
-                console.log(this.rightVector, speedFactor);
                 this.dolly.position.addScaledVector( this.rightVector, speedFactor );
             break;
-            case 'r':
-                console.log('move dolly right');
-
-                console.log(this.rightVector, speedFactor);                
+            case 'r':               
                 this.dolly.position.addScaledVector( this.rightVector, -speedFactor );
             break;
         default: 
