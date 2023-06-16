@@ -30,7 +30,7 @@ export default class CollisionChecker  {
         this.tempMat = new THREE.Matrix4();
         this.tempSegment = new THREE.Line3();
         this.origDollyPos = new THREE.Vector3(); 
-        this.gravity = - 10;
+        this.gravity = - 5;
 
     }
 
@@ -106,6 +106,12 @@ export default class CollisionChecker  {
 
         // adjust the player model
         this.dollyProxy.position.add( deltaVector );
+
+            console.log(this.dollyProxy.position.y);
+        if(this.dollyProxy.position.y<-10){
+            console.log('reset to above')
+            this.dollyProxy.position.y= 30;
+        };
        if ( ! this.playerIsOnGround ) {
 
             deltaVector.normalize();
@@ -114,7 +120,6 @@ export default class CollisionChecker  {
         } else {
 
             this.playerVelocity.set( 0, 0, 0 );
-
 
         }
 

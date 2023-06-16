@@ -495,7 +495,7 @@ swapMeshForProfilePic = () =>{
     let faceMesh = this.findChildByName(this.mesh, 'ProfilePicHere');
     if(faceMesh){
         this.faceMesh = faceMesh;
-        let remoteProfilePic =this.config.imageProxyUrl+'https://node.deso.org/api/v0/get-single-profile-picture/'+this.config.owner.ownerPublicKey;
+        let remoteProfilePic = 'https://node.deso.org/api/v0/get-single-profile-picture/'+this.config.owner.ownerPublicKey;
         console.log('remoteProfilePic: ',remoteProfilePic);
         this.loadRemoteTexture(remoteProfilePic).then((texture)=>{
             var material = new THREE.MeshBasicMaterial({ map: texture });    

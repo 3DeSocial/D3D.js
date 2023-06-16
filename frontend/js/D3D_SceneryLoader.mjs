@@ -255,8 +255,9 @@ export default class SceneryLoader {
 //this.scene.add(new THREE.ArrowHelper( raycaster.ray.direction, raycaster.ray.origin, 200, Math.random() * 0xffffff ));
         // let planePos = new THREE.Vector3(0,hit.point.y,0);
         //    this.addPlaneAtPos(planePos);
-
-        return hit.point.y;
+        if(hit){
+            return hit.point.y;
+        }
 
     }
 

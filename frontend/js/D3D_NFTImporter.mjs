@@ -29,6 +29,7 @@ export default class NFTImporter {
     }
 
     import =  async (nftParams) =>{
+        let that = this;
         // returns promise that resolves in an Item, ready to be placed in a 3D environment
         return new Promise((resolve, reject) => { 
 
@@ -65,6 +66,9 @@ export default class NFTImporter {
                     case 'avatar':
                         // create config for 3D asset class
                         itemConfig.isAvatar = true;
+                        itemConfig.imageProxyUrl = that.config.imageProxyUrl;
+                        console.log('avatar item config');
+                        console.log(itemConfig);
                         let urlParts = itemConfig.modelUrl.split('.');
                         let extension = urlParts[urlParts.length-1];
 
